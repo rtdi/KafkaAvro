@@ -4,8 +4,10 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
+import java.util.Date;
 
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes;
@@ -31,14 +33,24 @@ public class AvroTimeMicros extends LogicalType implements IAvroPrimitive {
 		schema = LogicalTypes.timeMicros().addToSchema(Schema.create(Type.LONG));
 	}
 
+	/**
+	 * @return the static schema of this type
+	 */
 	public static Schema getSchema() {
 		return schema;
 	}
 
-	public AvroTimeMicros() {
+	/**
+	 * Constructor for this static instance
+	 */
+	private AvroTimeMicros() {
 		super(NAME);
 	}
 
+	/**
+	 * Create an instance of that type.
+	 * @return the instance
+	 */
 	public static AvroTimeMicros create() {
 		return element;
 	}
@@ -69,14 +81,28 @@ public class AvroTimeMicros extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	public Object convertToInternal(Object value) throws AvroDataTypeException {
+	public Long convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
-		} else if (value instanceof Long) {
-			return value;
+		} else if (value instanceof Integer) {
+			return (Long) value;
+		} else if (value instanceof Number) {
+			return ((Number) value).longValue();
 		} else if (value instanceof LocalTime) {
 			LocalTime t = (LocalTime) value;
 			return t.getLong(ChronoField.MICRO_OF_DAY);
+		} else if (value instanceof LocalDateTime) {
+			LocalDateTime t = (LocalDateTime) value;
+			return t.getLong(ChronoField.MICRO_OF_DAY);
+		} else if (value instanceof Date) {
+			Date t = (Date) value;
+			return convertToInternal(t.toInstant());
+		} else if (value instanceof ZonedDateTime) {
+			ZonedDateTime t = (ZonedDateTime) value;
+			return t.getLong(ChronoField.MICRO_OF_DAY);
+		} else if (value instanceof Instant) {
+			Instant d = (Instant) value;
+			return LocalDateTime.ofEpochSecond(d.getEpochSecond(), 0, ZoneOffset.UTC).getLong(ChronoField.MICRO_OF_DAY);
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a TimeMicros");
 	}
@@ -86,7 +112,7 @@ public class AvroTimeMicros extends LogicalType implements IAvroPrimitive {
 		if (value == null) {
 			return null;
 		} else if (value instanceof Long) {
-			return LocalTime.ofNanoOfDay(((Long)value)*1000000L);
+			return LocalTime.ofNanoOfDay(((Long)value)*1000L);
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a TimeMicros");
 	}

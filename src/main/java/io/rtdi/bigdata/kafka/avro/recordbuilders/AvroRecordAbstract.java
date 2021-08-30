@@ -7,11 +7,28 @@ public abstract class AvroRecordAbstract extends AvroField {
 
 	protected SchemaBuilder schemabuilder;
 
+	/**
+	 * @param name of the field
+	 * @param schema of the field
+	 * @param doc description
+	 * @param nullable true if the field is optional
+	 * @param defaultValue an optional default value
+	 * @param schemabuilder of this record
+	 */
 	public AvroRecordAbstract(String name, Schema schema, String doc, boolean nullable, Object defaultValue, SchemaBuilder schemabuilder) {
 		super(name, schema, doc, nullable, defaultValue);
 		this.schemabuilder = schemabuilder;
 	}
 
+	/**
+	 * @param name of the field
+	 * @param schema of the field
+	 * @param doc description
+	 * @param nullable true if the field is optional
+	 * @param defaultValue an optional default value
+	 * @param order of the Avro field
+	 * @param schemabuilder of this record
+	 */
 	public AvroRecordAbstract(String name, Schema schema, String doc, Object defaultValue, boolean nullable, Order order, SchemaBuilder schemabuilder) {
 		super(name, schema, doc, defaultValue, nullable, order);
 		this.schemabuilder = schemabuilder;

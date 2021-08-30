@@ -21,14 +21,24 @@ public class AvroBoolean extends LogicalType implements IAvroPrimitive {
 		schema = create().addToSchema(Schema.create(Type.BOOLEAN));
 	}
 
+	/**
+	 * @return the static schema of this type
+	 */
 	public static Schema getSchema() {
 		return schema;
 	}
 
-	public AvroBoolean() {
+	/**
+	 * Constructor for this static instance
+	 */
+	private AvroBoolean() {
 		super(NAME);
 	}
 
+	/**
+	 * Create an instance of that type.
+	 * @return the instance
+	 */
 	public static AvroBoolean create() {
 		return element;
 	}

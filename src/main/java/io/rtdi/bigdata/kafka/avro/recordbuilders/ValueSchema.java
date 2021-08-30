@@ -70,7 +70,7 @@ public class ValueSchema extends SchemaBuilder {
 		add(SchemaConstants.SCHEMA_COLUMN_CHANGE_TIME, 
 				AvroTimestamp.getSchema(),
 				"Timestamp of the transaction. All rows of the transaction have the same value.", 
-				false, 0L).setInternal().setTechnical();
+				false, 0).setInternal().setTechnical();
 		add(SchemaConstants.SCHEMA_COLUMN_SOURCE_ROWID, 
 				AvroVarchar.getSchema(30),
 				"Optional unqiue and static pointer to the row, e.g. Oracle rowid", 

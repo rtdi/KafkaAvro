@@ -17,18 +17,38 @@ import org.apache.avro.Schema;
 public class AvroMap extends LogicalType implements IAvroPrimitive {
 	public static final Factory factory = new Factory();
 	public static final String NAME = "MAP";
-	private static AvroMap element = new AvroMap();
+	private Schema schema;
 
-	public static Schema getSchema(Schema schema) {
-		return create().addToSchema(schema);
+	/**
+	 * @param valueschema with the details of the Map
+	 * @return the schema of the logical type
+	 */
+	public static Schema getSchema(Schema valueschema) {
+		AvroMap element = new AvroMap();
+		element.schema = Schema.createMap(valueschema);
+		return element.addToSchema(element.schema);
 	}
 
-	public AvroMap() {
+	/**
+	 * Constructor for this static instance
+	 */
+	private AvroMap() {
 		super(NAME);
 	}
 
-	public static AvroMap create() {
+	/**
+	 * Create an instance of that type.
+	 * @param schema of the value part for the map
+	 * @return the instance
+	 */
+	public static AvroMap create(Schema schema) {
+		AvroMap element = new AvroMap();
+		element.schema = Schema.createMap(schema);
 		return element;
+	}
+	
+	public Schema getSchema() {
+		return schema;
 	}
 
 	@Override
@@ -89,7 +109,7 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 
 		@Override
 		public LogicalType fromSchema(Schema schema) {
-			return AvroMap.create();
+			return AvroMap.create(schema);
 		}
 
 	}

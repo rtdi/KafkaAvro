@@ -4,8 +4,10 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
+import java.util.Date;
 
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes;
@@ -31,14 +33,24 @@ public class AvroTime extends LogicalType implements IAvroPrimitive {
 		schema = LogicalTypes.timeMillis().addToSchema(Schema.create(Type.INT));
 	}
 
+	/**
+	 * @return the static schema of this type
+	 */
 	public static Schema getSchema() {
 		return schema;
 	}
 
-	public AvroTime() {
+	/**
+	 * Constructor for this static instance
+	 */
+	private AvroTime() {
 		super(NAME);
 	}
 
+	/**
+	 * Create an instance of that type.
+	 * @return the instance
+	 */
 	public static AvroTime create() {
 		return element;
 	}
@@ -69,18 +81,32 @@ public class AvroTime extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	public Object convertToInternal(Object value) throws AvroDataTypeException {
+	public Integer convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
 		} else if (value instanceof Integer) {
-			return value;
+			return (Integer) value;
+		} else if (value instanceof Number) {
+			return ((Number) value).intValue();
 		} else if (value instanceof LocalTime) {
 			LocalTime t = (LocalTime) value;
-			return t.getLong(ChronoField.SECOND_OF_DAY);
+			return (int) t.getLong(ChronoField.MILLI_OF_DAY);
+		} else if (value instanceof LocalDateTime) {
+			LocalDateTime t = (LocalDateTime) value;
+			return (int) t.getLong(ChronoField.MILLI_OF_DAY);
+		} else if (value instanceof Date) {
+			Date t = (Date) value;
+			return convertToInternal(t.toInstant());
+		} else if (value instanceof ZonedDateTime) {
+			ZonedDateTime t = (ZonedDateTime) value;
+			return (int) t.getLong(ChronoField.MILLI_OF_DAY);
+		} else if (value instanceof Instant) {
+			Instant d = (Instant) value;
+			return (int) LocalDateTime.ofEpochSecond(d.getEpochSecond(), 0, ZoneOffset.UTC).getLong(ChronoField.MILLI_OF_DAY);
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Time");
 	}
-
+	
 	@Override
 	public Integer convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {

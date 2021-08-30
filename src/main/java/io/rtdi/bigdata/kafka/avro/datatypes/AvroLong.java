@@ -21,14 +21,24 @@ public class AvroLong extends LogicalType implements IAvroPrimitive {
 		schema = create().addToSchema(Schema.create(Type.LONG));
 	}
 
+	/**
+	 * @return the static schema of this type
+	 */
 	public static Schema getSchema() {
 		return schema;
 	}
 
-	public AvroLong() {
+	/**
+	 * Constructor for this static instance
+	 */
+	private AvroLong() {
 		super(NAME);
 	}
 
+	/**
+	 * Create an instance of that type.
+	 * @return the instance
+	 */
 	public static AvroLong create() {
 		return element;
 	}

@@ -22,14 +22,24 @@ public class AvroString extends LogicalType implements IAvroPrimitive {
 		schema = create().addToSchema(Schema.create(Type.STRING));
 	}
 
+	/**
+	 * @return the static schema of this type
+	 */
 	public static Schema getSchema() {
 		return schema;
 	}
 	
-	public AvroString() {
+	/**
+	 * Constructor for this static instance
+	 */
+	private AvroString() {
 		super(NAME);
 	}
 
+	/**
+	 * Create an instance of that type.
+	 * @return the instance
+	 */
 	public static AvroString create() {
 		return element;
 	}
@@ -66,22 +76,22 @@ public class AvroString extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	public String convertToInternal(Object value) throws AvroDataTypeException {
+	public CharSequence convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
-		} else if (value instanceof String) {
-			return (String) value;
+		} else if (value instanceof CharSequence) {
+			return (CharSequence) value;
 		} else {
 			return value.toString();
 		}
 	}
 
 	@Override
-	public String convertToJava(Object value) throws AvroDataTypeException {
+	public CharSequence convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
-		} else if (value instanceof String) {
-			return (String) value;
+		} else if (value instanceof CharSequence) {
+			return (CharSequence) value;
 		} else {
 			return value.toString();
 		}

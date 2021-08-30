@@ -14,6 +14,12 @@ public class AvroUtils {
 		return record.toString();
 	}
 	
+	/**
+	 * Convert a text into a string used as value for a Json field.
+	 * 
+	 * @param text input text to be escaped
+	 * @return properly escaped string so it does not break the Json format
+	 */
 	public static String encodeJson(String text) {
 		/*
 		 * Backspace is replaced with \b

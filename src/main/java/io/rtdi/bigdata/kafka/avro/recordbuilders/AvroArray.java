@@ -10,16 +10,34 @@ public class AvroArray extends AvroField {
 
 	private Schema schema;
 
+	/**
+	 * @param name of the field
+	 * @param schema  of the field
+	 * @param doc description
+	 * @param defaultValue an optional default value
+	 * @param order Avro field order
+	 * @throws SchemaBuilderException in case of invalid combinations
+	 */
 	public AvroArray(String name, Schema schema, String doc, Object defaultValue, Order order) throws SchemaBuilderException {
 		super(name, Schema.createArray(schema), doc, defaultValue, true, order);
 		this.schema = schema;
 	}
 
+	/**
+	 * @param name of the field
+	 * @param schema  of the field
+	 * @param doc description
+	 * @param defaultValue an optional default value
+	 * @throws SchemaBuilderException in case of invalid combinations
+	 */
 	public AvroArray(String name, Schema schema, String doc, Object defaultValue) throws SchemaBuilderException {
 		super(name, Schema.createArray(schema), doc, true, defaultValue);
 		this.schema = schema;
 	}
 
+	/**
+	 * @return the schema of this logical type
+	 */
 	public Schema getArrayElementSchema() {
 		return schema;
 	}
@@ -55,6 +73,10 @@ public class AvroArray extends AvroField {
 		return this;
 	}
 	
+	/**
+	 * @param schema of the logical type
+	 * @return the extracted __min property or null if there is none
+	 */
 	public static Integer getMin(Schema schema) {
 		Object o = schema.getObjectProp(COLUMN_PROP_MIN);
 		if (o instanceof Integer) {
@@ -64,6 +86,10 @@ public class AvroArray extends AvroField {
 		}
 	}
 
+	/**
+	 * @param schema of the logical type
+	 * @return the extracted __max property or null if there is none
+	 */
 	public static Integer getMax(Schema schema) {
 		Object o = schema.getObjectProp(COLUMN_PROP_MAX);
 		if (o instanceof Integer) {

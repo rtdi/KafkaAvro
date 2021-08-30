@@ -21,14 +21,24 @@ public class AvroInt extends LogicalType implements IAvroPrimitive {
 		schema = create().addToSchema(Schema.create(Type.INT));
 	}
 
+	/**
+	 * @return the static schema of this type
+	 */
 	public static Schema getSchema() {
 		return schema;
 	}
 	
-	public AvroInt() {
+	/**
+	 * Constructor for this static instance
+	 */
+	private AvroInt() {
 		super(NAME);
 	}
 
+	/**
+	 * Create an instance of that type.
+	 * @return the instance
+	 */
 	public static AvroInt create() {
 		return element;
 	}

@@ -31,14 +31,24 @@ public class AvroDate extends LogicalType implements IAvroPrimitive {
 	private static AvroDate element = new AvroDate();
 	private org.apache.avro.LogicalTypes.Date date = LogicalTypes.date();
 
+	/**
+	 * @return the static schema of this type
+	 */
 	public static Schema getSchema() {
 		return schema;
 	}
 
-	public AvroDate() {
+	/**
+	 * Constructor for this static instance
+	 */
+	private AvroDate() {
 		super(NAME);
 	}
 
+	/**
+	 * Create an instance of that type.
+	 * @return the instance
+	 */
 	public static AvroDate create() {
 		return element;
 	}
@@ -74,13 +84,15 @@ public class AvroDate extends LogicalType implements IAvroPrimitive {
 			return null;
 		} else if (value instanceof Integer) {
 			return value;
-		} else if (value instanceof Long) {
-			return ((Long) value).intValue();
+		} else if (value instanceof Number) {
+			return ((Number) value).intValue();
 		} else if (value instanceof LocalDateTime) {
 			return (int) ((LocalDateTime) value).getLong(ChronoField.EPOCH_DAY);
+		} else if (value instanceof LocalDate) {
+			return (int) ((LocalDate) value).toEpochDay();
 		} else if (value instanceof Date) {
 			Date d = (Date) value;
-			return (int) LocalDateTime.ofEpochSecond(d.getTime()/1000L, 0, ZoneOffset.UTC).getLong(ChronoField.EPOCH_DAY);
+			return convertToInternal(d.toInstant());
 		} else if (value instanceof ZonedDateTime) {
 			ZonedDateTime d = (ZonedDateTime) value;
 			return (int) d.getLong(ChronoField.EPOCH_DAY);
@@ -92,12 +104,12 @@ public class AvroDate extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	public Instant convertToJava(Object value) throws AvroDataTypeException {
+	public LocalDate convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
 		} else if (value instanceof Integer) {
 			long v = ((Integer) value).longValue();
-			return Instant.ofEpochSecond(v*24L*3600L);
+			return LocalDate.ofEpochDay(v);
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Date");
 	}

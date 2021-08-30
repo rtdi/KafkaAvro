@@ -23,23 +23,50 @@ public class AvroNVarchar extends LogicalTypeWithLength {
 		this.schema = addToSchema(Schema.create(Type.STRING));
 	}
 	
+	/**
+	 * Create an instance of that type.
+	 * @param length of the data type
+	 * @return the instance
+	 */
 	public static AvroNVarchar create(int length) {
 		return new AvroNVarchar(length);
 	}
 
+	/**
+	 * @param text as the textual representation of this data type in the form of NVARCHAR(10)
+	 * @return the schema of the logical type
+	 */
 	public static Schema getSchema(String text) {
 		int length = LogicalTypeWithLength.getLengthPortion(text);
 		return getSchema(length);
 	}
 
+	/**
+	 * @param schema with the details of this logical type
+	 * @return the instance
+	 */
 	public static AvroNVarchar create(Schema schema) {
 		return new AvroNVarchar(getLengthProperty(schema));
 	}
 
-	public static AvroNVarchar create(String text) {
-		return new AvroNVarchar(getLengthPortion(text));
+	/**
+	 * @param text as the textual data type representation
+	 * @return this instance
+	 * @throws AvroDataTypeException in case the text has no length portion
+	 */
+	public static AvroNVarchar create(String text) throws AvroDataTypeException {
+		int l = getLengthPortion(text);
+		if (l > 0) {
+			return new AvroNVarchar(l);
+		} else {
+			 throw new AvroDataTypeException("The supplied data type \"" + text + "\" cannot be parsed into a length portion");
+		}
 	}
 
+	/**
+	 * @param length of the data type
+	 * @return the instance
+	 */
 	public static Schema getSchema(int length) {
 		return create(length).addToSchema(Schema.create(Type.STRING));
 	}
@@ -54,24 +81,40 @@ public class AvroNVarchar extends LogicalTypeWithLength {
 	}
 
 	@Override
-	public String convertToInternal(Object value) throws AvroDataTypeException {
-		if (value == null) {
-			return null;
-		} else if (value instanceof String) {
-			return (String) value;
-		} else {
-			return value.toString();
+	public void validate(Schema schema) {
+		super.validate(schema);
+		if (schema.getType() != Schema.Type.STRING) {
+			throw new IllegalArgumentException("Logical type " + getName() + " must be backed by string");
 		}
 	}
 
 	@Override
-	public String convertToJava(Object value) throws AvroDataTypeException {
+	public CharSequence convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
-		} else if (value instanceof String) {
-			return (String) value;
+		} else if (value instanceof CharSequence) {
+			return validate((CharSequence) value);
+		} else {
+			return validate(value.toString());
+		}
+	}
+
+	@Override
+	public CharSequence convertToJava(Object value) throws AvroDataTypeException {
+		if (value == null) {
+			return null;
+		} else if (value instanceof CharSequence) {
+			return (CharSequence) value;
 		} else {
 			return value.toString();
+		}
+	}
+	
+	private CharSequence validate(CharSequence value) throws AvroDataTypeException {
+		if (value.length() <= getLength()) {
+			return value;
+		} else {
+			return value.subSequence(0, getLength());
 		}
 	}
 

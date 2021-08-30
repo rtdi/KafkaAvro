@@ -21,14 +21,24 @@ public class AvroFloat extends LogicalType implements IAvroPrimitive {
 		schema = create().addToSchema(Schema.create(Type.FLOAT));
 	}
 
+	/**
+	 * @return the static schema of this type
+	 */
 	public static Schema getSchema() {
 		return schema;
 	}
 	
-	public AvroFloat() {
+	/**
+	 * Constructor for this static instance
+	 */
+	private AvroFloat() {
 		super(NAME);
 	}
 
+	/**
+	 * Create an instance of that type.
+	 * @return the instance
+	 */
 	public static AvroFloat create() {
 		return element;
 	}

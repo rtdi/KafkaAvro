@@ -1,14 +1,22 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes.Decimal;
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
 import org.apache.avro.Schema.Type;
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericData.Record;
+import org.apache.avro.generic.GenericRecord;
 
+import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 import io.rtdi.bigdata.kafka.avro.AvroUtils;
 
 /**
- * ENUM to handle data type setting properly
+ * ENUM with all data types and their categorizations
  *
  */
 public enum AvroType {
@@ -137,6 +145,12 @@ public enum AvroType {
 		this.group = group;
 	}
 
+	/**
+	 * Take an Avro schema and try to find the best suited primitive data type.
+	 * 
+	 * @param schema the Avro schema for this data type, with or without logical type information
+	 * @return the best suited AvroType or null
+	 */
 	public static AvroType getType(Schema schema) {
 		LogicalType l = schema.getLogicalType();
 		if (l != null) {
@@ -180,6 +194,10 @@ public enum AvroType {
 		}
 	}
 
+	/**
+	 * @param schema the Avro schema for this data type, with or without logical type information
+	 * @return the best suited AvroDataType or null
+	 */
 	public static IAvroDatatype getAvroDataType(Schema schema) {
         Schema baseschema = AvroUtils.getBaseSchema(schema);
 		LogicalType l = baseschema.getLogicalType();
@@ -202,14 +220,14 @@ public enum AvroType {
 		case BOOLEAN: return AvroBoolean.create();
 		case BYTES: return AvroBytes.create();
 		case DOUBLE: return AvroDouble.create();
-		case ENUM: return AvroEnum.create();
-		case FIXED: return AvroFixed.create(baseschema.getFixedSize());
+		case ENUM: return AvroEnum.create(baseschema);
+		case FIXED: return AvroFixed.create(baseschema);
 		case FLOAT: return AvroFloat.create();
 		case INT: return AvroInt.create();
 		case LONG: return AvroLong.create();
-		case MAP: return AvroMap.create();
+		case MAP: return AvroMap.create(baseschema);
 		case STRING: return AvroString.create();
-		case ARRAY: return AvroArray.create();
+		case ARRAY: return AvroArray.create(baseschema);
 		case RECORD: return AvroRecord.create();
 		case UNION: 
 			if (schema.equals(AvroAnyPrimitive.getSchema())) {
@@ -218,7 +236,169 @@ public enum AvroType {
 		default: return null;
 		}
 	}
+	
+	/**
+	 * Helper method to set a field value in a GenericRecord using the AvroDataType converter.
+	 *  
+	 * @param record to set the field in
+	 * @param fieldname is the Avro-encoded name
+	 * @param value a compatible value for this data type
+	 * @throws AvroDataTypeException in case the field cannot be found, it has an unsupported data type or the provided value is not compatible
+	 */
+	public static void putRecordValue(GenericRecord record, String fieldname, Object value) throws AvroDataTypeException {
+		Field f = record.getSchema().getField(fieldname);
+		if (f == null) {
+			throw new AvroDataTypeException("The field \"" + fieldname + "\" does not exist in the record \"" + record.getSchema().getName() + "\"");
+		} else {
+			IAvroDatatype dt = getAvroDataType(f.schema());
+			if (dt == null) {
+				throw new AvroDataTypeException("The field \"" + fieldname + "\" has a not supported type \"" + f.schema().getName() + "\"");
+			} else {
+				record.put(fieldname, dt.convertToInternal(value));
+			}
+		}
+	}
+	
+	/**
+	 * Helper method to create a GenericRecord for a field of type Record and assign it
+	 * 
+	 * @param record the parent record
+	 * @param fieldname the name of the field
+	 * @return GenericRecord to be used to
+	 * @throws AvroDataTypeException in case the field cannot be found or is not a record type
+	 */
+	public static GenericRecord createChildRecordFor(GenericRecord record, String fieldname) throws AvroDataTypeException {
+		Field f = record.getSchema().getField(fieldname);
+		if (f == null) {
+			throw new AvroDataTypeException("The field \"" + fieldname + "\" does not exist in the record \"" + record.getSchema().getName() + "\"");
+		} else {
+			Schema baseschema = AvroUtils.getBaseSchema(f.schema());
+			if (baseschema.getType() != Type.RECORD) {
+				throw new AvroDataTypeException("The field \"" + fieldname + "\" is of type \"" + baseschema.getName() + "\" and not a record");
+			} else {
+				Record r = new GenericData.Record(baseschema);
+				record.put(fieldname, r);
+				return r;
+			}
+		}
+	}
 
+	/**
+	 * Helper method to create a GenericRecord and add it to the parent's field
+	 * 
+	 * @param record the parent record
+	 * @param fieldname the name of the field
+	 * @return GenericRecord to be used to
+	 * @throws AvroDataTypeException in case the field cannot be found or is not a record type
+	 */
+	public static GenericRecord addChildToArrayOfRecords(GenericRecord record, String fieldname) throws AvroDataTypeException {
+		Field f = record.getSchema().getField(fieldname);
+		if (f == null) {
+			throw new AvroDataTypeException("The field \"" + fieldname + "\" does not exist in the record \"" + record.getSchema().getName() + "\"");
+		} else {
+			Schema baseschema = AvroUtils.getBaseSchema(f.schema());
+			if (baseschema.getType() != Type.ARRAY) {
+				throw new AvroDataTypeException("The field \"" + fieldname + "\" is of type \"" + baseschema.getName() + "\" and not an array");
+			} else {
+				Schema arraytype = baseschema.getElementType();
+				if (arraytype.getType() != Type.RECORD) {
+					throw new AvroDataTypeException("The field \"" + fieldname + "\" is an array of \"" + arraytype.getName() + "\" and not an array of records");
+				} else {
+					Record r = new GenericData.Record(arraytype);
+					@SuppressWarnings("unchecked")
+					List<Record> l = (List<Record>) record.get(fieldname);
+					if (l == null) {
+						l = new ArrayList<Record>();
+						record.put(fieldname, l);
+					}
+					l.add(r);
+					return r;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Helper method to return the best suited Java object for a field
+	 * 
+	 * @param record to read the field from
+	 * @param fieldname to read the value from
+	 * @return best suited Java object
+	 * @throws AvroDataTypeException in case the field does not exist, has no supported logical data type or the conversion failed
+	 */
+	public static Object getRecordFieldValue(GenericRecord record, String fieldname) throws AvroDataTypeException {
+		Field f = record.getSchema().getField(fieldname);
+		if (f == null) {
+			throw new AvroDataTypeException("The field \"" + fieldname + "\" does not exist in the record \"" + record.getSchema().getName() + "\"");
+		} else {
+			IAvroDatatype dt = getAvroDataType(f.schema());
+			if (dt == null) {
+				throw new AvroDataTypeException("The field \"" + fieldname + "\" has a not supported type \"" + f.schema().getName() + "\"");
+			} else {
+				Object v = record.get(fieldname);
+				return dt.convertToJava(v);
+			}
+		}
+	}
+	
+	/**
+	 * Helper method to return the record of a field of type record
+	 * 
+	 * @param record to read the field from
+	 * @param fieldname to read the record from
+	 * @return a GenericRecord with the data
+	 * @throws AvroDataTypeException in case the field does not exist, has no supported logical data type or the conversion failed
+	 */
+	public static GenericRecord getSubRecord(GenericRecord record, String fieldname) throws AvroDataTypeException {
+		Field f = record.getSchema().getField(fieldname);
+		if (f == null) {
+			throw new AvroDataTypeException("The field \"" + fieldname + "\" does not exist in the record \"" + record.getSchema().getName() + "\"");
+		} else {
+			Schema baseschema = AvroUtils.getBaseSchema(f.schema());
+			if (baseschema.getType() != Type.RECORD) {
+				throw new AvroDataTypeException("The field \"" + fieldname + "\" is of type \"" + baseschema.getName() + "\" and not a record");
+			} else {
+				return (GenericRecord) record.get(fieldname);
+			}
+		}
+	}
+
+	/**
+	 * Helper method to return the list of records of a field of type array-of-record
+	 * 
+	 * @param record to read the field from
+	 * @param fieldname to read the record from
+	 * @return a GenericRecord with the data
+	 * @throws AvroDataTypeException in case the field does not exist, has no supported logical data type or the conversion failed
+	 */
+	public static List<GenericRecord> getSubRecordArray(GenericRecord record, String fieldname) throws AvroDataTypeException {
+		Field f = record.getSchema().getField(fieldname);
+		if (f == null) {
+			throw new AvroDataTypeException("The field \"" + fieldname + "\" does not exist in the record \"" + record.getSchema().getName() + "\"");
+		} else {
+			Schema baseschema = AvroUtils.getBaseSchema(f.schema());
+			if (baseschema.getType() != Type.ARRAY) {
+				throw new AvroDataTypeException("The field \"" + fieldname + "\" is of type \"" + baseschema.getName() + "\" and not an array");
+			} else {
+				Schema arraytype = baseschema.getElementType();
+				if (arraytype.getType() != Type.RECORD) {
+					throw new AvroDataTypeException("The field \"" + fieldname + "\" is an array of \"" + arraytype.getName() + "\" and not an array of records");
+				} else {
+					@SuppressWarnings("unchecked")
+					List<GenericRecord> l = (List<GenericRecord>) record.get(fieldname);
+					return l;
+				}
+			}
+		}
+	}
+
+
+	/**
+	 * Take the Avro schema and return the best suited textual representation of this data type.
+	 *   
+	 * @param schema the Avro schema for this data type, with or without logical type information
+	 * @return text representation of the best suited data type, e.g. VARCHAR(10)
+	 */
 	public static String getAvroDatatype(Schema schema) {
 		if (schema.getType() == Type.UNION) {
 			if (schema.getTypes().size() > 2) {
@@ -239,6 +419,10 @@ public enum AvroType {
 		}
 	}
 	
+	/**
+	 * @param text the textual representation of a data type like VARCHAR(10)
+	 * @return the Avro schema for this data type
+	 */
 	public static Schema getSchemaFromDataTypeRepresentation(String text) {
 		switch (text) {
 		case AvroBoolean.NAME: return AvroBoolean.getSchema();
@@ -279,6 +463,10 @@ public enum AvroType {
 		}
 	}
 
+	/**
+	 * @param text the textual representation of a data type like VARCHAR(10)
+	 * @return the Avro data type for this data type
+	 */
 	public static IAvroDatatype getDataTypeFromString(String text) {
 		if (text == null) {
 			return null;
@@ -312,8 +500,6 @@ public enum AvroType {
 			return AvroUri.create();
 		case AvroRecord.NAME:
 			return AvroRecord.create();
-		case AvroArray.NAME:
-			return AvroArray.create();
 		}
 		if (text.startsWith(AvroDecimal.NAME)) {
 			return AvroDecimal.create(text);
@@ -326,14 +512,26 @@ public enum AvroType {
 		}
 	}
 
+	/**
+	 * @return the level attribute for this data type
+	 */
 	public int getLevel() {
 		return level;
 	}
 
+	/**
+	 * @return the group attribute for this data type
+	 */
 	public AvroDatatypeClass getGroup() {
 		return group;
 	}
 	
+	/**
+	 * What is the best suited data type if the current data type needs to store more infomration?
+	 * Example: The VARCHAR(10) can store ASCII chars only, but now Unicode is needed as well
+	 * @param t extended type
+	 * @return best suited AvroType
+	 */
 	public AvroType aggregate(AvroType t) {
 		if (this == t) {
 			return this;
@@ -345,7 +543,7 @@ public enum AvroType {
 				return this;
 			}
 		} else {
-			// e.g. CLOB --> NVARCHAR
+			// e.g. CLOB --> NCLOB
 			if (this.getGroup() == AvroDatatypeClass.TEXTASCII && t.getGroup() == AvroDatatypeClass.TEXTUNICODE) {
 				if (this == AVROCLOB) {
 					return AVRONCLOB;
@@ -359,6 +557,15 @@ public enum AvroType {
 		}
 	}
 	
+	/**
+	 * Based on the provided information return the best suited Avro data type.
+	 * Default is a NVARCHAR(100).
+	 * 
+	 * @param type the AvroType or null
+	 * @param length maximum length of the data type, ignored if it does not apply
+	 * @param scale in case of a decimal, not used for all others
+	 * @return the Avro data type
+	 */
 	public static IAvroDatatype getDataType(AvroType type, int length, int scale) {
 		if (type == null) {
 			return AvroNVarchar.create(100);
@@ -366,8 +573,6 @@ public enum AvroType {
 			switch (type) {
 			case AVROANYPRIMITIVE:
 				return AvroAnyPrimitive.create();
-			case AVROARRAY:
-				return AvroArray.create();
 			case AVROBOOLEAN:
 				return AvroBoolean.create();
 			case AVROBYTE:
@@ -382,8 +587,6 @@ public enum AvroType {
 				return AvroDecimal.create(length, scale);
 			case AVRODOUBLE:
 				return AvroDouble.create();
-			case AVROENUM:
-				return AvroEnum.create();
 			case AVROFIXED:
 				return AvroFixed.create(length);
 			case AVROFLOAT:
@@ -392,8 +595,6 @@ public enum AvroType {
 				return AvroInt.create();
 			case AVROLONG:
 				return AvroLong.create();
-			case AVROMAP:
-				return AvroMap.create();
 			case AVRONCLOB:
 				return AvroCLOB.create();
 			case AVRONVARCHAR:

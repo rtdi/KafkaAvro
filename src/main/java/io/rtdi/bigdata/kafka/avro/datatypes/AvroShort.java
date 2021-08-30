@@ -21,14 +21,24 @@ public class AvroShort extends LogicalType implements IAvroPrimitive {
 		schema = create().addToSchema(Schema.create(Type.INT));
 	}
 
+	/**
+	 * @return the static schema of this type
+	 */
 	public static Schema getSchema() {
 		return schema;
 	}
 
+	/**
+	 * Constructor for this static instance
+	 */
 	private AvroShort() {
 		super(NAME);
 	}
 	
+	/**
+	 * Create an instance of that type.
+	 * @return the instance
+	 */
 	public static AvroShort create() {
 		return element;
 	}
@@ -76,17 +86,25 @@ public class AvroShort extends LogicalType implements IAvroPrimitive {
 		if (value == null) {
 			return null;
 		} else if (value instanceof Integer) {
-			return (Integer) value;
+			return validate((Integer) value);
 		} else if (value instanceof String) {
 			try {
-				return Integer.valueOf((String) value);
+				return validate(Integer.valueOf((String) value));
 			} catch (NumberFormatException e) {
 				throw new AvroDataTypeException("Cannot convert the string \"" + value + "\" into a Short");
 			}
 		} else if (value instanceof Number) {
-			return ((Number) value).intValue();
+			return validate(((Number) value).intValue());
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into an Integer");
+	}
+
+	private Integer validate(Integer value) throws AvroDataTypeException {
+		if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE) {
+			return value;
+		} else {
+			throw new AvroDataTypeException("The provided value is outside its bounds for the data type \"Short\": " + Short.MIN_VALUE + " <= " + value + " <= " + Short.MAX_VALUE);
+		}
 	}
 
 	@Override

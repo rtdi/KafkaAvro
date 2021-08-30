@@ -1,5 +1,7 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
+import java.nio.charset.StandardCharsets;
+
 import org.apache.avro.LogicalType;
 import org.apache.avro.Schema;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
@@ -23,22 +25,49 @@ public class AvroVarchar extends LogicalTypeWithLength {
 		schema = addToSchema(Schema.create(Type.STRING));
 	}
 	
+	/**
+	 * Create an instance of that type.
+	 * @param length of the data type
+	 * @return the instance
+	 */
 	public static AvroVarchar create(int length) {
 		return new AvroVarchar(length);
 	}
 
+	/**
+	 * @param schema with the details of this logical type
+	 * @return the instance
+	 */
 	public static AvroVarchar create(Schema schema) {
 		return new AvroVarchar(getLengthProperty(schema));
 	}
 
-	public static AvroVarchar create(String text) {
-		return new AvroVarchar(getLengthPortion(text));
+	/**
+	 * @param text as the textual data type representation
+	 * @return this instance
+	 * @throws AvroDataTypeException in case the text has no length portion
+	 */
+	public static AvroVarchar create(String text) throws AvroDataTypeException {
+		int l = getLengthPortion(text);
+		if (l > 0) {
+			return new AvroVarchar(l);
+		} else {
+			 throw new AvroDataTypeException("The supplied data type \"" + text + "\" cannot be parsed into a length portion");
+		}
 	}
 
+	/**
+	 * @param length of the data type
+	 * @return the instance
+	 */
 	public static Schema getSchema(int length) {
 		return create(length).addToSchema(Schema.create(Type.STRING));
 	}
 	
+	/**
+	 * @param text as the textual representation of this data type in the form of VARCHAR(10)
+	 * @return the schema of the logical type
+	 */
 	public static Schema getSchema(String text) {
 		int length = LogicalTypeWithLength.getLengthPortion(text);
 		return getSchema(length);
@@ -54,24 +83,44 @@ public class AvroVarchar extends LogicalTypeWithLength {
 	}
 
 	@Override
-	public String convertToInternal(Object value) throws AvroDataTypeException {
+	public CharSequence convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
-		} else if (value instanceof String) {
-			return (String) value;
+		} else if (value instanceof CharSequence) {
+			return validate((CharSequence) value);
+		} else {
+			return validate(value.toString());
+		}
+	}
+
+	@Override
+	public void validate(Schema schema) {
+		super.validate(schema);
+		if (schema.getType() != Schema.Type.STRING) {
+			throw new IllegalArgumentException("Logical type " + getName() + " must be backed by string");
+		}
+	}
+
+	@Override
+	public CharSequence convertToJava(Object value) throws AvroDataTypeException {
+		if (value == null) {
+			return null;
+		} else if (value instanceof CharSequence) {
+			return (CharSequence) value;
 		} else {
 			return value.toString();
 		}
 	}
 
-	@Override
-	public String convertToJava(Object value) throws AvroDataTypeException {
-		if (value == null) {
-			return null;
-		} else if (value instanceof String) {
-			return (String) value;
+	private CharSequence validate(CharSequence value) throws AvroDataTypeException {
+		if (StandardCharsets.US_ASCII.newEncoder().canEncode(value)) {
+			if (value.length() <= getLength()) {
+				return value;
+			} else {
+				return value.subSequence(0, getLength());
+			}
 		} else {
-			return value.toString();
+			throw new AvroDataTypeException("The provided value contains non-ASCII chars which is not allowed in a VARCHAR data type");
 		}
 	}
 

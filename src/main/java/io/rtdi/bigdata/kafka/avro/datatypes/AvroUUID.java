@@ -22,14 +22,24 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 		schema = LogicalTypes.uuid().addToSchema(Schema.create(Type.STRING));
 	}
 
+	/**
+	 * Create an instance of that type.
+	 * @return the instance
+	 */
 	public static AvroUUID create() {
 		return element;
 	}
 
+	/**
+	 * @return the static schema of this type
+	 */
 	public static Schema getSchema() {
 		return schema;
 	}
 	
+	/**
+	 * Constructor for this static instance
+	 */
 	private AvroUUID() {
 		super(NAME);
 	}
@@ -77,22 +87,22 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	public String convertToInternal(Object value) throws AvroDataTypeException {
+	public CharSequence convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
-		} else if (value instanceof String) {
-			return (String) value;
+		} else if (value instanceof CharSequence) {
+			return (CharSequence) value;
 		} else {
 			return value.toString();
 		}
 	}
 
 	@Override
-	public String convertToJava(Object value) throws AvroDataTypeException {
+	public CharSequence convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
-		} else if (value instanceof String) {
-			return (String) value;
+		} else if (value instanceof CharSequence) {
+			return (CharSequence) value;
 		} else {
 			return value.toString();
 		}

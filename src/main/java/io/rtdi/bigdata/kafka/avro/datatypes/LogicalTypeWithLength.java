@@ -8,15 +8,22 @@ public abstract class LogicalTypeWithLength extends LogicalType implements IAvro
 
 	private int length;
 
-	public LogicalTypeWithLength(String name, int length) {
+	protected LogicalTypeWithLength(String name, int length) {
 		super(name);
 		this.length = length;
 	}
 
+	/**
+	 * @return length of the data type
+	 */
 	public int getLength() {
 		return length;
 	}
 	
+	/**
+	 * @param schema of the logical type
+	 * @return the extracted length information from the schema
+	 */
 	public static Integer getLengthProperty(Schema schema) {
 		Object p = schema.getObjectProp(LENGTH_PROP);
 		if (p == null) {
@@ -37,9 +44,6 @@ public abstract class LogicalTypeWithLength extends LogicalType implements IAvro
 	public void validate(Schema schema) {
 		super.validate(schema);
 		// validate the type
-		if (schema.getType() != Schema.Type.STRING) {
-			throw new IllegalArgumentException("Logical type " + getName() + " must be backed by string");
-		}
 		if (length <= 0) {
 			throw new IllegalArgumentException("Invalid length: " + length + " (must be positive)");
 		}
@@ -74,11 +78,18 @@ public abstract class LogicalTypeWithLength extends LogicalType implements IAvro
 		return getName() + "(" + length + ")";
 	}
 
+	/**
+	 * @param text of the data type like VARCHAR(10)
+	 * @return the length attribute inside above text or -1 if none provided
+	 */
 	public static int getLengthPortion(String text) {
-		// TODO: Error handling
 		int i = text.indexOf('(');
 		int j = text.indexOf(')');
-		String l = text.substring(i+1, j);
-		return Integer.valueOf(l);
+		if (i != -1 && j != -1) {
+			String l = text.substring(i+1, j);
+			return Integer.valueOf(l);
+		} else {
+			return -1;
+		}
 	}
 }

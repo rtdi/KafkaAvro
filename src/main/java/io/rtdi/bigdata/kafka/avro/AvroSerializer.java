@@ -26,9 +26,9 @@ public class AvroSerializer {
 
 
 	/**
-	 * Convert an AvroRecord into a Kafka payload
+	 * Convert an AvroRecord into a Kafka payload to be sent as binary payload, still compatible with all other Kafka Avro serdes.
 	 * 
-	 * @param schemaid ID of the Kafka Schema
+	 * @param schemaid the id of the Kafka schema
 	 * @param data AvroRecord
 	 * @return binary representation of the AvroRecord
 	 * @throws IOException in case the AvroRecord cannot be serialized

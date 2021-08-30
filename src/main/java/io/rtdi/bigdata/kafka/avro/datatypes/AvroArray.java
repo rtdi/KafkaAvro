@@ -1,5 +1,6 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.avro.LogicalType;
@@ -17,20 +18,37 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 public class AvroArray extends LogicalType implements IAvroPrimitive {
 	public static final Factory factory = new Factory();
 	public static final String NAME = "ARRAY";
-	private static AvroArray element = new AvroArray();
+	private Schema schema;
 
-	public static Schema getSchema(Schema schema) {
-		return create().addToSchema(schema);
+	/**
+	 * @param valueschema complete schema definition for this data type
+	 * @return the schema of this type
+	 */
+	public static Schema getSchema(Schema valueschema) {
+		return create(valueschema).getSchema();
 	}
 
-	public AvroArray() {
+	/**
+	 * Constructor for this static instance
+	 */
+	private AvroArray(Schema valueschema) {
 		super(NAME);
+		this.schema = addToSchema(Schema.createArray(valueschema));
 	}
 
-	public static AvroArray create() {
-		return element;
+	/**
+	 * Create an instance of that type.
+	 * @param valueschema specifies the datatype of the array
+	 * @return the instance
+	 */
+	public static AvroArray create(Schema valueschema) {
+		return new AvroArray(valueschema);
 	}
 
+	public Schema getSchema() {
+		return schema;
+	}
+	
 	@Override
 	public Schema addToSchema(Schema schema) {
 		return super.addToSchema(schema);
@@ -56,6 +74,9 @@ public class AvroArray extends LogicalType implements IAvroPrimitive {
 			return null;
 		} else if (value instanceof List) {
 			return (List<?>) value;
+		} else if (value instanceof Object[]) {
+			Object[] v = (Object[]) value;
+			return Arrays.asList(v);
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a List");
 	}
@@ -77,7 +98,7 @@ public class AvroArray extends LogicalType implements IAvroPrimitive {
 
 		@Override
 		public LogicalType fromSchema(Schema schema) {
-			return AvroArray.create();
+			return AvroArray.create(schema);
 		}
 
 	}

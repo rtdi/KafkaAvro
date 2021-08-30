@@ -28,6 +28,13 @@ public class SchemaBuilder {
 	private boolean isbuilt = false;
 	private Map<String, SchemaBuilder> childbuilders = new HashMap<>();
 
+	/**
+	 * Create a new schema with the given name, namespace is optionally provided as well
+	 * 
+	 * @param name of the schema
+	 * @param namespace used for the schema or null
+	 * @param description of the schema
+	 */
 	protected SchemaBuilder(String name, String namespace, String description) {
 		String[] nameparts = name.split("\\.");
 		String[] namespaceparts = null;
@@ -63,6 +70,12 @@ public class SchemaBuilder {
 		schema.addProp(AvroField.COLUMN_PROP_ORIGINALNAME, name);
 	}
 	
+	/**
+	 * Create a new schema with the given name, no extra namespace
+	 * 
+	 * @param name of the schema
+	 * @param description of the schema
+	 */
 	public SchemaBuilder(String name, String description) {
 		this(name, null, description);
 	}
@@ -197,6 +210,11 @@ public class SchemaBuilder {
 		return field;
 	}
 
+	/**
+	 * @param f field to be added
+	 * @return this
+	 * @throws SchemaBuilderException in case of errors
+	 */
 	public AvroField add(Field f) throws SchemaBuilderException {
 		validate(f.name(), schema);
 		AvroField field = new AvroField(f);
@@ -204,6 +222,10 @@ public class SchemaBuilder {
 		return field;
 	}
 	
+	/**
+	 * @param columnname of the field
+	 * @return the field object based on the column name
+	 */
 	public AvroField getField(String columnname) {
 		return columnnameindex.get(columnname);
 	}
@@ -229,6 +251,14 @@ public class SchemaBuilder {
 		}
 	}
 	
+	/**
+	 * Create a new schema based on the current schema name space
+	 * 
+	 * @param name of the new schema
+	 * @param schemadescription with extra text
+	 * @return a new schema builder
+	 * @throws SchemaBuilderException if the schema was null
+	 */
 	protected SchemaBuilder createNewSchema(String name, String schemadescription) throws SchemaBuilderException {
 		if (name == null || name.length() == 0) {
 			throw new SchemaBuilderException("Schema name cannot be null or empty");
@@ -237,11 +267,18 @@ public class SchemaBuilder {
 		return b;
 	}
 
+	/**
+	 * @param columnname to look for
+	 * @return true in case the schema builder contains a column of that name already
+	 */
 	public boolean contains(String columnname) {
 		return columnnameindex.containsKey(columnname);
 	}
 
-	public Schema getSchema() throws SchemaBuilderException {
+	/**
+	 * @return the Avro schema as built
+	 */
+	public Schema getSchema() {
 		return schema;
 	}
 	
@@ -253,7 +290,7 @@ public class SchemaBuilder {
 	 */
 	public void build() throws SchemaBuilderException {
 		if (columns.size() == 0) {
-			throw new SchemaBuilderException("No schema definition found, schema builder has no columns");
+			throw new SchemaBuilderException("No schema definition found, schema builder " + schema.getName() + " has no columns");
 		}
 		if (!isbuilt) {
 			isbuilt = true;
@@ -264,14 +301,23 @@ public class SchemaBuilder {
 		}
 	}
 	
+	/**
+	 * @return name of the schema
+	 */
 	public String getName() {
 		return schema.getName();
 	}
 	
+	/**
+	 * @return the full name of the schema
+	 */
 	public String getFullName() {
 		return schema.getFullName();
 	}
 
+	/**
+	 * @return the schema description
+	 */
 	public String getDescription() {
 		return schema.getDoc();
 	}
@@ -281,6 +327,11 @@ public class SchemaBuilder {
 		return schema.getFullName();
 	}
 	
+	/**
+	 * @param columnname to look for (original name, not Avro encoded name)
+	 * @return the Avro schema of this column
+	 * @throws SchemaBuilderException if such column cannot be found
+	 */
 	public Schema getColumnSchema(String columnname) throws SchemaBuilderException {
 		String encodedname = AvroNameEncoder.encodeName(columnname);
 		Field f = columnnameindex.get(encodedname);
@@ -292,6 +343,14 @@ public class SchemaBuilder {
 	}
 
 
+	/**
+	 * Get the schema to use for all array items
+	 * 
+	 * @param valuerecord with the field
+	 * @param fieldname to look for
+	 * @return the array's expected schema for the items
+	 * @throws SchemaBuilderException in case the field cannot be found or is not an array
+	 */
 	public static Schema getSchemaForArray(GenericRecord valuerecord, String fieldname) throws SchemaBuilderException {
 		Field f = valuerecord.getSchema().getField(fieldname);
 		if (f == null) {
@@ -306,6 +365,14 @@ public class SchemaBuilder {
 		return s.getElementType();
 	}
 
+	/**
+	 * Get the schema to use for the nested record
+	 * 
+	 * @param valuerecord with the field
+	 * @param fieldname to look for
+	 * @return the schema of this nested record
+	 * @throws SchemaBuilderException in case the field cannot be found or is not a record
+	 */
 	public static Schema getSchemaForNestedRecord(GenericRecord valuerecord, String fieldname) throws SchemaBuilderException {
 		Field f = valuerecord.getSchema().getField(fieldname);
 		if (f == null) {

@@ -11,6 +11,7 @@ import org.apache.avro.LogicalTypes.Decimal;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
+import org.apache.avro.generic.GenericData.Fixed;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 
@@ -21,14 +22,23 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 public class AvroDecimal extends LogicalType implements IAvroPrimitive {
 	public static final Factory factory = new Factory();
 	private static final DecimalConversion DECIMAL_CONVERTER = new DecimalConversion();
-	public static final String NAME = "DECIMAL";
+	public static final String NAME = "decimal";
 	private Decimal decimal;
 	private Schema schema;
 
+	/**
+	 * @param precision number of digits the decimal can hold
+	 * @param scale number of digits used for the scale
+	 * @return the schema used for this data type
+	 */
 	public static Schema getSchema(int precision, int scale) {
 		return create(precision, scale).addToSchema(Schema.create(Type.BYTES));
 	}
 
+	/**
+	 * @param text in the form of DECIMAL(p, s)
+	 * @return the corresponding AvroDecimal
+	 */
 	public static Schema getSchema(String text) {
 		String[] parts = text.split("[\\(\\)\\,]");
 		int precision = 28;
@@ -42,18 +52,35 @@ public class AvroDecimal extends LogicalType implements IAvroPrimitive {
 		return getSchema(precision, scale);
 	}
 	
+	/**
+	 * @param schema with the decimal details
+	 * @return the corresponding AvroDecimal
+	 */
 	public static AvroDecimal create(Schema schema) {
 		return new AvroDecimal(schema);
 	}
 
+	/**
+	 * @param l based on this Avro native logical type
+	 * @return the corresponding AvroDecimal
+	 */
 	public static AvroDecimal create(Decimal l) {
 		return new AvroDecimal(l);
 	}
 
+	/**
+	 * @param precision number of digits the decimal can hold
+	 * @param scale number of digits used for the scale
+	 * @return an AvroDecimal with the provided precision and scale 
+	 */
 	public static AvroDecimal create(int precision, int scale) {
 		return new AvroDecimal(precision, scale);
 	}
 
+	/**
+	 * @param text containing the data type definition as text in the form of DECIMAL(p, s)
+	 * @return the corresponding AvroDecimal
+	 */
 	public static AvroDecimal create(String text) {
 		String[] parts = text.split("[\\(\\)\\,]");
 		int precision = 28;
@@ -67,19 +94,27 @@ public class AvroDecimal extends LogicalType implements IAvroPrimitive {
 		return new AvroDecimal(precision, scale);
 	}
 
-	public AvroDecimal(int precision, int scale) {
+	private AvroDecimal(int precision, int scale) {
 		super(NAME);
 		decimal = LogicalTypes.decimal(precision, scale);
 		this.schema = decimal.addToSchema(Schema.create(Type.BYTES));
 	}
 
-	public AvroDecimal(Schema schema) {
+	/**
+	 * Constructor for this static instance
+	 * @param schema with the data type details
+	 */
+	private AvroDecimal(Schema schema) {
 		super(NAME);
 		decimal = (Decimal) LogicalTypes.fromSchema(schema);
 		this.schema = schema;
 	}
 
-	public AvroDecimal(Decimal l) {
+	/**
+	 * Constructor for this static instance
+	 * @param l based on this Avro native logical type
+	 */
+	private AvroDecimal(Decimal l) {
 		super(NAME);
 		decimal = l;
 		this.schema = l.addToSchema(Schema.create(Type.BYTES));
@@ -118,6 +153,8 @@ public class AvroDecimal extends LogicalType implements IAvroPrimitive {
 		} else {
 			if (value instanceof ByteBuffer || value instanceof byte[]) {
 				return value;
+			} else if (value instanceof Fixed) {
+				return ((Fixed) value).bytes();
 			} else if (value instanceof BigDecimal) {
 				if (decimal.getScale() != ((BigDecimal) value).scale()) {
 					v = ((BigDecimal) value).setScale(decimal.getScale(), RoundingMode.HALF_UP);

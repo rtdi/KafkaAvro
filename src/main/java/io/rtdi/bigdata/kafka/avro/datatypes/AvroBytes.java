@@ -23,14 +23,24 @@ public class AvroBytes extends LogicalType implements IAvroPrimitive {
 		schema = create().addToSchema(Schema.create(Type.BYTES));
 	}
 
+	/**
+	 * @return the static schema of this type
+	 */
 	public static Schema getSchema() {
 		return schema;
 	}
 	
-	public AvroBytes() {
+	/**
+	 * Constructor for this static instance
+	 */
+	private AvroBytes() {
 		super(NAME);
 	}
 	
+	/**
+	 * Create an instance of that type.
+	 * @return the instance
+	 */
 	public static AvroBytes create() {
 		return element;
 	}

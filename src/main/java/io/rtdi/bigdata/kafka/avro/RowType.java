@@ -28,7 +28,7 @@ public enum RowType {
 	
 	
 	/**
-	 * In case either a new record should be created or its last version overwritten, use this UPSERT RowType.
+	 * In case either a new record should be created or its last version overwritten, use this UPSERT RowType ("AutoCorrect").
 	 */
 	UPSERT ("A"),
 	
@@ -49,11 +49,11 @@ public enum RowType {
 	
 	/**
 	 * A TRUNCATE followed by the new rows. Example could be a case where all data of a patient should be reloaded. 
-	 * A TRUNCATE would be sent to all tables to remove the data and all new data is inserted. But to indicate that this was done via a truncate-replace, the
+	 * A TRUNCATE row would be sent to all tables to remove the data and all new data is inserted. But to indicate that this was done via a truncate-replace, the
 	 * rows are not flagged as INSERT but REPLACE.
 	 * 
-	 * Note that an UPSERT would not work in such scenarios as a patient might have had 10 diagnosis rows but now just 9 are sent.
-	 * With an UPSERT the diagnoses 10 would still be in the data. 
+	 * Note that an UPSERT would not work in such scenarios as a patient might have had 10 diagnosis rows but meanwhile just 9. The UPSERT would not modify 
+	 * record #10, the truncate on the other hand deletes all 10 records and re-inserts 9 records.
 	 */
 	REPLACE ("R");
 
@@ -63,10 +63,20 @@ public enum RowType {
 		this.identifer = identifier;
 	}
 	
+	/**
+	 * @return the single char code of the RowType
+	 */
 	public String getIdentifer() {
 		return identifer;
 	}
 	
+	/**
+	 * Get the Enum value based on the single char code.
+	 * 
+	 * @param identifier as I, U, D, ...
+	 * @return the corresponding RowType
+	 * @throws AvroRuntimeException if the identifiers is null or not a valid RwoType char
+	 */
 	public static RowType getByIdentifier(String identifier) throws AvroRuntimeException {
 		if (identifier != null && identifier.length() > 0) {
 			return getByIdentifier(identifier.charAt(0));
@@ -75,6 +85,13 @@ public enum RowType {
 		}
 	}
 	
+	/**
+	 * Get the Enum value based on the single char code.
+	 * 
+	 * @param identifier as I, U, D, ...
+	 * @return the corresponding RowType
+	 * @throws AvroRuntimeException if the identifiers is null or not a valid RwoType char
+	 */
 	public static RowType getByIdentifier(char identifier) throws AvroRuntimeException {
 		switch (identifier) {
 		case 'I': return INSERT;

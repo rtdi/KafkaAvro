@@ -21,14 +21,21 @@ public class AvroDouble extends LogicalType implements IAvroPrimitive {
 		schema = create().addToSchema(Schema.create(Type.DOUBLE));
 	}
 
+	/**
+	 * @return the static schema of this type
+	 */
 	public static Schema getSchema() {
 		return schema;
 	}
 	
-	public AvroDouble() {
+	private AvroDouble() {
 		super(NAME);
 	}
 
+	/**
+	 * Create an instance of that type.
+	 * @return the instance
+	 */
 	public static AvroDouble create() {
 		return element;
 	}

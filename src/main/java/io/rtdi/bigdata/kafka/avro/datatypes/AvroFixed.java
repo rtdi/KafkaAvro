@@ -4,11 +4,11 @@ import java.nio.ByteBuffer;
 
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
+import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
+import org.apache.avro.generic.GenericData.Fixed;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
-
-import org.apache.avro.Schema;
 
 /**
  * Wrapper around the Avro Type.Fixed data type
@@ -19,19 +19,67 @@ public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
 	public static final String NAME = "FIXED";
 	private Schema schema;
 
-	public AvroFixed(int length) {
+	/**
+	 * @param length of this data type
+	 */
+	private AvroFixed(String name, String namespace, int length, String doc) {
 		super(NAME, length);
-		this.schema = addToSchema(Schema.create(Type.FIXED));
+		this.schema = addToSchema(Schema.createFixed(name, doc, namespace, length));
 	}
 
+	private AvroFixed(int length) {
+		super(NAME, length);
+	}
+	
+	
+	/**
+	 * @param name of the fixed schema
+	 * @param namespace of the fixed schema
+	 * @param length of this data type
+	 * @param doc description
+	 * @return a new data type with this length
+	 */
+	public static AvroFixed create(String name, String namespace, int length, String doc) {
+		return new AvroFixed(name, namespace, length, doc);
+	}
+	
+	public static AvroFixed create(Schema schema) {
+		AvroFixed element = new AvroFixed(schema.getFixedSize());
+		element.schema = schema;
+		return element;
+	}
+
+	/**
+	 * @param length in bytes of the fixed-length binary data type
+	 * @return An AvroFixed data type with name FIXEDnnnn where nnnn is the length
+	 */
 	public static AvroFixed create(int length) {
-		return new AvroFixed(length);
+		return AvroFixed.create("FIXED" + length, null, length, null);
 	}
 
+	/**
+	 * @param name of the fixed schema
+	 * @param namespace of the fixed schema
+	 * @param length of this data type
+	 * @param doc description
+	 * @return the corresponding schema
+	 */
+	public static Schema getSchema(String name, String namespace, int length, String doc) {
+		return create(name, namespace, length, doc).getSchema();
+	}
+
+	/**
+	 * @param length in bytes of the fixed-length binary data type
+	 * @return An AvroFixed schema with name FIXEDnnnn where nnnn is the length
+	 */
 	public static Schema getSchema(int length) {
-		return create(length).addToSchema(Schema.create(Type.FIXED));
+		return create(length).getSchema();
 	}
 
+	public Schema getSchema() {
+		return schema;
+	}
+	
 	@Override
 	public Schema addToSchema(Schema schema) {
 		return super.addToSchema(schema);
@@ -64,13 +112,13 @@ public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
 	}
 
 	@Override
-	public ByteBuffer convertToInternal(Object value) throws AvroDataTypeException {
+	public Fixed convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
 		} else if (value instanceof ByteBuffer) {
-			return (ByteBuffer) value;
+			return new Fixed(schema, ((ByteBuffer) value).array());
 		} else if (value instanceof byte[]) {
-			return ByteBuffer.wrap((byte[]) value);
+			return new Fixed(schema, (byte[]) value);
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a ByteBuffer");
 	}
@@ -83,6 +131,8 @@ public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
 			return (byte[]) value;
 		} else if (value instanceof ByteBuffer) {
 			return ((ByteBuffer) value).array();
+		} else if (value instanceof Fixed) {
+			return ((Fixed) value).bytes();
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Fixed");
 	}
@@ -94,7 +144,7 @@ public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
 
 		@Override
 		public LogicalType fromSchema(Schema schema) {
-			return AvroFixed.create(schema.getFixedSize());
+			return AvroFixed.create(schema);
 		}
 
 	}

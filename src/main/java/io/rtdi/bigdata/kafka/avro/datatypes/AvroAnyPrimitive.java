@@ -27,10 +27,17 @@ public class AvroAnyPrimitive implements IAvroPrimitive {
 				AvroString.getSchema());
 	}
 
+	/**
+	 * @return the static schema of this type
+	 */
 	public static Schema getSchema() {
 		return schema;
 	}
 
+	/**
+	 * Create an instance of that type.
+	 * @return the instance
+	 */
 	public static AvroAnyPrimitive create() {
 		return element;
 	}

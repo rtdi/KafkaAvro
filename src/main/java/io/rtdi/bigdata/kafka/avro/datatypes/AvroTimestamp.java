@@ -1,6 +1,7 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import org.apache.avro.LogicalType;
@@ -26,14 +27,24 @@ public class AvroTimestamp extends LogicalType implements IAvroPrimitive {
 	private static AvroTimestamp element = new AvroTimestamp();
 	private TimestampMillis time = LogicalTypes.timestampMillis();
 
+	/**
+	 * @return the static schema of this type
+	 */
 	public static Schema getSchema() {
 		return schema;
 	}
 
-	public AvroTimestamp() {
+	/**
+	 * Constructor for this static instance
+	 */
+	private AvroTimestamp() {
 		super(NAME);
 	}
 
+	/**
+	 * Create an instance of that type.
+	 * @return the instance
+	 */
 	public static AvroTimestamp create() {
 		return element;
 	}
@@ -64,13 +75,18 @@ public class AvroTimestamp extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	public Object convertToInternal(Object value) throws AvroDataTypeException {
+	public Long convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
 		} else if (value instanceof Long) {
-			return value;
+			return (Long) value;
 		} else if (value instanceof Date) {
 			return ((Date) value).getTime();
+		} else if (value instanceof ZonedDateTime) {
+			ZonedDateTime v = (ZonedDateTime) value;
+			return convertToInternal(v.toInstant());
+		} else if (value instanceof Instant) {
+			return ((Instant) value).toEpochMilli();
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Timestamp");
 	}

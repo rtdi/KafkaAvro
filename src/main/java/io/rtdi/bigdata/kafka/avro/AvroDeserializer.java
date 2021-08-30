@@ -19,7 +19,7 @@ import io.rtdi.bigdata.kafka.avro.datatypes.LogicalDataTypesRegistry;
  * even if data is serialized by others, e.g. Kafka Connect, it can be consumed.
  *
  */
-public class AvroDeserialize {
+public class AvroDeserializer {
 
 	private static final DecoderFactory decoderFactory = DecoderFactory.get();
 	
@@ -27,17 +27,20 @@ public class AvroDeserialize {
 		LogicalDataTypesRegistry.registerAll();
 	}
 	
+	/**
+	 * Takes the Kafka message payload and extract the schemaid from it. Based on that the schema can be read from the schema registry.
+	 * 
+	 * @param data Kafka message payload in binary form
+	 * @return schemaid associated with that message
+	 * @throws IOException in case this is not a valid Avro Kafka message
+	 */
 	public static int getSchemaId(byte[] data) throws IOException {
 		if (data != null) {
-			ByteBuffer schemaid = ByteBuffer.allocate(Integer.BYTES);
-			try (ByteArrayInputStream in = new ByteArrayInputStream(data); ) {
-				int b = in.read();
-				if (b != AvroUtils.MAGIC_BYTE) {
-					throw new AvroRuntimeException("Not a valid Kafka message frame");
-				} else {
-					in.read(schemaid.array());
-					return schemaid.getInt();
-				}
+			if (data[0] != AvroUtils.MAGIC_BYTE) {
+				throw new AvroRuntimeException("Not a valid Kafka Avro message frame");
+			} else {
+				ByteBuffer bb = ByteBuffer.wrap(data, 1, Integer.BYTES);
+				return bb.getInt();
 			}
 		} else {
 			return -1;
@@ -51,17 +54,16 @@ public class AvroDeserialize {
 	 * @param data with the binary Avro representation
 	 * @param schema used for the deserialization
 	 * @return AvroRecord in Jexl abstraction
-	 * @throws IOException In case anything went wrong
+	 * @throws IOException in case this is not a valid Avro Kafka message
 	 */
 	public static GenericRecord deserialize(byte[] data, Schema schema) throws IOException {
 		if (data != null) {
-			ByteBuffer schemaidb = ByteBuffer.allocate(Integer.BYTES);
 			try (ByteArrayInputStream in = new ByteArrayInputStream(data); ) {
 				int b = in.read();
 				if (b != AvroUtils.MAGIC_BYTE) {
-					throw new AvroRuntimeException("Not a valid Kafka message frame");
+					throw new AvroRuntimeException("Not a valid Kafka Avro message frame");
 				} else {
-					in.read(schemaidb.array());
+					in.skip(Integer.BYTES);
 					BinaryDecoder decoder = decoderFactory.directBinaryDecoder(in, null);
 					DatumReader<GenericRecord> reader = new GenericDatumReader<>(schema);
 					return reader.read(null, decoder);

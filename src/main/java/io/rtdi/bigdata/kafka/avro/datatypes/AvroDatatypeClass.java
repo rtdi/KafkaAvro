@@ -1,5 +1,9 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
+/**
+ * Used to categorize data types into number, text, date,...
+ *
+ */
 public enum AvroDatatypeClass {
 	TEXTASCII(0),
 	TEXTUNICODE(1),
@@ -20,6 +24,9 @@ public enum AvroDatatypeClass {
 		this.level = i;
 	}
 
+	/**
+	 * @return the level constant for each data type class
+	 */
 	public int getLevel() {
 		return level;
 	}

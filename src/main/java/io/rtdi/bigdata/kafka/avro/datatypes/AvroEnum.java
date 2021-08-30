@@ -1,9 +1,12 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
+import java.util.Arrays;
+
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
+import org.apache.avro.generic.GenericData.EnumSymbol;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 
@@ -14,17 +17,71 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 public class AvroEnum extends LogicalType implements IAvroPrimitive {
 	public static final Factory factory = new Factory();
 	public static final String NAME = "ENUM";
-	private static AvroEnum element = new AvroEnum();
+	private Schema schema;
 
-	public static Schema getSchema(Schema schema) {
-		return create().addToSchema(schema);
+	/**
+	 * @return the schema of the logical type
+	 */
+	public Schema getSchema() {
+		return schema;
+	}
+	
+	public static <T extends Enum<T>> Schema getSchema(Class<T> symbols) {
+		String[] names = new String[symbols.getEnumConstants().length];
+		int i = 0;
+		for (T t : symbols.getEnumConstants()) {
+			names[i] = t.name();
+			i++;
+		}
+		AvroEnum element = create(symbols.getSimpleName(), null, names, null);
+		return element.getSchema();
 	}
 
-	public AvroEnum() {
+
+	/**
+	 * Constructor for this static instance
+	 */
+	private AvroEnum(String name, String namespace, String[] symbols, String doc) {
+		super(NAME);
+		this.schema = this.addToSchema(Schema.createEnum(name, doc, namespace, Arrays.asList(symbols)));
+	}
+
+	private AvroEnum() {
 		super(NAME);
 	}
+	
+	/**
+	 * Create an instance of that type.
+	 * @param name of the enum
+	 * @param namespace of the enum
+	 * @param symbols list of allowed values
+	 * @param doc of the enum
+	 * @return the instance
+	 */
+	public static AvroEnum create(String name, String namespace, String[] symbols, String doc) {
+		return new AvroEnum(name, namespace, symbols, doc);
+	}
 
-	public static AvroEnum create() {
+	/**
+	 * Create an instance of that type.
+	 * @param name of the enum
+	 * @param symbols list of allowed values
+	 * @param doc of the enum
+	 * @return the instance
+	 */
+	public static AvroEnum create(String name, String[] symbols, String doc) {
+		return create(name, null, symbols, doc);
+	}
+
+	/**
+	 * Create this logical type based on an Enum schema
+	 * 
+	 * @param schema
+	 * @return instance
+	 */
+	public static AvroEnum create(Schema schema) {
+		AvroEnum element = new AvroEnum();
+		element.schema = element.addToSchema(schema);
 		return element;
 	}
 
@@ -60,21 +117,22 @@ public class AvroEnum extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	public Enum<?> convertToInternal(Object value) throws AvroDataTypeException {
+	public EnumSymbol convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
 		} else if (value instanceof Enum) {
-			return (Enum<?>) value;
+			return new EnumSymbol(schema, ((Enum<?>) value).name());
+		} else {
+			return new EnumSymbol(schema, value);
 		}
-		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Enum");
 	}
 
 	@Override
-	public Enum<?> convertToJava(Object value) throws AvroDataTypeException {
+	public String convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
-		} else if (value instanceof Enum) {
-			return (Enum<?>) value;
+		} else if (value instanceof EnumSymbol) {
+			return ((EnumSymbol) value).toString();
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Enum");
 	}
@@ -86,7 +144,7 @@ public class AvroEnum extends LogicalType implements IAvroPrimitive {
 
 		@Override
 		public LogicalType fromSchema(Schema schema) {
-			return AvroEnum.create();
+			return AvroEnum.create(schema);
 		}
 
 	}
