@@ -30,6 +30,7 @@ public class AvroArray extends LogicalType implements IAvroPrimitive {
 
 	/**
 	 * Constructor for this static instance
+	 * @param valueschema complete schema definition for this data type
 	 */
 	private AvroArray(Schema valueschema) {
 		super(NAME);
@@ -46,13 +47,16 @@ public class AvroArray extends LogicalType implements IAvroPrimitive {
 	}
 
 	/**
-	 * @param primitive
+	 * @param primitive contains the data type of the array items
 	 * @return AvroArray using the primitive type as list data type
 	 */
 	public static AvroArray create(IAvroPrimitive primitive) {
 		return create(primitive.getDatatypeSchema());
 	}
 
+	/**
+	 * @return the Array's schema
+	 */
 	public Schema getSchema() {
 		return schema;
 	}

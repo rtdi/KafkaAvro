@@ -88,8 +88,8 @@ public class AvroEnum extends LogicalType implements IAvroPrimitive {
 	/**
 	 * Create this logical type based on an Enum schema
 	 * 
-	 * @param schema
-	 * @return instance
+	 * @param schema of the enum
+	 * @return instance of the AvroEnum
 	 */
 	public static AvroEnum create(Schema schema) {
 		AvroEnum element = new AvroEnum();

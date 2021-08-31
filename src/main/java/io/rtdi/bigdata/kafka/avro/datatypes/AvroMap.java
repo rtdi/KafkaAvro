@@ -48,7 +48,7 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 	}
 
 	/**
-	 * Creates a Map<String, primitive>.
+	 * Creates a Map&lt;String, primitive&gt;
 	 * 
 	 * @param primitive the data type for the value part of the map
 	 * @return the AvroMap
