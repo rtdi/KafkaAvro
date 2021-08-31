@@ -26,17 +26,14 @@ public class AvroEnum extends LogicalType implements IAvroPrimitive {
 		return schema;
 	}
 	
+	/**
+	 * @param <T> Enum type
+	 * @param symbols class of the Enum
+	 * @return enum schema with this logical type
+	 */
 	public static <T extends Enum<T>> Schema getSchema(Class<T> symbols) {
-		String[] names = new String[symbols.getEnumConstants().length];
-		int i = 0;
-		for (T t : symbols.getEnumConstants()) {
-			names[i] = t.name();
-			i++;
-		}
-		AvroEnum element = create(symbols.getSimpleName(), null, names, null);
-		return element.getSchema();
+		return create(symbols).getSchema();
 	}
-
 
 	/**
 	 * Constructor for this static instance
@@ -60,6 +57,21 @@ public class AvroEnum extends LogicalType implements IAvroPrimitive {
 	 */
 	public static AvroEnum create(String name, String namespace, String[] symbols, String doc) {
 		return new AvroEnum(name, namespace, symbols, doc);
+	}
+
+	/**
+	 * @param <T> Enum type
+	 * @param symbols class of the Enum
+	 * @return logical type of this Enum
+	 */
+	public static <T extends Enum<T>> AvroEnum create(Class<T> symbols) {
+		String[] names = new String[symbols.getEnumConstants().length];
+		int i = 0;
+		for (T t : symbols.getEnumConstants()) {
+			names[i] = t.name();
+			i++;
+		}
+		return create(symbols.getSimpleName(), null, names, null);
 	}
 
 	/**

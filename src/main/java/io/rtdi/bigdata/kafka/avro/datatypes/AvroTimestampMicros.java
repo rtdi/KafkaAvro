@@ -93,11 +93,12 @@ public class AvroTimestampMicros extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	public Long convertToJava(Object value) throws AvroDataTypeException {
+	public Instant convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
 		} else if (value instanceof Long) {
-			return (Long) value;
+			long l = (long) value;
+			return Instant.ofEpochSecond(l / 1000000L, (l % 1000000) * 1000L);
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a TimestampMicros");
 	}

@@ -87,7 +87,8 @@ public class AvroInt extends LogicalType implements IAvroPrimitive {
 				throw new AvroDataTypeException("Cannot convert the string \"" + value + "\" into a Integer");
 			}
 		} else if (value instanceof Number) {
-			return ((Number) value).intValue();
+			Number n = (Number) value;
+			return n.intValue();
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Integer");
 	}

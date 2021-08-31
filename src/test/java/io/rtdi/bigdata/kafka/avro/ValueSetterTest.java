@@ -12,7 +12,9 @@ import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -111,10 +113,11 @@ public class ValueSetterTest {
 	private static final String NUMBERS_SCHEMA = "NumbersSchema";
 	private static EncoderFactory encoderFactory = EncoderFactory.get();
 	private static final DecoderFactory decoderFactory = DecoderFactory.get();
-	private Conversion<BigDecimal> decimalconversion = new Conversions.DecimalConversion();
-	private LocalDate nowdate = LocalDate.now(); 
-	private LocalTime nowtime = LocalTime.now();
-	private Instant nowinstant = Instant.now();
+	private static Conversion<BigDecimal> decimalconversion = new Conversions.DecimalConversion();
+	private static Instant nowinstant = Instant.now();
+	private static LocalDate nowlocaldate = LocalDate.ofInstant(nowinstant, ZoneId.of("UTC")); 
+	private static LocalTime nowlocaltime = LocalTime.ofInstant(nowinstant, ZoneId.of("UTC"));
+	private static Date nowdate = Date.from(nowinstant);
 	
 	@Before
 	public void setUp() throws Exception {
@@ -145,11 +148,11 @@ public class ValueSetterTest {
 			
 			GenericRecord dates = AvroType.getSubRecord(recordin2, DATE);
 			assertNotNull("DATE field is empty", dates);
-			assertEquals(nowdate, AvroType.getRecordFieldValue(dates, COL_DATE));
+			assertEquals(nowlocaldate, AvroType.getRecordFieldValue(dates, COL_DATE));
 			
 			List<GenericRecord> others = AvroType.getSubRecordArray(recordin2, OTHER);
 			assertNotNull("OTHER field is empty", others);
-			assertEquals("urn:none", AvroType.getRecordFieldValue(others.get(0), COL_URI));
+			assertEquals("urn:none", AvroType.getRecordFieldValue(others.get(0), COL_URI).toString());
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -157,7 +160,7 @@ public class ValueSetterTest {
 		}
 	}
 
-	private GenericRecord deserialize(Schema schema, byte[] bytes) throws IOException {
+	private static GenericRecord deserialize(Schema schema, byte[] bytes) throws IOException {
 		GenericRecord recordin;
 		try (ByteArrayInputStream in = new ByteArrayInputStream(bytes); ) {
 			BinaryDecoder decoder = decoderFactory.directBinaryDecoder(in, null);
@@ -167,7 +170,7 @@ public class ValueSetterTest {
 		return recordin;
 	}
 
-	private byte[] serialize(GenericRecord recordout) throws IOException {
+	private static byte[] serialize(GenericRecord recordout) throws IOException {
 		byte[] bytes;
 		try ( ByteArrayOutputStream out = new ByteArrayOutputStream(); ) {
 			BinaryEncoder encoder = encoderFactory.directBinaryEncoder(out, null);
@@ -179,7 +182,7 @@ public class ValueSetterTest {
 		return bytes;
 	}
 
-	private GenericRecord createNewRecordViaLogicalDataTypes(Schema schema) {
+	private static GenericRecord createNewRecordViaLogicalDataTypes(Schema schema) {
 		GenericRecord recordout2 = new GenericData.Record(schema);
 		GenericRecord recordNumbers = AvroType.createChildRecordFor(recordout2, NUMBERS);
 		AvroType.putRecordValue(recordNumbers, COL_INT, 1);
@@ -196,9 +199,9 @@ public class ValueSetterTest {
 		AvroType.putRecordValue(recordText, COL_STRING, "Hello String");
 		AvroType.putRecordValue(recordText, COL_VARCHAR, "Hello Varchar");
 		GenericRecord recordDate = AvroType.createChildRecordFor(recordout2, DATE);
-		AvroType.putRecordValue(recordDate, COL_DATE, nowdate);
-		AvroType.putRecordValue(recordDate, COL_TIME, nowtime);
-		AvroType.putRecordValue(recordDate, COL_TIME_MICROS, nowtime);
+		AvroType.putRecordValue(recordDate, COL_DATE, nowlocaldate);
+		AvroType.putRecordValue(recordDate, COL_TIME, nowlocaltime);
+		AvroType.putRecordValue(recordDate, COL_TIME_MICROS, nowlocaltime);
 		AvroType.putRecordValue(recordDate, COL_TIMESTAMP, nowinstant);
 		AvroType.putRecordValue(recordDate, COL_TIMESTAMP_MICROS, nowinstant);
 		GenericRecord recordSpatial = AvroType.createChildRecordFor(recordout2, SPATIAL);
@@ -221,7 +224,7 @@ public class ValueSetterTest {
 		return recordout2;
 	}
 
-	private GenericRecord createNewRecordAvroWay(Schema schema) {
+	private static GenericRecord createNewRecordAvroWay(Schema schema) {
 		GenericRecord recordout = new GenericData.Record(schema);
 		GenericRecord recordNumbers = new GenericData.Record(AvroUtils.getBaseSchema(schema.getField(NUMBERS).schema()));
 		recordNumbers.put(COL_INT, 1);
@@ -241,9 +244,9 @@ public class ValueSetterTest {
 		recordText.put(COL_VARCHAR, "Hello Varchar");
 		recordout.put(TEXT, recordText);
 		GenericRecord recordDates = new GenericData.Record(AvroUtils.getBaseSchema(schema.getField(DATE).schema()));
-		recordDates.put(COL_DATE, (int) nowdate.toEpochDay());
-		recordDates.put(COL_TIME, (int) (nowtime.toNanoOfDay()/1000000L));
-		recordDates.put(COL_TIME_MICROS, nowtime.toNanoOfDay()/1000L);
+		recordDates.put(COL_DATE, (int) nowlocaldate.toEpochDay());
+		recordDates.put(COL_TIME, (int) (nowlocaltime.toNanoOfDay()/1000000L));
+		recordDates.put(COL_TIME_MICROS, nowlocaltime.toNanoOfDay()/1000L);
 		recordDates.put(COL_TIMESTAMP, nowinstant.toEpochMilli());
 		recordDates.put(COL_TIMESTAMP_MICROS, nowinstant.getEpochSecond() * 1000000L + nowinstant.getNano() / 1000L);
 		recordout.put(DATE, recordDates);
@@ -273,7 +276,7 @@ public class ValueSetterTest {
 		return recordout;
 	}
 
-	private Schema buildAllDataTypesSchema() {
+	private static Schema buildAllDataTypesSchema() {
 		SchemaBuilder builder = new SchemaBuilder("Schema1", null);
 		
 		AvroRecordField builderNumbers = builder.addColumnRecord(NUMBERS, null, true, NUMBERS_SCHEMA, null);

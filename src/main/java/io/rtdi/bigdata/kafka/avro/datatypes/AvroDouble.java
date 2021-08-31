@@ -84,7 +84,7 @@ public class AvroDouble extends LogicalType implements IAvroPrimitive {
 				throw new AvroDataTypeException("Cannot convert the string \"" + value + "\" into a Double");
 			}
 		} else if (value instanceof Number) {
-			return ((Number) value).doubleValue();
+			return Double.valueOf(((Number) value).toString()); // going via Strings to avoid representation errors
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Double");
 	}

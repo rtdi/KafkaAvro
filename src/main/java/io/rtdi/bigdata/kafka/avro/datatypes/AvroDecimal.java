@@ -165,7 +165,8 @@ public class AvroDecimal extends LogicalType implements IAvroPrimitive {
 				return buffer;
 			} else if (value instanceof Number) {
 				Number n = (Number) value;
-				v = BigDecimal.valueOf(Double.valueOf( n.doubleValue() )).setScale(decimal.getScale());
+				// Using the string conversion way to avoid double/float representation errors as much as possible
+				v = new BigDecimal(n.toString()).setScale(decimal.getScale(), RoundingMode.HALF_UP);
 				ByteBuffer buffer = DECIMAL_CONVERTER.toBytes(v, null, decimal);
 				return buffer;
 			} else if (value instanceof String) {

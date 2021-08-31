@@ -99,20 +99,20 @@ public class AvroTime extends LogicalType implements IAvroPrimitive {
 			return convertToInternal(t.toInstant());
 		} else if (value instanceof ZonedDateTime) {
 			ZonedDateTime t = (ZonedDateTime) value;
-			return (int) t.getLong(ChronoField.MILLI_OF_DAY);
+			return convertToInternal(t.toInstant());
 		} else if (value instanceof Instant) {
 			Instant d = (Instant) value;
-			return (int) LocalDateTime.ofEpochSecond(d.getEpochSecond(), 0, ZoneOffset.UTC).getLong(ChronoField.MILLI_OF_DAY);
+			return (int) LocalDateTime.ofInstant(d, ZoneOffset.UTC).getLong(ChronoField.MILLI_OF_DAY);
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Time");
 	}
 	
 	@Override
-	public Integer convertToJava(Object value) throws AvroDataTypeException {
+	public LocalTime convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
 		} else if (value instanceof Integer) {
-			return (Integer) value;
+			return LocalTime.ofNanoOfDay(Long.valueOf((Integer) value) * 1000000L);
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Time");
 	}

@@ -1,5 +1,7 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
+import java.nio.charset.StandardCharsets;
+
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
 import org.apache.avro.Schema;
@@ -90,9 +92,9 @@ public class AvroCLOB extends LogicalType implements IAvroPrimitive {
 		if (value == null) {
 			return null;
 		} else if (value instanceof CharSequence) {
-			return (CharSequence) value;
+			return validate((CharSequence) value);
 		} else {
-			return value.toString();
+			return validate(value.toString());
 		}
 	}
 
@@ -104,6 +106,14 @@ public class AvroCLOB extends LogicalType implements IAvroPrimitive {
 			return (CharSequence) value;
 		} else {
 			return value.toString();
+		}
+	}
+
+	private CharSequence validate(CharSequence value) throws AvroDataTypeException {
+		if (StandardCharsets.US_ASCII.newEncoder().canEncode(value)) {
+			return value;
+		} else {
+			throw new AvroDataTypeException("The provided value contains non-ASCII chars which is not allowed in a VARCHAR data type");
 		}
 	}
 

@@ -45,6 +45,14 @@ public class AvroArray extends LogicalType implements IAvroPrimitive {
 		return new AvroArray(valueschema);
 	}
 
+	/**
+	 * @param primitive
+	 * @return AvroArray using the primitive type as list data type
+	 */
+	public static AvroArray create(IAvroPrimitive primitive) {
+		return create(primitive.getDatatypeSchema());
+	}
+
 	public Schema getSchema() {
 		return schema;
 	}

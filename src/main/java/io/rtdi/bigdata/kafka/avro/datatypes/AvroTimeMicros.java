@@ -84,7 +84,7 @@ public class AvroTimeMicros extends LogicalType implements IAvroPrimitive {
 	public Long convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
-		} else if (value instanceof Integer) {
+		} else if (value instanceof Long) {
 			return (Long) value;
 		} else if (value instanceof Number) {
 			return ((Number) value).longValue();
@@ -99,10 +99,10 @@ public class AvroTimeMicros extends LogicalType implements IAvroPrimitive {
 			return convertToInternal(t.toInstant());
 		} else if (value instanceof ZonedDateTime) {
 			ZonedDateTime t = (ZonedDateTime) value;
-			return t.getLong(ChronoField.MICRO_OF_DAY);
+			return convertToInternal(t.toInstant());
 		} else if (value instanceof Instant) {
 			Instant d = (Instant) value;
-			return LocalDateTime.ofEpochSecond(d.getEpochSecond(), 0, ZoneOffset.UTC).getLong(ChronoField.MICRO_OF_DAY);
+			return (long) LocalDateTime.ofInstant(d, ZoneOffset.UTC).getLong(ChronoField.MICRO_OF_DAY);
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a TimeMicros");
 	}

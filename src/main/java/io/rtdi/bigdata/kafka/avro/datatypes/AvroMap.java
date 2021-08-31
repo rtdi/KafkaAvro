@@ -46,7 +46,19 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 		element.schema = Schema.createMap(schema);
 		return element;
 	}
-	
+
+	/**
+	 * Creates a Map<String, primitive>.
+	 * 
+	 * @param primitive the data type for the value part of the map
+	 * @return the AvroMap
+	 */
+	public static AvroMap create(IAvroPrimitive primitive) {
+		AvroMap element = new AvroMap();
+		element.schema = Schema.createMap(primitive.getDatatypeSchema());
+		return element;
+	}
+
 	public Schema getSchema() {
 		return schema;
 	}
