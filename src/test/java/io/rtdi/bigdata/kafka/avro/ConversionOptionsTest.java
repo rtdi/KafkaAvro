@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Collections;
@@ -141,6 +142,8 @@ public class ConversionOptionsTest {
 				| AvroTimeMicros      | LocalTime, Integer, Number, LocalDateTime, Date, ZonedDateTime, Instant | Extracts the UTC MicroSecondsOfDay |
 				| AvroTimstamp        | Instant, Long, Date, ZonedDateTime         | Extracts the UTC epoch milliseconds |
 				| AvroTimestampMicros | Instant, Long, Date, ZonedDateTime         | Extracts the UTC epoch microseconds |
+				| AvroLocalTimstamp        | **LocalDateTime**, Long, Instant, Date, ZonedDateTime         | Extracts the UTC epoch milliseconds |
+				| AvroLocalTimestampMicros | **LocalDateTime**, Long, Instant, Date, ZonedDateTime         | Extracts the UTC epoch microseconds |
 			 */
 			AvroDate date = AvroDate.create();
 			assertEquals("AvroDate conversion failed with LocalDate", nowlocaldate, 
@@ -207,7 +210,32 @@ public class ConversionOptionsTest {
 					tsmicro.convertToJava(tsmicro.convertToInternal(Date.from(nowinstant))));
 			assertEquals("AvroTimestampMicros conversion failed with ZonedDateTime", nowtsmicros, 
 					tsmicro.convertToJava(tsmicro.convertToInternal(ZonedDateTime.ofInstant(nowinstant, ZoneId.of("+5")))));
-			
+
+			AvroLocalTimestamp lts = AvroLocalTimestamp.create();
+			LocalDateTime nowlts = LocalDateTime.ofEpochSecond(nowinstant.getEpochSecond(), 1000000*(nowinstant.getNano()/1000000), ZoneOffset.UTC);
+			assertEquals("AvroTimestamp conversion failed with LocalDateTime", nowlts,
+					lts.convertToJava(lts.convertToInternal(nowlts)));
+			assertEquals("AvroTimestamp conversion failed with Instant", nowlts,
+					lts.convertToJava(lts.convertToInternal(nowinstant)));
+			assertEquals("AvroTimestamp conversion failed with Long", nowlts, 
+					lts.convertToJava(lts.convertToInternal(nowinstant.toEpochMilli())));
+			assertEquals("AvroTimestamp conversion failed with Date", nowlts, 
+					lts.convertToJava(lts.convertToInternal(Date.from(nowinstant))));
+			assertEquals("AvroTimestamp conversion failed with ZonedDateTime", nowlts, 
+					lts.convertToJava(lts.convertToInternal(ZonedDateTime.ofInstant(nowinstant, ZoneId.of("+5")))));
+
+			AvroLocalTimestampMicros ltsmicro = AvroLocalTimestampMicros.create();
+			LocalDateTime nowltsmicro = LocalDateTime.ofEpochSecond(nowinstant.getEpochSecond(), 1000*(nowinstant.getNano()/1000), ZoneOffset.UTC);
+			LocalDateTime nowltsmicro2 = LocalDateTime.ofEpochSecond(nowinstant.getEpochSecond(), 1000000*(nowinstant.getNano()/1000000), ZoneOffset.UTC);
+			assertEquals("AvroTimestampMicros conversion failed with Instant", nowltsmicro,
+					ltsmicro.convertToJava(ltsmicro.convertToInternal(nowinstant)));
+			assertEquals("AvroTimestampMicros conversion failed with Long", nowltsmicro, 
+					ltsmicro.convertToJava(ltsmicro.convertToInternal(nowinstant.getEpochSecond() * 1000000L + nowinstant.getNano()/1000)));
+			assertEquals("AvroTimestampMicros conversion failed with Date", nowltsmicro2,  // Date does support milliseconds only
+					ltsmicro.convertToJava(ltsmicro.convertToInternal(Date.from(nowinstant))));
+			assertEquals("AvroTimestampMicros conversion failed with ZonedDateTime", nowltsmicro, 
+					ltsmicro.convertToJava(ltsmicro.convertToInternal(ZonedDateTime.ofInstant(nowinstant, ZoneId.of("+5")))));
+
 			/*
 				| AvroType    | Supported Java types         |      |
 				|-------------|------------------------------|------|

@@ -81,6 +81,14 @@ public enum AvroType {
 	 */
 	AVROTIMESTAMPMICROS(3, AvroDatatypeClass.DATETIME),
 	/**
+	 * A timestamp down to milliseconds but without time zone
+	 */
+	AVROLOCALTIMESTAMPMILLIS(2, AvroDatatypeClass.DATETIME),
+	/**
+	 * A timestamp down to microseconds but without time zone
+	 */
+	AVROLOCALTIMESTAMPMICROS(3, AvroDatatypeClass.DATETIME),
+	/**
 	 * Boolean
 	 */
 	AVROBOOLEAN(0, AvroDatatypeClass.BOOLEAN),
@@ -170,6 +178,8 @@ public enum AvroType {
 			case "time-micros": return AVROTIMEMICROS;
 			case "timestamp-millis": return AVROTIMESTAMPMILLIS;
 			case "timestamp-micros": return AVROTIMESTAMPMICROS;
+			case "local-timestamp-millis": return AVROLOCALTIMESTAMPMILLIS;
+			case "local-timestamp-micros": return AVROLOCALTIMESTAMPMICROS;
 			case "uuid": return AVROUUID;
 			}
 		}
@@ -212,6 +222,8 @@ public enum AvroType {
 				case "time-micros": return AvroTimeMicros.create();
 				case "timestamp-millis": return AvroTimestamp.create();
 				case "timestamp-micros": return AvroTimestampMicros.create();
+				case "local-timestamp-millis": return AvroLocalTimestamp.create();
+				case "local-timestamp-micros": return AvroLocalTimestampMicros.create();
 				case "uuid": return AvroUUID.create();
 				}
 			}
@@ -435,6 +447,7 @@ public enum AvroType {
 		case AvroDate.NAME: return AvroDate.getSchema();
 		case AvroTime.NAME: return AvroTime.getSchema();
 		case AvroTimestamp.NAME: return AvroTimestamp.getSchema();
+		case AvroLocalTimestamp.NAME: return AvroLocalTimestamp.getSchema();
 		case AvroUUID.NAME: return AvroUUID.getSchema();
 		case AvroAnyPrimitive.NAME: return AvroAnyPrimitive.getSchema();
 		case AvroByte.NAME:
@@ -482,6 +495,7 @@ public enum AvroType {
 		case AvroDate.NAME: return AvroDate.create();
 		case AvroTime.NAME: return AvroTime.create();
 		case AvroTimestamp.NAME: return AvroTimestamp.create();
+		case AvroLocalTimestamp.NAME: return AvroLocalTimestamp.create();
 		case AvroUUID.NAME: return AvroUUID.create();
 		case AvroAnyPrimitive.NAME: return AvroAnyPrimitive.create();
 		case AvroByte.NAME:
@@ -617,6 +631,10 @@ public enum AvroType {
 				return AvroTimestampMicros.create();
 			case AVROTIMESTAMPMILLIS:
 				return AvroTimestamp.create();
+			case AVROLOCALTIMESTAMPMICROS:
+				return AvroLocalTimestampMicros.create();
+			case AVROLOCALTIMESTAMPMILLIS:
+				return AvroLocalTimestamp.create();
 			case AVROURI:
 				return AvroUri.create();
 			case AVROUUID:

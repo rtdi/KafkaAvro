@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -49,6 +48,8 @@ import io.rtdi.bigdata.kafka.avro.datatypes.AvroEnum;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroFixed;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroFloat;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroInt;
+import io.rtdi.bigdata.kafka.avro.datatypes.AvroLocalTimestamp;
+import io.rtdi.bigdata.kafka.avro.datatypes.AvroLocalTimestampMicros;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroLong;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroMap;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroNCLOB;
@@ -88,6 +89,8 @@ public class ValueSetterTest {
 	private static final String DATE = "date";
 	private static final String COL_TIMESTAMP_MICROS = "COL_TimestampMicros";
 	private static final String COL_TIMESTAMP = "COL_Timestamp";
+	private static final String COL_LOCALTIMESTAMP_MICROS = "COL_LocalTimestampMicros";
+	private static final String COL_LOCALTIMESTAMP = "COL_LocalTimestamp";
 	private static final String COL_TIME_MICROS = "COL_TimeMicros";
 	private static final String COL_TIME = "COL_Time";
 	private static final String COL_DATE = "COL_Date";
@@ -117,7 +120,6 @@ public class ValueSetterTest {
 	private static Instant nowinstant = Instant.now();
 	private static LocalDate nowlocaldate = LocalDate.ofInstant(nowinstant, ZoneId.of("UTC")); 
 	private static LocalTime nowlocaltime = LocalTime.ofInstant(nowinstant, ZoneId.of("UTC"));
-	private static Date nowdate = Date.from(nowinstant);
 	
 	@Before
 	public void setUp() throws Exception {
@@ -204,6 +206,8 @@ public class ValueSetterTest {
 		AvroType.putRecordValue(recordDate, COL_TIME_MICROS, nowlocaltime);
 		AvroType.putRecordValue(recordDate, COL_TIMESTAMP, nowinstant);
 		AvroType.putRecordValue(recordDate, COL_TIMESTAMP_MICROS, nowinstant);
+		AvroType.putRecordValue(recordDate, COL_LOCALTIMESTAMP, nowinstant);
+		AvroType.putRecordValue(recordDate, COL_LOCALTIMESTAMP_MICROS, nowinstant);
 		GenericRecord recordSpatial = AvroType.createChildRecordFor(recordout2, SPATIAL);
 		AvroType.putRecordValue(recordSpatial, COL_ST_GEOMETRY, "Hello STGeometry");
 		AvroType.putRecordValue(recordSpatial, COL_ST_POINT, "Hello STPoint");
@@ -249,6 +253,8 @@ public class ValueSetterTest {
 		recordDates.put(COL_TIME_MICROS, nowlocaltime.toNanoOfDay()/1000L);
 		recordDates.put(COL_TIMESTAMP, nowinstant.toEpochMilli());
 		recordDates.put(COL_TIMESTAMP_MICROS, nowinstant.getEpochSecond() * 1000000L + nowinstant.getNano() / 1000L);
+		recordDates.put(COL_LOCALTIMESTAMP, nowinstant.toEpochMilli());
+		recordDates.put(COL_LOCALTIMESTAMP_MICROS, nowinstant.getEpochSecond() * 1000000L + nowinstant.getNano() / 1000L);
 		recordout.put(DATE, recordDates);
 		GenericRecord recordSpatial = new GenericData.Record(AvroUtils.getBaseSchema(schema.getField(SPATIAL).schema()));
 		recordSpatial.put(COL_ST_GEOMETRY, "Hello STGeometry");
@@ -299,6 +305,8 @@ public class ValueSetterTest {
 		builderDate.add(COL_TIME_MICROS, AvroTimeMicros.getSchema(), null, true);
 		builderDate.add(COL_TIMESTAMP, AvroTimestamp.getSchema(), null, true);
 		builderDate.add(COL_TIMESTAMP_MICROS, AvroTimestampMicros.getSchema(), null, true);
+		builderDate.add(COL_LOCALTIMESTAMP, AvroLocalTimestamp.getSchema(), null, true);
+		builderDate.add(COL_LOCALTIMESTAMP_MICROS, AvroLocalTimestampMicros.getSchema(), null, true);
 		AvroRecordField builderSpatial = builder.addColumnRecord(SPATIAL, null, true, SPATIAL_SCHEMA, null);
 		builderSpatial.add(COL_ST_GEOMETRY, AvroSTGeometry.getSchema(), null, true);
 		builderSpatial.add(COL_ST_POINT, AvroSTPoint.getSchema(), null, true);
