@@ -38,6 +38,8 @@ The native way doing that in Avro is either by setting the expected value manual
 | AvroTimeMicros      | **LocalTime**, Integer, Number, LocalDateTime, Date, ZonedDateTime, Instant | Extracts the UTC MicroSecondsOfDay |
 | AvroTimstamp        | **Instant**, Long, Date, ZonedDateTime         | Extracts the UTC epoch milliseconds |
 | AvroTimestampMicros | **Instant**, Long, Date, ZonedDateTime         | Extracts the UTC epoch microseconds |
+| AvroLocalTimstamp        | **LocalDateTime**, Long, Instant, Date, ZonedDateTime         | Extracts the UTC epoch milliseconds |
+| AvroLocalTimestampMicros | **LocalDateTime**, Long, Instant, Date, ZonedDateTime         | Extracts the UTC epoch microseconds |
 
 
 ### Spatial

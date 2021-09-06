@@ -40,7 +40,7 @@ public class ValueSchema extends SchemaBuilder {
 			audit = new SchemaBuilder(AUDIT, "If data is transformed this information is recorded here");			
 			audit.add(TRANSFORMRESULT, AvroVarchar.getSchema(4), "Is the record PASS, FAILED or WARN?", false);
 			audit_details = audit.addColumnRecordArray(AUDITDETAILS, "Details of all transformations", "__audit_details", null);
-			audit_details.add(AUDITTRANSFORMATIONNAME, AvroNVarchar.getSchema(1024), "A name identifiying the applied transformation", false);
+			audit_details.add(AUDITTRANSFORMATIONNAME, AvroNVarchar.getSchema(1024), "A name identifying the applied transformation", false);
 			audit_details.add(TRANSFORMRESULT, AvroVarchar.getSchema(4), "Is the record PASS, FAIL or WARN?", false);
 			audit_details.add(AUDITTRANSFORMRESULTTEXT, AvroNVarchar.getSchema(1024), "Transforms can optionally describe what they did", true);
 			audit_details.add(AUDIT_TRANSFORMRESULT_QUALITY, AvroByte.getSchema(), "Transforms can optionally return a percent value from 0 (FAIL) to 100 (PASS)", true);
