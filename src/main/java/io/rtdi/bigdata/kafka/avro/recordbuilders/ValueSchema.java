@@ -28,8 +28,8 @@ public class ValueSchema extends SchemaBuilder {
 	public static final String AUDIT = "__audit";
 	public static SchemaBuilder extension;
 	public static SchemaBuilder audit;
-	private static AvroRecordArray audit_details;
-	private static Schema auditdetails_array_schema;
+	public static AvroRecordArray audit_details;
+	public static Schema auditdetails_array_schema;
 	static {
 		try {
 			extension = new SchemaBuilder("__extension", "Extension point to add custom values to each record");
