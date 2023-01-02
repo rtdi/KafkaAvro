@@ -92,7 +92,7 @@ public class AvroDate extends LogicalType implements IAvroPrimitive {
 			return (int) ((LocalDate) value).toEpochDay();
 		} else if (value instanceof Date) {
 			Date d = (Date) value;
-			return convertToInternal(d.toInstant());
+			return convertToInternal(Instant.ofEpochMilli(d.getTime()));
 		} else if (value instanceof ZonedDateTime) {
 			ZonedDateTime d = (ZonedDateTime) value;
 			return convertToInternal(d.toInstant());
