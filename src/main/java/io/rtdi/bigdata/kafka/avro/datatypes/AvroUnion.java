@@ -27,7 +27,6 @@ public class AvroUnion implements IAvroDatatype {
 
 	/**
 	 * Create an instance of that type.
-	 * @param valueschema specifies the datatype of the array
 	 * @return the instance
 	 */
 	public static AvroUnion create() {
