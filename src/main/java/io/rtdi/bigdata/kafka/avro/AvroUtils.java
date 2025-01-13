@@ -1,22 +1,16 @@
 package io.rtdi.bigdata.kafka.avro;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
-import org.apache.avro.generic.GenericRecord;
 import org.apache.commons.text.StringEscapeUtils;
 
 public class AvroUtils {
-	
-	public static String convertRecordToJson(GenericRecord record) throws IOException {
-		return record.toString();
-	}
-	
+
 	/**
 	 * Convert a text into a string used as value for a Json field.
-	 * 
+	 *
 	 * @param text input text to be escaped
 	 * @return properly escaped string so it does not break the Json format
 	 */
@@ -37,7 +31,7 @@ public class AvroUtils {
 
 	/**
 	 * In case this schema is a union of null and something else, it returns the _something else_
-	 * 
+	 *
 	 * @param schema of the input
 	 * @return schema without the union of null, in case it is just that. Can return an union still.
 	 */
@@ -46,14 +40,19 @@ public class AvroUtils {
 			return null;
 		} else if (schema.getType() == Type.UNION) {
 			List<Schema> types = schema.getTypes();
+			/*
+			 * The first element is what is the data type used by the default value, hence it can be at both places
+			 */
 			if (types.size() == 2 && types.get(0).getType() == Type.NULL) {
 				return types.get(1);
+			} else if (types.size() == 2 && types.get(1).getType() == Type.NULL) {
+				return types.get(0);
 			} else {
 				return schema;
 			}
 		} else {
 			return schema;
 		}
-	
+
 	}
 }

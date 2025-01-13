@@ -59,8 +59,12 @@ public class AvroLong extends LogicalType implements IAvroPrimitive {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -68,7 +72,7 @@ public class AvroLong extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -98,12 +102,14 @@ public class AvroLong extends LogicalType implements IAvroPrimitive {
 			return null;
 		} else if (value instanceof Long) {
 			return (Long) value;
+		} else if (value instanceof Number) {
+			return ((Number) value).longValue();
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Long");
 	}
 
 	public static class Factory implements LogicalTypeFactory {
-		
+
 		public Factory() {
 		}
 

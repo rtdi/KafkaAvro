@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.avro.AvroRuntimeException;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericRecord;
@@ -22,14 +21,14 @@ import io.rtdi.bigdata.kafka.avro.datatypes.LogicalDataTypesRegistry;
 public class AvroDeserializer {
 
 	private static final DecoderFactory decoderFactory = DecoderFactory.get();
-	
+
 	static {
 		LogicalDataTypesRegistry.registerAll();
 	}
-	
+
 	/**
 	 * Takes the Kafka message payload and extract the schemaid from it. Based on that the schema can be read from the schema registry.
-	 * 
+	 *
 	 * @param data Kafka message payload in binary form
 	 * @return schemaid associated with that message
 	 * @throws IOException in case this is not a valid Avro Kafka message
@@ -37,7 +36,7 @@ public class AvroDeserializer {
 	public static int getSchemaId(byte[] data) throws IOException {
 		if (data != null) {
 			if (data[0] != AvroUtils.MAGIC_BYTE) {
-				throw new AvroRuntimeException("Not a valid Kafka Avro message frame");
+				throw new IOException("Not a valid Kafka Avro message frame");
 			} else {
 				ByteBuffer bb = ByteBuffer.wrap(data, 1, Integer.BYTES);
 				return bb.getInt();
@@ -50,7 +49,7 @@ public class AvroDeserializer {
 	/**
 	 * Converts a byte[] into an Avro GenericRecord using the supplied schema.
 	 * The schema must be read from the schema registry using the message's schema id, see {@link #getSchemaId(byte[])}
-	 * 
+	 *
 	 * @param data with the binary Avro representation
 	 * @param schema used for the deserialization
 	 * @return AvroRecord in Jexl abstraction
@@ -61,7 +60,7 @@ public class AvroDeserializer {
 			try (ByteArrayInputStream in = new ByteArrayInputStream(data); ) {
 				int b = in.read();
 				if (b != AvroUtils.MAGIC_BYTE) {
-					throw new AvroRuntimeException("Not a valid Kafka Avro message frame");
+					throw new IOException("Not a valid Kafka Avro message frame");
 				} else {
 					in.skip(Integer.BYTES);
 					BinaryDecoder decoder = decoderFactory.directBinaryDecoder(in, null);
