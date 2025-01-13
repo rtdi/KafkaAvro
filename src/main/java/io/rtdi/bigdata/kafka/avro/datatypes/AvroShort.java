@@ -34,7 +34,7 @@ public class AvroShort extends LogicalType implements IAvroPrimitive {
 	private AvroShort() {
 		super(NAME);
 	}
-	
+
 	/**
 	 * Create an instance of that type.
 	 * @return the instance
@@ -59,8 +59,12 @@ public class AvroShort extends LogicalType implements IAvroPrimitive {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -68,7 +72,7 @@ public class AvroShort extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -115,12 +119,14 @@ public class AvroShort extends LogicalType implements IAvroPrimitive {
 			return (Short) value;
 		} else if (value instanceof Integer) {
 			return ((Integer) value).shortValue();
+		} else if (value instanceof Number) {
+			return ((Number) value).shortValue();
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Short");
 	}
 
 	public static class Factory implements LogicalTypeFactory {
-		
+
 		public Factory() {
 		}
 

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.avro.JsonProperties;
 import org.apache.avro.Schema;
@@ -17,7 +19,7 @@ import io.rtdi.bigdata.kafka.avro.AvroUtils;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroInt;
 
 /**
- * The base class for creating key and value schemas and to create subschemas 
+ * The base class for creating key and value schemas and to create subschemas
  *
  */
 public class SchemaBuilder {
@@ -30,7 +32,7 @@ public class SchemaBuilder {
 
 	/**
 	 * Create a new schema with the given name, namespace is optionally provided as well
-	 * 
+	 *
 	 * @param name of the schema
 	 * @param namespace used for the schema or null
 	 * @param description of the schema
@@ -69,26 +71,71 @@ public class SchemaBuilder {
 		schema = Schema.createRecord(AvroNameEncoder.encodeName(nameparts[nameparts.length-1]), description, ns.toString(), false);
 		schema.addProp(AvroField.COLUMN_PROP_ORIGINALNAME, name);
 	}
-	
+
 	/**
 	 * Create a new schema with the given name, no extra namespace
-	 * 
+	 *
 	 * @param name of the schema
 	 * @param description of the schema
 	 */
 	public SchemaBuilder(String name, String description) {
 		this(name, null, description);
 	}
-	
+
+	/**
+	 * Clone the input schema so that the schema can be modified
+	 *
+	 * @param name new name of the schema
+	 * @param sourceschema to clone
+	 * @param deep if false only the root level is edit-able, true makes all levels editable
+	 */
+	public SchemaBuilder(String name, Schema sourceschema, boolean deep) {
+		schema = Schema.createRecord(name, sourceschema.getDoc(), sourceschema.getNamespace(), false);
+		copySchemaDetails(sourceschema, schema);
+		if (deep) {
+			cloneFields(sourceschema, this);
+		} else {
+			for (Field field : sourceschema.getFields()) {
+				add(field);
+			}
+		}
+	}
+
+	private static void cloneFields(Schema schemain, SchemaBuilder schemaout) {
+		// TODO: Implement
+		for (Field field : schemain.getFields()) {
+			schemaout.add(field);
+		}
+	}
+
+	private static void copyProperties(JsonProperties in, JsonProperties out) {
+		Map<String, Object> objectprops = in.getObjectProps();
+		if (objectprops != null) {
+			for(Entry<String, Object> entry : objectprops.entrySet()) {
+				out.addProp(entry.getKey(), entry.getValue());
+			}
+		}
+	}
+
+	private static void copySchemaDetails(Schema in, Schema out) {
+		copyProperties(in, out);
+		Set<String> aliases = in.getAliases();
+		if (aliases != null) {
+			for (String alias : aliases) {
+				out.addAlias(alias);
+			}
+		}
+	}
+
 	/**
 	 * Add a column of datatype record based on a provided SchemaBuilder.<br>
 	 * Useful if an Avro Schema has multiple fields with the same Record datatype.
-	 * 
+	 *
 	 * @param columnname of the field to add
 	 * @param subschema SchemaBuilder used to form the child record schema
-	 * @param description optional 
+	 * @param description optional
 	 * @param nullable is true if the column can be null
-	 * @return AvroRecordField of the column added 
+	 * @return AvroRecordField of the column added
 	 * @throws SchemaBuilderException if the subschema is null
 	 */
 	public AvroRecordField addColumnRecord(String columnname, SchemaBuilder subschema, String description, boolean nullable) throws SchemaBuilderException {
@@ -101,18 +148,18 @@ public class SchemaBuilder {
 		childbuilders.put(columnname, subschema);
 		return field;
 	}
-	
+
 	/**
 	 * Add a column of type record and create a new schema.
-	 * 
+	 *
 	 * @param columnname of the field to add
 	 * @param description optional
 	 * @param nullable is true if the column can be null
 	 * @param schemaname of the schema to be created; if null the column name is used
 	 * @param schemadescription of the schema to be created; if null the column description is used
-	 * @return AvroRecordField 
+	 * @return AvroRecordField
 	 * @throws SchemaBuilderException if the schema is invalid
-	 * 
+	 *
 	 * @see AvroRecordField#getSchemaBuilder()
 	 */
 	public AvroRecordField addColumnRecord(String columnname, String description, boolean nullable, String schemaname, String schemadescription) throws SchemaBuilderException {
@@ -122,7 +169,7 @@ public class SchemaBuilder {
 
 	/**
 	 * Add a column of datatype array-of-scalar.
-	 * 
+	 *
 	 * @param columnname of the array column
 	 * @param arrayelement One of the Avroxxxx schemas like {@link AvroInt#getSchema()}
 	 * @param description explaining the use of the field
@@ -138,7 +185,7 @@ public class SchemaBuilder {
 
 	/**
 	 * Add a column of datatype array-of-records based on an existing SchemaBuilder.
-	 * 
+	 *
 	 * @param columnname of the array column
 	 * @param arrayelement created via ValueSchema#createNewSchema(String, String)
 	 * @param description explaining the use of the field
@@ -147,7 +194,7 @@ public class SchemaBuilder {
 	 */
 	public AvroRecordArray addColumnRecordArray(String columnname, SchemaBuilder arrayelement, String description) throws SchemaBuilderException {
 		validate(columnname);
-		
+
 		AvroRecordArray field = new AvroRecordArray(columnname, arrayelement, description, JsonProperties.NULL_VALUE);
 		add(field);
 		childbuilders.put(columnname, arrayelement);
@@ -169,16 +216,16 @@ public class SchemaBuilder {
 
 	/**
 	 * Add columns to the current schema before it is built.<br>
-	 * A typical call will look like 
+	 * A typical call will look like
 	 * <pre>add("col1", AvroNVarchar.getSchema(10), "first col", false);</pre>
-	 * 
+	 *
 	 * @param columnname of the field to add
 	 * @param schema of the column; see io.rtdi.bigdata.connector.pipeline.foundation.avrodatatypes
 	 * @param description of the column or null
 	 * @param nullable is true if the column is optional
 	 * @return AvroField to set other properties of the field (fluent syntax)
 	 * @throws SchemaBuilderException if the schema is invalid
-	 * 
+	 *
 	 * @see AvroField#AvroField(String, Schema, String, boolean, Object)
 	 */
 	public AvroField add(String columnname, Schema schema, String description, boolean nullable) throws SchemaBuilderException {
@@ -190,9 +237,9 @@ public class SchemaBuilder {
 
 	/**
 	 * Add columns to the current schema before it is built.<br>
-	 * A typical call will look like 
+	 * A typical call will look like
 	 * <pre>add("col1", AvroNVarchar.getSchema(10), "first col", false);</pre>
-	 * 
+	 *
 	 * @param columnname of the field to add
 	 * @param schema of the column; see io.rtdi.bigdata.connector.pipeline.foundation.avrodatatypes
 	 * @param description of the column or null
@@ -200,7 +247,7 @@ public class SchemaBuilder {
 	 * @param defaultval default value
 	 * @return AvroField to set other properties of the field (fluent syntax)
 	 * @throws SchemaBuilderException if the schema is invalid
-	 * 
+	 *
 	 * @see AvroField#AvroField(String, Schema, String, boolean, Object)
 	 */
 	public AvroField add(String columnname, Schema schema, String description, boolean nullable, Object defaultval) throws SchemaBuilderException {
@@ -221,7 +268,7 @@ public class SchemaBuilder {
 		add(field);
 		return field;
 	}
-	
+
 	/**
 	 * @param columnname of the field
 	 * @return the field object based on the column name
@@ -234,7 +281,7 @@ public class SchemaBuilder {
 		columns.add(field);
 		columnnameindex.put(field.name(), field);
 	}
-	
+
 	private void validate(String columnname) throws SchemaBuilderException {
 		if (columnname == null || columnname.length() == 0) {
 			throw new SchemaBuilderException("Columnname cannot be null or empty");
@@ -243,17 +290,17 @@ public class SchemaBuilder {
 			throw new SchemaBuilderException("Record had been built already, cannot add more columns");
 		}
 	}
-		
+
 	private void validate(String columnname, Schema schema) throws SchemaBuilderException {
 		validate(columnname);
 		if (schema == null) {
 			throw new SchemaBuilderException("Schema cannot be null or empty");
 		}
 	}
-	
+
 	/**
 	 * Create a new schema based on the current schema name space
-	 * 
+	 *
 	 * @param name of the new schema
 	 * @param schemadescription with extra text
 	 * @return a new schema builder
@@ -281,11 +328,11 @@ public class SchemaBuilder {
 	public Schema getSchema() {
 		return schema;
 	}
-	
+
 	/**
-	 * Once all columns are added to the schema it can be built and is locked then. 
+	 * Once all columns are added to the schema it can be built and is locked then.
 	 * The build() process goes through all child record builders as well, building the entire schema.
-	 * 
+	 *
 	 * @throws SchemaBuilderException if the schema has no columns
 	 */
 	public void build() throws SchemaBuilderException {
@@ -300,14 +347,14 @@ public class SchemaBuilder {
 			}
 		}
 	}
-	
+
 	/**
 	 * @return name of the schema
 	 */
 	public String getName() {
 		return schema.getName();
 	}
-	
+
 	/**
 	 * @return the full name of the schema
 	 */
@@ -326,7 +373,7 @@ public class SchemaBuilder {
 	public String toString() {
 		return schema.getFullName();
 	}
-	
+
 	/**
 	 * @param columnname to look for (original name, not Avro encoded name)
 	 * @return the Avro schema of this column
@@ -345,7 +392,7 @@ public class SchemaBuilder {
 
 	/**
 	 * Get the schema to use for all array items
-	 * 
+	 *
 	 * @param valuerecord with the field
 	 * @param fieldname to look for
 	 * @return the array's expected schema for the items
@@ -354,12 +401,12 @@ public class SchemaBuilder {
 	public static Schema getSchemaForArray(GenericRecord valuerecord, String fieldname) throws SchemaBuilderException {
 		Field f = valuerecord.getSchema().getField(fieldname);
 		if (f == null) {
-			throw new SchemaBuilderException("The record and its supporting schema \"" + valuerecord.getSchema().getName() + 
+			throw new SchemaBuilderException("The record and its supporting schema \"" + valuerecord.getSchema().getName() +
 					"\" does not have a field \"" + fieldname + "\"");
 		}
 		Schema s = AvroUtils.getBaseSchema(f.schema());
 		if (s.getType() != Type.ARRAY) {
-			throw new SchemaBuilderException("The record and its supporting schema \"" + valuerecord.getSchema().getName() + 
+			throw new SchemaBuilderException("The record and its supporting schema \"" + valuerecord.getSchema().getName() +
 					"\" has a field \"" + fieldname + "\" but this is no array");
 		}
 		return s.getElementType();
@@ -367,7 +414,7 @@ public class SchemaBuilder {
 
 	/**
 	 * Get the schema to use for the nested record
-	 * 
+	 *
 	 * @param valuerecord with the field
 	 * @param fieldname to look for
 	 * @return the schema of this nested record
@@ -376,12 +423,12 @@ public class SchemaBuilder {
 	public static Schema getSchemaForNestedRecord(GenericRecord valuerecord, String fieldname) throws SchemaBuilderException {
 		Field f = valuerecord.getSchema().getField(fieldname);
 		if (f == null) {
-			throw new SchemaBuilderException("The record and its supporting schema \"" + valuerecord.getSchema().getName() + 
+			throw new SchemaBuilderException("The record and its supporting schema \"" + valuerecord.getSchema().getName() +
 					"\" does not have a field \"" + fieldname + "\"");
 		}
 		Schema s = AvroUtils.getBaseSchema(f.schema());
 		if (s.getType() != Type.RECORD) {
-			throw new SchemaBuilderException("The record and its supporting schema \"" + valuerecord.getSchema().getName() + 
+			throw new SchemaBuilderException("The record and its supporting schema \"" + valuerecord.getSchema().getName() +
 					"\" has a field \"" + fieldname + "\" but this is no nested record");
 		}
 		return s;

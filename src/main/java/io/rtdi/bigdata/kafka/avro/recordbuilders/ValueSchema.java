@@ -84,7 +84,7 @@ public class ValueSchema extends SchemaBuilder {
 				"Optional source system information for auditing", 
 				true).setInternal().setTechnical();
 		addColumnArray(SchemaConstants.SCHEMA_COLUMN_EXTENSION, extension.getSchema(), "Add more columns beyond the official logical data model").setInternal();
-		addColumnRecord(AUDIT, audit, "If data is transformed this information is recorded here", true).setInternal();
+		addAuditField(this);
 	}
 
 	/**
@@ -95,6 +95,10 @@ public class ValueSchema extends SchemaBuilder {
 	 */
 	public ValueSchema(String name, String description) throws SchemaBuilderException {
 		this(name, null, description);
+	}
+	
+	public static void addAuditField(SchemaBuilder builder) {
+		builder.addColumnRecord(AUDIT, audit, "If data is transformed this information is recorded here", true).setInternal();
 	}
 
 	/**

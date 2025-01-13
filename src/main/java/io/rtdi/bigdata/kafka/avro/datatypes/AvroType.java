@@ -41,11 +41,11 @@ public enum AvroType {
 	 */
 	AVROSHORT(1, AvroDatatypeClass.NUMBER),
 	/**
-	 * A Spatial data type in WKT representation 
+	 * A Spatial data type in WKT representation
 	 */
 	AVROSTGEOMETRY(0, AvroDatatypeClass.TEXTASCII),
 	/**
-	 * A Spatial data type in WKT representation 
+	 * A Spatial data type in WKT representation
 	 */
 	AVROSTPOINT(0, AvroDatatypeClass.TEXTASCII),
 	/**
@@ -57,7 +57,7 @@ public enum AvroType {
 	 */
 	AVROVARCHAR(1, AvroDatatypeClass.TEXTASCII),
 	/**
-	 * A date without time information 
+	 * A date without time information
 	 */
 	AVRODATE(0, AvroDatatypeClass.DATETIME),
 	/**
@@ -143,8 +143,16 @@ public enum AvroType {
 	/**
 	 * An union of multiple primitive datatypes, e.g. used for extensions
 	 */
-	AVROANYPRIMITIVE(99, AvroDatatypeClass.TEXTUNICODE);
-	
+	AVROANYPRIMITIVE(99, AvroDatatypeClass.TEXTUNICODE),
+	/**
+	 * An union of specific datatypes
+	 */
+	AVROUNION(99, AvroDatatypeClass.COMPLEX),
+	/**
+	 * A null element used in unions
+	 */
+	AVRONULL(0, AvroDatatypeClass.TEXTUNICODE);
+
 	private int level;
 	private AvroDatatypeClass group;
 
@@ -155,7 +163,7 @@ public enum AvroType {
 
 	/**
 	 * Take an Avro schema and try to find the best suited primitive data type.
-	 * 
+	 *
 	 * @param schema the Avro schema for this data type, with or without logical type information
 	 * @return the best suited AvroType or null
 	 */
@@ -172,6 +180,7 @@ public enum AvroType {
 			case AvroSTPoint.NAME: return AVROSTPOINT;
 			case AvroUri.NAME: return AVROURI;
 			case AvroVarchar.NAME: return AVROVARCHAR;
+			case AvroNull.NAME: return AVRONULL;
 			case "date": return AVRODATE;
 			case "decimal": return AVRODECIMAL;
 			case "time-millis": return AVROTIMEMILLIS;
@@ -196,10 +205,13 @@ public enum AvroType {
 		case STRING: return AVROSTRING;
 		case ARRAY: return AVROARRAY;
 		case RECORD: return AVRORECORD;
-		case UNION: 
+		case UNION:
 			if (schema.equals(AvroAnyPrimitive.getSchema())) {
 				return AVROANYPRIMITIVE;
+			} else {
+				return AVROUNION;
 			}
+		case NULL: return AVRONULL;
 		default: return null;
 		}
 	}
@@ -209,7 +221,7 @@ public enum AvroType {
 	 * @return the best suited AvroDataType or null
 	 */
 	public static IAvroDatatype getAvroDataType(Schema schema) {
-        Schema baseschema = AvroUtils.getBaseSchema(schema);
+		Schema baseschema = AvroUtils.getBaseSchema(schema);
 		LogicalType l = baseschema.getLogicalType();
 		if (l != null) {
 			if (l instanceof IAvroDatatype) {
@@ -241,17 +253,20 @@ public enum AvroType {
 		case STRING: return AvroString.create();
 		case ARRAY: return AvroArray.create(baseschema);
 		case RECORD: return AvroRecord.create();
-		case UNION: 
+		case UNION:
 			if (schema.equals(AvroAnyPrimitive.getSchema())) {
 				return AvroAnyPrimitive.create();
+			} else {
+				return AvroUnion.create(schema);
 			}
+		case NULL: return AvroNull.create();
 		default: return null;
 		}
 	}
-	
+
 	/**
 	 * Helper method to set a field value in a GenericRecord using the AvroDataType converter.
-	 *  
+	 *
 	 * @param record to set the field in
 	 * @param fieldname is the Avro-encoded name
 	 * @param value a compatible value for this data type
@@ -270,10 +285,10 @@ public enum AvroType {
 			}
 		}
 	}
-	
+
 	/**
 	 * Helper method to create a GenericRecord for a field of type Record and assign it
-	 * 
+	 *
 	 * @param record the parent record
 	 * @param fieldname the name of the field
 	 * @return GenericRecord to be used to
@@ -297,7 +312,7 @@ public enum AvroType {
 
 	/**
 	 * Helper method to create a GenericRecord and add it to the parent's field
-	 * 
+	 *
 	 * @param record the parent record
 	 * @param fieldname the name of the field
 	 * @return GenericRecord to be used to
@@ -329,10 +344,10 @@ public enum AvroType {
 			}
 		}
 	}
-	
+
 	/**
 	 * Helper method to return the best suited Java object for a field
-	 * 
+	 *
 	 * @param record to read the field from
 	 * @param fieldname to read the value from
 	 * @return best suited Java object
@@ -352,10 +367,10 @@ public enum AvroType {
 			}
 		}
 	}
-	
+
 	/**
 	 * Helper method to return the record of a field of type record
-	 * 
+	 *
 	 * @param record to read the field from
 	 * @param fieldname to read the record from
 	 * @return a GenericRecord with the data
@@ -377,7 +392,7 @@ public enum AvroType {
 
 	/**
 	 * Helper method to return the list of records of a field of type array-of-record
-	 * 
+	 *
 	 * @param record to read the field from
 	 * @param fieldname to read the record from
 	 * @return a GenericRecord with the data
@@ -407,7 +422,7 @@ public enum AvroType {
 
 	/**
 	 * Take the Avro schema and return the best suited textual representation of this data type.
-	 *   
+	 *
 	 * @param schema the Avro schema for this data type, with or without logical type information
 	 * @return text representation of the best suited data type, e.g. VARCHAR(10)
 	 */
@@ -430,7 +445,7 @@ public enum AvroType {
 			return schema.getType().name();
 		}
 	}
-	
+
 	/**
 	 * @param text the textual representation of a data type like VARCHAR(10)
 	 * @return the Avro schema for this data type
@@ -514,6 +529,10 @@ public enum AvroType {
 			return AvroUri.create();
 		case AvroRecord.NAME:
 			return AvroRecord.create();
+		case AvroUnion.NAME:
+			return AvroUnion.create();
+		case AvroNull.NAME:
+			return AvroNull.create();
 		}
 		if (text.startsWith(AvroDecimal.NAME)) {
 			return AvroDecimal.create(text);
@@ -539,7 +558,7 @@ public enum AvroType {
 	public AvroDatatypeClass getGroup() {
 		return group;
 	}
-	
+
 	/**
 	 * What is the best suited data type if the current data type needs to store more infomration?
 	 * Example: The VARCHAR(10) can store ASCII chars only, but now Unicode is needed as well
@@ -570,11 +589,11 @@ public enum AvroType {
 			}
 		}
 	}
-	
+
 	/**
 	 * Based on the provided information return the best suited Avro data type.
 	 * Default is a NVARCHAR(100).
-	 * 
+	 *
 	 * @param type the AvroType or null
 	 * @param length maximum length of the data type, ignored if it does not apply
 	 * @param scale in case of a decimal, not used for all others
@@ -641,6 +660,8 @@ public enum AvroType {
 				return AvroUUID.create();
 			case AVROVARCHAR:
 				return AvroVarchar.create(length);
+			case AVRONULL:
+				return AvroNull.create();
 			default:
 				return AvroNVarchar.create(length);
 			}

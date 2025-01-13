@@ -38,12 +38,27 @@ public class AvroArray extends LogicalType implements IAvroPrimitive {
 	}
 
 	/**
+	 * Constructor for this static instance
+	 */
+	private AvroArray() {
+		super(NAME);
+	}
+
+	/**
 	 * Create an instance of that type.
 	 * @param valueschema specifies the datatype of the array
 	 * @return the instance
 	 */
 	public static AvroArray create(Schema valueschema) {
 		return new AvroArray(valueschema);
+	}
+
+	/**
+	 * Create an instance of that type.
+	 * @return the instance
+	 */
+	public static AvroArray create() {
+		return new AvroArray();
 	}
 
 	/**
@@ -60,7 +75,7 @@ public class AvroArray extends LogicalType implements IAvroPrimitive {
 	public Schema getSchema() {
 		return schema;
 	}
-	
+
 	@Override
 	public Schema addToSchema(Schema schema) {
 		return super.addToSchema(schema);
@@ -104,7 +119,7 @@ public class AvroArray extends LogicalType implements IAvroPrimitive {
 	}
 
 	public static class Factory implements LogicalTypeFactory {
-		
+
 		public Factory() {
 		}
 
