@@ -43,9 +43,11 @@ public class AvroUtils {
 			/*
 			 * The first element is what is the data type used by the default value, hence it can be at both places
 			 */
-			if (types.size() == 2 && types.get(0).getType() == Type.NULL) {
+			if (types.size() == 2 && types.get(0).getType() == Type.NULL) { // union of null and something else, e.g. ["null", "string"]
 				return types.get(1);
-			} else if (types.size() == 2 && types.get(1).getType() == Type.NULL) {
+			} else if (types.size() == 2 && types.get(1).getType() == Type.NULL) { // union of something plus null, e.g. ["string"], "null"
+				return types.get(0);
+			} else if (types.size() == 1) { // union of a single type, e.g. ["string"]
 				return types.get(0);
 			} else {
 				return schema;
