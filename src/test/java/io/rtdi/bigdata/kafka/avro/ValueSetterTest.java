@@ -1,8 +1,8 @@
 package io.rtdi.bigdata.kafka.avro;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,9 +31,9 @@ import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.DecoderFactory;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.util.Utf8;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroAnyPrimitive;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroArray;
@@ -118,14 +118,14 @@ public class ValueSetterTest {
 	private static final DecoderFactory decoderFactory = DecoderFactory.get();
 	private static Conversion<BigDecimal> decimalconversion = new Conversions.DecimalConversion();
 	private static Instant nowinstant = Instant.now();
-	private static LocalDate nowlocaldate = LocalDate.ofInstant(nowinstant, ZoneId.of("UTC")); 
+	private static LocalDate nowlocaldate = LocalDate.ofInstant(nowinstant, ZoneId.of("UTC"));
 	private static LocalTime nowlocaltime = LocalTime.ofInstant(nowinstant, ZoneId.of("UTC"));
-	
-	@Before
+
+	@BeforeAll
 	public void setUp() throws Exception {
 	}
 
-	@After
+	@AfterAll
 	public void tearDown() throws Exception {
 	}
 
@@ -137,25 +137,25 @@ public class ValueSetterTest {
 			GenericRecord recordout = createNewRecordAvroWay(schema);
 			byte[] bytes = serialize(recordout);
 			GenericRecord recordin = deserialize(schema, bytes);
-			assertEquals("Avro-native: Data before and after serialize/deserialize is different", recordout, recordin);
+			assertEquals(recordout, recordin, "Avro-native: Data before and after serialize/deserialize is different");
 			GenericRecord recordout2 = createNewRecordViaLogicalDataTypes(schema);
-			assertEquals("AvroType: The record set via the helper methods is different to the Avro-native way", recordout, recordout2);
+			assertEquals(recordout, recordout2, "AvroType: The record set via the helper methods is different to the Avro-native way");
 			bytes = serialize(recordout2);
 			GenericRecord recordin2 = deserialize(schema, bytes);
-			assertEquals("AvroType: Data before and after serialize/deserialize is different", recordout, recordin2);
-			
+			assertEquals(recordout, recordin2, "AvroType: Data before and after serialize/deserialize is different");
+
 			GenericRecord numbers = AvroType.getSubRecord(recordin2, NUMBERS);
-			assertNotNull("NUMBERS field is empty", numbers);
+			assertNotNull(numbers, "NUMBERS field is empty");
 			assertEquals(1, AvroType.getRecordFieldValue(numbers, COL_INT));
-			
+
 			GenericRecord dates = AvroType.getSubRecord(recordin2, DATE);
-			assertNotNull("DATE field is empty", dates);
+			assertNotNull(dates, "DATE field is empty");
 			assertEquals(nowlocaldate, AvroType.getRecordFieldValue(dates, COL_DATE));
-			
+
 			List<GenericRecord> others = AvroType.getSubRecordArray(recordin2, OTHER);
-			assertNotNull("OTHER field is empty", others);
+			assertNotNull(others, "OTHER field is empty");
 			assertEquals("urn:none", AvroType.getRecordFieldValue(others.get(0), COL_URI).toString());
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -284,7 +284,7 @@ public class ValueSetterTest {
 
 	private static Schema buildAllDataTypesSchema() {
 		SchemaBuilder builder = new SchemaBuilder("Schema1", null);
-		
+
 		AvroRecordField builderNumbers = builder.addColumnRecord(NUMBERS, null, true, NUMBERS_SCHEMA, null);
 		builderNumbers.add(COL_INT, AvroInt.getSchema(), null, true);
 		builderNumbers.add(COL_BYTE, AvroByte.getSchema(), null, true);
