@@ -1,11 +1,12 @@
 package io.rtdi.bigdata.kafka.avro;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.avro.Schema;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroDate;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroDouble;
@@ -260,11 +261,11 @@ public class SchemaCreationTest {
 			+ "  } ],\r\n"
 			+ "  \"__originalname\" : \"Schema1\"\r\n"
 			+ "}";
-	@Before
+	@BeforeAll
 	public void setUp() throws Exception {
 	}
 
-	@After
+	@AfterAll
 	public void tearDown() throws Exception {
 	}
 
@@ -283,7 +284,7 @@ public class SchemaCreationTest {
 			builder.build();
 			Schema actualschema = builder.getSchema();
 			Schema expectedschema = new Schema.Parser().parse(expectedschemajson);
-			assertEquals("The built schema is different from the expected schema", expectedschema, actualschema);
+			assertEquals(expectedschema, actualschema, "The built schema is different from the expected schema");
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
