@@ -6,7 +6,7 @@
 	<artifactId>kafkaavro</artifactId>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>Convenience methods for using Avro with Kafka.</description>
-	<version>0.10.15</version>
+	<version>0.10.16</version>
 	<packaging>jar</packaging>
 	<url>https://www.rtdi.io/</url>
 	<scm>
