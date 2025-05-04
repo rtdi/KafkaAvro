@@ -28,11 +28,11 @@ public class ConversionOptionsTest {
 	private static LocalTime nowlocaltime = LocalTime.ofInstant(nowinstant, ZoneId.of("UTC"));
 
 	@BeforeAll
-	public void setUp() throws Exception {
+	public static void setUp() throws Exception {
 	}
 
 	@AfterAll
-	public void tearDown() throws Exception {
+	public static void tearDown() throws Exception {
 	}
 
 	@Test

@@ -262,11 +262,11 @@ public class SchemaCreationTest {
 			+ "  \"__originalname\" : \"Schema1\"\r\n"
 			+ "}";
 	@BeforeAll
-	public void setUp() throws Exception {
+	public static void setUp() throws Exception {
 	}
 
 	@AfterAll
-	public void tearDown() throws Exception {
+	public static void tearDown() throws Exception {
 	}
 
 	@Test

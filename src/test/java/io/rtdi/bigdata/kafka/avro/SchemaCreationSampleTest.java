@@ -17,11 +17,11 @@ import io.rtdi.bigdata.kafka.avro.recordbuilders.ValueSchema;
 public class SchemaCreationSampleTest {
 
 	@BeforeAll
-	public void setUp() throws Exception {
+	public static void setUp() throws Exception {
 	}
 
 	@AfterAll
-	public void tearDown() throws Exception {
+	public static void tearDown() throws Exception {
 	}
 
 	@Test
