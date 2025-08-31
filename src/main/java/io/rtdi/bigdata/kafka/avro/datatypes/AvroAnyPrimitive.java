@@ -13,18 +13,18 @@ public class AvroAnyPrimitive implements IAvroPrimitive {
 	public static final String NAME = "ANYPRIMITIVE";
 	private static AvroAnyPrimitive element = new AvroAnyPrimitive();
 	private static Schema schema;
-	
+
 	static {
-		schema = 
-			Schema.createUnion(
-				Schema.create(Type.NULL), 
-				AvroBoolean.getSchema(),
-				AvroBytes.getSchema(),
-				AvroDouble.getSchema(),
-				AvroFloat.getSchema(),
-				AvroInt.getSchema(),
-				AvroLong.getSchema(),
-				AvroString.getSchema());
+		schema =
+				Schema.createUnion(
+						Schema.create(Type.NULL),
+						AvroBoolean.getSchema(),
+						AvroBytes.getSchema(),
+						AvroDouble.getSchema(),
+						AvroFloat.getSchema(),
+						AvroInt.getSchema(),
+						AvroLong.getSchema(),
+						AvroString.getSchema());
 	}
 
 	/**
@@ -45,8 +45,12 @@ public class AvroAnyPrimitive implements IAvroPrimitive {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -54,7 +58,7 @@ public class AvroAnyPrimitive implements IAvroPrimitive {
 	public int hashCode() {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -90,6 +94,15 @@ public class AvroAnyPrimitive implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROANYPRIMITIVE;
+	}
+
+	@Override
+	public String convertToJson(Object value) {
+		if (value == null) {
+			return "null";
+		} else {
+			return "\"" + value.toString() + "\"";
+		}
 	}
 
 }

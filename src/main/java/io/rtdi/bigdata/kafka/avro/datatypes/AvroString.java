@@ -6,6 +6,9 @@ import org.apache.avro.LogicalTypes.LogicalTypeFactory;
 import org.apache.avro.Schema.Type;
 import org.apache.avro.util.Utf8;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 import io.rtdi.bigdata.kafka.avro.AvroUtils;
 
@@ -18,7 +21,8 @@ public class AvroString extends LogicalType implements IAvroPrimitive {
 	private static Schema schema;
 	public static final String NAME = "STRING";
 	private static AvroString element = new AvroString();
-	
+	private ObjectMapper om = new ObjectMapper();
+
 	static {
 		schema = create().addToSchema(Schema.create(Type.STRING));
 	}
@@ -29,7 +33,7 @@ public class AvroString extends LogicalType implements IAvroPrimitive {
 	public static Schema getSchema() {
 		return schema;
 	}
-	
+
 	/**
 	 * Constructor for this static instance
 	 */
@@ -61,8 +65,12 @@ public class AvroString extends LogicalType implements IAvroPrimitive {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -70,7 +78,7 @@ public class AvroString extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -103,7 +111,7 @@ public class AvroString extends LogicalType implements IAvroPrimitive {
 	}
 
 	public static class Factory implements LogicalTypeFactory {
-		
+
 		public Factory() {
 		}
 
@@ -137,6 +145,16 @@ public class AvroString extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROSTRING;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException, JsonProcessingException {
+		String b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return om.writeValueAsString(b);
+		}
 	}
 
 }

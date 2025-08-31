@@ -11,7 +11,6 @@ public class AvroField extends Field {
 
 	public static final String COLUMN_PROP_SOURCEDATATYPE = "__source_data_type";
 	public static final String COLUMN_PROP_ORIGINALNAME = "__originalname";
-	public static final String COLUMN_PROP_PRIMARYKEY = "__primary_key_column";
 	public static final String COLUMN_PROP_INTERNAL = "__internal";
 	public static final String COLUMN_PROP_TECHNICAL = "__technical"; // cannot be used in mappings as the values are set when sending the rows to the pipeline server
 	public static final String COLUMN_PROP_CONTENT_SENSITIVITY = "__sensitivity";
@@ -42,11 +41,11 @@ public class AvroField extends Field {
 		super(AvroNameEncoder.encodeName(name), getSchema(schema, nullable), doc, defaultValue, order);
 		setOriginalName(name);
 	}
-	
+
 	/**
 	 * Create a new column with the contents based on a compiled schema field.
 	 * Used to derive the key schema from the value schema.
-	 * 
+	 *
 	 * @param f as Avro's field object
 	 */
 	public AvroField(Field f) {
@@ -54,7 +53,7 @@ public class AvroField extends Field {
 		setOriginalName(getOriginalName(f));
 	}
 
-	
+
 	protected static Schema getSchema(Schema schema, boolean nullable) {
 		if (nullable && schema.getType() != Type.UNION) { // a union of union is not supported
 			return Schema.createUnion(Schema.create(Type.NULL), schema);
@@ -64,42 +63,26 @@ public class AvroField extends Field {
 	}
 
 	/**
-	 * Marks the field as primary key
-	 * @return this
-	 */
-	public AvroField setPrimaryKey() {
-		addProp(COLUMN_PROP_PRIMARYKEY, Boolean.TRUE);
-		return this;
-	}
-	
-	/**
-	 * @return true in case the field is marked as primary key
-	 */
-	public boolean isPrimaryKey() {
-		return isPrimaryKey(this);
-	}
-	
-	/**
 	 * Set the source specific data type string - used as information only
-	 * 
-	 * @param sourcedatatype any textual identifier for the source system data type 
+	 *
+	 * @param sourcedatatype any textual identifier for the source system data type
 	 * @return this
 	 */
 	public AvroField setSourceDataType(String sourcedatatype) {
 		addProp(COLUMN_PROP_SOURCEDATATYPE, sourcedatatype);
 		return this;
 	}
-	
+
 	/**
 	 * @return the source data type identifier as specified
 	 */
 	public String getSourceDataType() {
 		return getSourceDataType(this);
 	}
-	
+
 	/**
 	 * Define the security related sensitivity of this field.
-	 * 
+	 *
 	 * @param sensitivity of the field content
 	 * @return this
 	 */
@@ -107,33 +90,33 @@ public class AvroField extends Field {
 		addProp(COLUMN_PROP_CONTENT_SENSITIVITY, sensitivity.name());
 		return this;
 	}
-	
+
 	/**
 	 * @return the field's content sensitivity
 	 */
 	public ContentSensitivity getSensitivity() {
 		return getContentSensitivity(this);
 	}
-	
+
 	/**
 	 * The Avro field name has tight naming rules, less than what e.g. databases allow as field names
-	 *   
+	 *
 	 * @param name of the source field
 	 */
 	private void setOriginalName(String name) {
 		addProp(COLUMN_PROP_ORIGINALNAME, name);
 	}
-	
+
 	/**
 	 * @return the name of the source field, usually the decoded Avro field name
 	 */
 	public String getOriginalName() {
 		return getOriginalName(this);
 	}
-	
+
 	/**
 	 * Mark the field as an internal field, not one that is part of any official payload - source system id for example
-	 * 
+	 *
 	 * @return this
 	 */
 	public AvroField setInternal() {
@@ -150,7 +133,7 @@ public class AvroField extends Field {
 
 	/**
 	 * Mark the field as technical field, a field that is not part of the actual payload but contains some more data needed for other reasons
-	 * 
+	 *
 	 * @return this
 	 */
 	public AvroField setTechnical() {
@@ -167,22 +150,7 @@ public class AvroField extends Field {
 
 	/**
 	 * Method to extract the metadata from any field.
-	 * 
-	 * @param field from which the metadata is to be read from
-	 * @return true in case it was marked as a primary key
-	 */
-	public static boolean isPrimaryKey(Field field) {
-		Object pk = field.getObjectProp(COLUMN_PROP_PRIMARYKEY);
-		if (pk != null && pk instanceof Boolean) {
-			return (boolean) pk;
-		} else {
-			return false;
-		}
-	}
-	
-	/**
-	 * Method to extract the metadata from any field.
-	 * 
+	 *
 	 * @param field from which the metadata is to be read from
 	 * @return the original source field name
 	 */
@@ -194,10 +162,10 @@ public class AvroField extends Field {
 			return field.name();
 		}
 	}
-	
+
 	/**
 	 * Method to extract the metadata from any field.
-	 * 
+	 *
 	 * @param field from which the metadata is to be read from
 	 * @return the free text source data type identifier
 	 */
@@ -212,7 +180,7 @@ public class AvroField extends Field {
 
 	/**
 	 * Method to extract the metadata from any field.
-	 * 
+	 *
 	 * @param field from which the metadata is to be read from
 	 * @return true in case it was marked as internal field
 	 */
@@ -224,10 +192,10 @@ public class AvroField extends Field {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Method to extract the metadata from any field.
-	 * 
+	 *
 	 * @param field from which the metadata is to be read from
 	 * @return true in case it was marked as technical field
 	 */
@@ -239,10 +207,10 @@ public class AvroField extends Field {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Method to extract the metadata from any field.
-	 * 
+	 *
 	 * @param field from which the metadata is to be read from
 	 * @return the sensitivity information set for this field or PUBLIC
 	 */

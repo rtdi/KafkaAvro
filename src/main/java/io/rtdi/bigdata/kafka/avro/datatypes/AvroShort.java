@@ -152,4 +152,14 @@ public class AvroShort extends LogicalType implements IAvroPrimitive {
 		return AvroType.AVROSHORT;
 	}
 
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		Short b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return b.toString();
+		}
+	}
+
 }

@@ -273,7 +273,7 @@ public class SchemaCreationTest {
 	public void test() {
 		try {
 			ValueSchema builder = new ValueSchema("Schema1", null);
-			builder.add("PKCOL1", AvroNVarchar.getSchema(10), null, false).setPrimaryKey();
+			builder.add("PKCOL1", AvroNVarchar.getSchema(10), null, false);
 			builder.add("An/Avron&unsupported$Columnname", AvroInt.getSchema(), null, true);
 			builder.addColumnArray("ARRAY1", AvroDate.getSchema(), "Array of dates");
 			SchemaBuilder nested_record_builder = new SchemaBuilder("nested_schema1", null);
@@ -281,6 +281,7 @@ public class SchemaCreationTest {
 			nested_record_builder.add("N2", AvroDouble.getSchema(), null, true);
 			builder.addColumnRecord("nested_record", nested_record_builder , null, true);
 			builder.addColumnRecordArray("children", nested_record_builder, null);
+			builder.setPrimaryKey("PKCOL1");
 			builder.build();
 			Schema actualschema = builder.getSchema();
 			Schema expectedschema = new Schema.Parser().parse(expectedschemajson);

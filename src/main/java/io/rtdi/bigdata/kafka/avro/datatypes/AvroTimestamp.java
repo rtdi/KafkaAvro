@@ -68,7 +68,7 @@ public class AvroTimestamp extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return time.hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -104,7 +104,7 @@ public class AvroTimestamp extends LogicalType implements IAvroPrimitive {
 	}
 
 	public static class Factory implements LogicalTypeFactory {
-		
+
 		public Factory() {
 		}
 
@@ -140,6 +140,16 @@ public class AvroTimestamp extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROTIMESTAMPMILLIS;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		Instant b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return "\"" + b.toString() + "\"";
+		}
 	}
 
 }

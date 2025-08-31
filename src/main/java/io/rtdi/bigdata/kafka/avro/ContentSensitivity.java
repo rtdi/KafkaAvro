@@ -14,5 +14,17 @@ public enum ContentSensitivity {
 	 * This data by itself is highly sensitive, it is personal information.
 	 * Examples like Social Security Number, Credit Card information, address details.
 	 */
-	PRIVATE
+	PRIVATE,
+	/**
+	 * Data falling under certain regulations like EAR, Dual Use, ITAR and others
+	 */
+	REGULATED,
+	/**
+	 * Personally Identifiable Information
+	 */
+	PII,
+	/**
+	 * Protected Health Information
+	 */
+	PHI
 }

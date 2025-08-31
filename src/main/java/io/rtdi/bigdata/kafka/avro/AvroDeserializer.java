@@ -21,6 +21,10 @@ import io.rtdi.bigdata.kafka.avro.datatypes.LogicalDataTypesRegistry;
 public class AvroDeserializer {
 
 	private static final DecoderFactory decoderFactory = DecoderFactory.get();
+	/**
+	 * The decoder to be reused.
+	 */
+	protected BinaryDecoder decoder;
 
 	static {
 		LogicalDataTypesRegistry.registerAll();
@@ -50,12 +54,14 @@ public class AvroDeserializer {
 	 * Converts a byte[] into an Avro GenericRecord using the supplied schema.
 	 * The schema must be read from the schema registry using the message's schema id, see {@link #getSchemaId(byte[])}
 	 *
+	 * This clas is not thread safe as it is reusing the Avro decoder.
+	 *
 	 * @param data with the binary Avro representation
 	 * @param schema used for the deserialization
 	 * @return AvroRecord in Jexl abstraction
 	 * @throws IOException in case this is not a valid Avro Kafka message
 	 */
-	public static GenericRecord deserialize(byte[] data, Schema schema) throws IOException {
+	public GenericRecord deserialize(byte[] data, Schema schema) throws IOException {
 		if (data != null) {
 			try (ByteArrayInputStream in = new ByteArrayInputStream(data); ) {
 				int b = in.read();
@@ -63,7 +69,7 @@ public class AvroDeserializer {
 					throw new IOException("Not a valid Kafka Avro message frame");
 				} else {
 					in.skip(Integer.BYTES);
-					BinaryDecoder decoder = decoderFactory.directBinaryDecoder(in, null);
+					decoder = decoderFactory.directBinaryDecoder(in, decoder);
 					DatumReader<GenericRecord> reader = new GenericDatumReader<>(schema);
 					return reader.read(null, decoder);
 				}

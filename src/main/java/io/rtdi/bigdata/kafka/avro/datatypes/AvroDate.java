@@ -72,7 +72,7 @@ public class AvroDate extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return date.hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -115,7 +115,7 @@ public class AvroDate extends LogicalType implements IAvroPrimitive {
 	}
 
 	public static class Factory implements LogicalTypeFactory {
-		
+
 		public Factory() {
 		}
 
@@ -151,6 +151,16 @@ public class AvroDate extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVRODATE;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		LocalDate b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return "\"" + b.toString() + "\"";
+		}
 	}
 
 }

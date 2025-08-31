@@ -74,7 +74,7 @@ public class AvroTimeMicros extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return time.hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -118,7 +118,7 @@ public class AvroTimeMicros extends LogicalType implements IAvroPrimitive {
 	}
 
 	public static class Factory implements LogicalTypeFactory {
-		
+
 		public Factory() {
 		}
 
@@ -154,6 +154,16 @@ public class AvroTimeMicros extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROTIMEMICROS;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		LocalTime b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return "\"" + b.toString() + "\"";
+		}
 	}
 
 }

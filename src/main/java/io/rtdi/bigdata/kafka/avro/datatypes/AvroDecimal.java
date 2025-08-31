@@ -51,7 +51,7 @@ public class AvroDecimal extends LogicalType implements IAvroPrimitive {
 		}
 		return getSchema(precision, scale);
 	}
-	
+
 	/**
 	 * @param schema with the decimal details
 	 * @return the corresponding AvroDecimal
@@ -71,7 +71,7 @@ public class AvroDecimal extends LogicalType implements IAvroPrimitive {
 	/**
 	 * @param precision number of digits the decimal can hold
 	 * @param scale number of digits used for the scale
-	 * @return an AvroDecimal with the provided precision and scale 
+	 * @return an AvroDecimal with the provided precision and scale
 	 */
 	public static AvroDecimal create(int precision, int scale) {
 		return new AvroDecimal(precision, scale);
@@ -139,7 +139,7 @@ public class AvroDecimal extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return decimal.hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME + "(" + decimal.getPrecision() + "," + decimal.getScale() + ")";
@@ -183,7 +183,7 @@ public class AvroDecimal extends LogicalType implements IAvroPrimitive {
 	}
 
 	public static class Factory implements LogicalTypeFactory {
-		
+
 		public Factory() {
 		}
 
@@ -232,6 +232,16 @@ public class AvroDecimal extends LogicalType implements IAvroPrimitive {
 			return DECIMAL_CONVERTER.fromBytes((ByteBuffer) value, null, decimal);
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Decimal");
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		BigDecimal b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return "\"" + b.toString() + "\"";
+		}
 	}
 
 }

@@ -59,8 +59,12 @@ public class AvroBoolean extends LogicalType implements IAvroPrimitive {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -68,7 +72,7 @@ public class AvroBoolean extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -108,7 +112,7 @@ public class AvroBoolean extends LogicalType implements IAvroPrimitive {
 	}
 
 	public static class Factory implements LogicalTypeFactory {
-		
+
 		public Factory() {
 		}
 
@@ -139,6 +143,15 @@ public class AvroBoolean extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROBOOLEAN;
+	}
+
+	@Override
+	public String convertToJson(Object value) {
+		if (value == null) {
+			return "null";
+		} else {
+			return value.toString();
+		}
 	}
 
 }

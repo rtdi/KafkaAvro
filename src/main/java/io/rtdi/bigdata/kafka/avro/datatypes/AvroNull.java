@@ -107,4 +107,9 @@ public class AvroNull extends LogicalType implements IAvroPrimitive {
 		return AvroType.AVRONULL;
 	}
 
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		return "null";
+	}
+
 }

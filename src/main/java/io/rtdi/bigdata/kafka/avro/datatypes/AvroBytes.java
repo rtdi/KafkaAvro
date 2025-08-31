@@ -1,6 +1,7 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
 import java.nio.ByteBuffer;
+import java.util.Base64;
 
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
@@ -29,14 +30,14 @@ public class AvroBytes extends LogicalType implements IAvroPrimitive {
 	public static Schema getSchema() {
 		return schema;
 	}
-	
+
 	/**
 	 * Constructor for this static instance
 	 */
 	private AvroBytes() {
 		super(NAME);
 	}
-	
+
 	/**
 	 * Create an instance of that type.
 	 * @return the instance
@@ -61,8 +62,12 @@ public class AvroBytes extends LogicalType implements IAvroPrimitive {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -70,7 +75,7 @@ public class AvroBytes extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -101,7 +106,7 @@ public class AvroBytes extends LogicalType implements IAvroPrimitive {
 	}
 
 	public static class Factory implements LogicalTypeFactory {
-		
+
 		public Factory() {
 		}
 
@@ -134,6 +139,16 @@ public class AvroBytes extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROBYTES;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		byte[] b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return "\"" + Base64.getEncoder().encodeToString(b) + "\"";
+		}
 	}
 
 }

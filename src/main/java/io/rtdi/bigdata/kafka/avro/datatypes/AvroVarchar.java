@@ -6,25 +6,30 @@ import org.apache.avro.LogicalType;
 import org.apache.avro.Schema;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
 import org.apache.avro.Schema.Type;
+import org.apache.avro.util.Utf8;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 import io.rtdi.bigdata.kafka.avro.AvroUtils;
 
 /**
- * A varchar is a string up to a provided max length, holds ASCII chars only (minus special chars like backspace) 
- * and is sorted and compared binary. 
+ * A varchar is a string up to a provided max length, holds ASCII chars only (minus special chars like backspace)
+ * and is sorted and compared binary.
  *
  */
 public class AvroVarchar extends LogicalTypeWithLength {
 	public static final Factory factory = new Factory();
 	public static final String NAME = "VARCHAR";
 	private Schema schema;
+	private ObjectMapper om = new ObjectMapper();
 
 	private AvroVarchar(int length) {
 		super(NAME, length);
 		schema = addToSchema(Schema.create(Type.STRING));
 	}
-	
+
 	/**
 	 * Create an instance of that type.
 	 * @param length of the data type
@@ -52,7 +57,7 @@ public class AvroVarchar extends LogicalTypeWithLength {
 		if (l > 0) {
 			return new AvroVarchar(l);
 		} else {
-			 throw new AvroDataTypeException("The supplied data type \"" + text + "\" cannot be parsed into a length portion");
+			throw new AvroDataTypeException("The supplied data type \"" + text + "\" cannot be parsed into a length portion");
 		}
 	}
 
@@ -63,7 +68,7 @@ public class AvroVarchar extends LogicalTypeWithLength {
 	public static Schema getSchema(int length) {
 		return create(length).addToSchema(Schema.create(Type.STRING));
 	}
-	
+
 	/**
 	 * @param text as the textual representation of this data type in the form of VARCHAR(10)
 	 * @return the schema of the logical type
@@ -102,11 +107,15 @@ public class AvroVarchar extends LogicalTypeWithLength {
 	}
 
 	@Override
-	public CharSequence convertToJava(Object value) throws AvroDataTypeException {
+	public String convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
+		} else if (value instanceof String) {
+			return (String) value;
+		} else if (value instanceof Utf8) {
+			return ((Utf8) value).toString();
 		} else if (value instanceof CharSequence) {
-			return (CharSequence) value;
+			return value.toString();
 		} else {
 			return value.toString();
 		}
@@ -125,7 +134,7 @@ public class AvroVarchar extends LogicalTypeWithLength {
 	}
 
 	public static class Factory implements LogicalTypeFactory {
-		
+
 		public Factory() {
 		}
 
@@ -149,6 +158,16 @@ public class AvroVarchar extends LogicalTypeWithLength {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROVARCHAR;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException, JsonProcessingException {
+		String b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return om.writeValueAsString(b);
+		}
 	}
 
 }

@@ -26,5 +26,9 @@ public class SchemaConstants {
 	 * The extension placeholder.
 	 */
 	public static final String SCHEMA_COLUMN_EXTENSION = "__extension";
+	/**
+	 * Truncate information in case the change type is truncate.
+	 */
+	public static final String SCHEMA_COLUMN_TRUNCATE = "__truncate";
 
 }

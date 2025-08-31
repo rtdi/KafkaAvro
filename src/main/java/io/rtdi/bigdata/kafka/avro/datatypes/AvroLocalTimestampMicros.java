@@ -70,7 +70,7 @@ public class AvroLocalTimestampMicros extends LogicalType implements IAvroPrimit
 	public int hashCode() {
 		return time.hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -109,7 +109,7 @@ public class AvroLocalTimestampMicros extends LogicalType implements IAvroPrimit
 	}
 
 	public static class Factory implements LogicalTypeFactory {
-		
+
 		public Factory() {
 		}
 
@@ -146,6 +146,16 @@ public class AvroLocalTimestampMicros extends LogicalType implements IAvroPrimit
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROLOCALTIMESTAMPMICROS;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		LocalDateTime b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return "\"" + b.toString() + "\"";
+		}
 	}
 
 }

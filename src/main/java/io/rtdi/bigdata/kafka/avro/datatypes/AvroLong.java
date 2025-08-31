@@ -1,8 +1,8 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
 import org.apache.avro.LogicalType;
-import org.apache.avro.Schema;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
+import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
@@ -140,6 +140,16 @@ public class AvroLong extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROLONG;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		Long b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return b.toString();
+		}
 	}
 
 }

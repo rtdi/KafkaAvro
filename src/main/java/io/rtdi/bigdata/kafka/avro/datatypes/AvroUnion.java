@@ -1,11 +1,17 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
+import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
+import org.apache.avro.generic.GenericData.EnumSymbol;
+import org.apache.avro.generic.GenericData.Fixed;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 
@@ -96,4 +102,67 @@ public class AvroUnion implements IAvroDatatype {
 		this.types = types;
 	}
 
+	public Schema getDatatypeSchemaFor(Object value) {
+		if (value == null) {
+			return null;
+		} else if (value instanceof GenericRecord) {
+			GenericRecord r = (GenericRecord) value;
+			return r.getSchema();
+		} else if (value instanceof EnumSymbol) {
+			EnumSymbol s = ((EnumSymbol) value);
+			return s.getSchema();
+		} else if (value instanceof Fixed) {
+			Fixed f = ((Fixed) value);
+			return f.getSchema();
+		} else if (value instanceof List<?>) {
+			return findType(Type.ARRAY);
+		} else if (value instanceof CharSequence) {
+			return findType(Type.STRING);
+		} else if (value instanceof Long) {
+			return findType(Type.LONG);
+		} else if (value instanceof Float) {
+			return findType(Type.FLOAT);
+		} else if (value instanceof Double) {
+			return findType(Type.DOUBLE);
+		} else if (value instanceof Boolean) {
+			return findType(Type.BOOLEAN);
+		} else if (value instanceof Map) {
+			return findType(Type.MAP);
+		} else if (value instanceof Integer) {
+			return findType(Type.INT);
+		} else if (value instanceof byte[] || value instanceof ByteBuffer) {
+			return findType(Type.BYTES);
+		} else {
+			return null;
+		}
+	}
+
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException, JsonProcessingException {
+		if (value == null) {
+			return "null";
+		} else {
+			Schema schema = getDatatypeSchemaFor(value);
+			if (schema != null) {
+				IAvroDatatype datatype = AvroType.getAvroDataType(schema);
+				if (datatype != null) {
+					return datatype.convertToJson(value);
+				} else {
+					throw new AvroDataTypeException("Cannot convert a value of type \"" + schema.getType().getName() + "\" into a JSON string");
+				}
+			} else {
+				throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a JSON string");
+			}
+		}
+	}
+
+	private Schema findType(Type t) {
+		for (Schema s : types) {
+			if (s.getType() == t) {
+				return s;
+			}
+		}
+		return null;
+	}
 }

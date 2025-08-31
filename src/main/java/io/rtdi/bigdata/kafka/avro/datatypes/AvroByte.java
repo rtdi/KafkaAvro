@@ -34,7 +34,7 @@ public class AvroByte extends LogicalType implements IAvroPrimitive {
 	private AvroByte() {
 		super(NAME);
 	}
-	
+
 	/**
 	 * Create an instance of that type.
 	 * @return the instance
@@ -59,8 +59,12 @@ public class AvroByte extends LogicalType implements IAvroPrimitive {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -68,7 +72,7 @@ public class AvroByte extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -80,7 +84,7 @@ public class AvroByte extends LogicalType implements IAvroPrimitive {
 			b.append(value.toString());
 		}
 	}
-	
+
 	@Override
 	public Integer convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
@@ -98,7 +102,7 @@ public class AvroByte extends LogicalType implements IAvroPrimitive {
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Byte");
 	}
-	
+
 	private Integer validate(Integer value) throws AvroDataTypeException {
 		if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE) {
 			return value;
@@ -108,7 +112,7 @@ public class AvroByte extends LogicalType implements IAvroPrimitive {
 	}
 
 	public static class Factory implements LogicalTypeFactory {
-		
+
 		public Factory() {
 		}
 
@@ -146,6 +150,16 @@ public class AvroByte extends LogicalType implements IAvroPrimitive {
 			return ((Number) value).byteValue();
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Byte");
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		Byte b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return b.toString();
+		}
 	}
 
 }
