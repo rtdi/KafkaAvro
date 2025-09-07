@@ -57,7 +57,7 @@ public interface IAvroDatatype {
 	 * Convert the value to a JSON string representation.
 	 * Useful in case a complex type like a record must be stored as JSON string.
 	 *
-	 * @param value
+	 * @param value Java object as read from the Record
 	 * @return the JSON string representation of the value
 	 * @throws AvroDataTypeException if the conversion fails
 	 * @throws JsonProcessingException if the conversion to JSON fails

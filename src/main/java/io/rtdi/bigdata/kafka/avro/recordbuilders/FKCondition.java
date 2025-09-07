@@ -48,7 +48,7 @@ public class FKCondition {
 	/**
 	 * Add a created condition to the list of conditions.
 	 *
-	 * @param condition
+	 * @param condition the condition to add
 	 */
 	public void addCondition(JoinCondition condition) {
 		if (conditions == null) {
@@ -60,8 +60,8 @@ public class FKCondition {
 	/**
 	 * Add a created condition to the list of conditions.
 	 *
-	 * @param condition
-	 * @return this
+	 * @param condition the condition to add
+	 * @return this for chaining
 	 */
 	public FKCondition withCondition(JoinCondition condition) {
 		addCondition(condition);
@@ -71,9 +71,9 @@ public class FKCondition {
 	/**
 	 * Shortcut for creating a join condition and adding it to the list of conditions.
 	 *
-	 * @param left
-	 * @param right
-	 * @param condition
+	 * @param left the left side of the condition
+	 * @param right the right side of the condition
+	 * @param condition the condition operator, e.g. "="
 	 */
 	public void addCondition(String left, String right, String condition) {
 		addCondition(new JoinCondition(left, right, condition));
@@ -82,10 +82,10 @@ public class FKCondition {
 	/**
 	 * Shortcut for creating a join condition and adding it to the list of conditions.
 	 *
-	 * @param left
-	 * @param right
-	 * @param condition
-	 * @return this
+	 * @param left left side of the condition
+	 * @param right right side of the condition
+	 * @param condition the condition operator, e.g. "="
+	 * @return this for chaining
 	 */
 	public FKCondition withCondition(String left, String right, String condition) {
 		addCondition(left, right, condition);
@@ -95,7 +95,7 @@ public class FKCondition {
 	/**
 	 * Set the list of conditions, overwriting any existing ones.
 	 *
-	 * @param conditions
+	 * @param conditions the list of conditions to set
 	 */
 	public void setConditions(List<JoinCondition> conditions) {
 		this.conditions = conditions;
@@ -118,7 +118,7 @@ public class FKCondition {
 	/**
 	 * Set the fully qualified name of the schema this FK points to
 	 *
-	 * @param schema_fqn
+	 * @param schema_fqn the fully qualified name of the schema this FK points to
 	 */
 	public void setSchemaFQN(String schema_fqn) {
 		this.schema_fqn = schema_fqn;
@@ -135,7 +135,7 @@ public class FKCondition {
 	/**
 	 * Set the name of this fk condition
 	 *
-	 * @param name
+	 * @param name the name of this fk condition
 	 */
 	public void setName(String name) {
 		this.name = name;

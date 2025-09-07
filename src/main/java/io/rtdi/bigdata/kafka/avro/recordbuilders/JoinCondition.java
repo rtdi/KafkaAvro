@@ -21,7 +21,7 @@ public class JoinCondition {
 	 *
 	 * @param left
 	 * @param right
-	 * @param condition is a SQL operator like =, <, >, <=, >=, <>
+	 * @param condition is a SQL operator like =, &lt;, &gt;, &lt;=, &gt;=, &lt;&gt;
 	 */
 	public JoinCondition(String left, String right, String condition) {
 		this();

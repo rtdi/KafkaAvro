@@ -261,7 +261,7 @@ public class ValueSchema extends SchemaBuilder {
 	/**
 	 * Add a foreign key relationship to another schema.
 	 *
-	 * @param condition
+	 * @param condition the FKCondition to add
 	 */
 	public void addForeignKey(FKCondition condition) {
 		if (fks == null) {
@@ -313,7 +313,7 @@ public class ValueSchema extends SchemaBuilder {
 	/**
 	 * Hint the retention period for this data
 	 *
-	 * @param period
+	 * @param period as Duration
 	 */
 	public void setRetentionPeriod(Duration period) {
 		addProp(SCHEMA_INFO_RETENTION_PERIOD, period);
@@ -322,7 +322,7 @@ public class ValueSchema extends SchemaBuilder {
 	/**
 	 * Hint the deletion policy for this data
 	 *
-	 * @param policy
+	 * @param policy the deletion policy
 	 */
 	public void setDeletionPolicy(DeletionPolicy policy) {
 		addProp(SCHEMA_INFO_DELETION_POLICY, policy);
