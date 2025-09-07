@@ -15,7 +15,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroBytes extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create an instance of this class
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * Fixed name of this type
+	 */
 	public static final String NAME = "BYTES";
 	private static AvroBytes element = new AvroBytes();
 	private static Schema schema;
@@ -105,8 +111,14 @@ public class AvroBytes extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a byte[]");
 	}
 
+	/**
+	 * Factory to create an instance of this class
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Factory constructor
+		 */
 		public Factory() {
 		}
 

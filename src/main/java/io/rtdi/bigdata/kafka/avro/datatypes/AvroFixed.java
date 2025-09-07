@@ -16,7 +16,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
+	/**
+	 * Factory instance to be registered with Avro
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * Name of this data type in Avro schema
+	 */
 	public static final String NAME = "FIXED";
 	private Schema schema;
 
@@ -44,6 +50,12 @@ public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
 		return new AvroFixed(name, namespace, length, doc);
 	}
 
+	/**
+	 * Create the logical type from the schema. The schema must be of type FIXED.
+	 *
+	 * @param schema to create the logical type from
+	 * @return the logical type
+	 */
 	public static AvroFixed create(Schema schema) {
 		AvroFixed element = new AvroFixed(schema.getFixedSize());
 		element.schema = schema;
@@ -77,6 +89,11 @@ public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
 		return create(length).getSchema();
 	}
 
+	/**
+	 * Get the schema that describes this logical type
+	 *
+	 * @return the schema
+	 */
 	public Schema getSchema() {
 		return schema;
 	}
@@ -142,8 +159,14 @@ public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Fixed");
 	}
 
+	/**
+	 * Factory class to create this logical type from a schema
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor to be used by Avro when the factory is registered
+		 */
 		public Factory() {
 		}
 

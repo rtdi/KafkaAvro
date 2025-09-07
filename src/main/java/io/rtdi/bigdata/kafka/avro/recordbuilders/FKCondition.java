@@ -3,12 +3,18 @@ package io.rtdi.bigdata.kafka.avro.recordbuilders;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Foreign Key condition that points to another schema.
+ */
 public class FKCondition {
 
 	private String name;
 	private String schema_fqn;
 	private List<JoinCondition> conditions;
 
+	/**
+	 * Default constructor
+	 */
 	public FKCondition() {
 	}
 
@@ -25,6 +31,15 @@ public class FKCondition {
 		this.conditions = null;
 	}
 
+	/**
+	 * Short hand for creating a FK relationship with one condition.
+	 *
+	 * @param name arbitrary name of the relationship
+	 * @param schema_fqn fully qualified name of the schema this FK points to
+	 * @param left the left side of the condition
+	 * @param right the right side of the condition
+	 * @param condition the condition operator, e.g. "="
+	 */
 	public FKCondition(String name, String schema_fqn, String left, String right, String condition) {
 		this(name, schema_fqn);
 		addCondition(left, right, condition);

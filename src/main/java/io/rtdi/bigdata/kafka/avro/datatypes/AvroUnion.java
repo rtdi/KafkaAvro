@@ -15,7 +15,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 
+/**
+ * Union of multiple types
+ */
 public class AvroUnion implements IAvroDatatype {
+	/**
+	 * The name of the type as used in the Avro schema
+	 */
 	public static final String NAME = "UNION";
 	private List<Schema> types;
 
@@ -39,6 +45,12 @@ public class AvroUnion implements IAvroDatatype {
 		return new AvroUnion();
 	}
 
+	/**
+	 * Create an instance of that type based on the schema definition.
+	 *
+	 * @param schema the schema to create the type from
+	 * @return the instance
+	 */
 	public static IAvroDatatype create(Schema schema) {
 		return new AvroUnion(schema);
 	}
@@ -94,14 +106,30 @@ public class AvroUnion implements IAvroDatatype {
 		return AvroType.AVROUNION;
 	}
 
+	/**
+	 * Get the list of types that are part of this union
+	 *
+	 * @return the list of types
+	 */
 	public List<Schema> getTypes() {
 		return types;
 	}
 
+	/**
+	 * Set the list of types that are part of this union
+	 *
+	 * @param types the list of types
+	 */
 	public void setTypes(List<Schema> types) {
 		this.types = types;
 	}
 
+	/**
+	 * Get the schema of the datatype that matches the value's type
+	 *
+	 * @param value the value to find the schema for
+	 * @return the schema or null if not found
+	 */
 	public Schema getDatatypeSchemaFor(Object value) {
 		if (value == null) {
 			return null;

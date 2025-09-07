@@ -15,7 +15,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroSTGeometry extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create an instance of this class when reading the schema.
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * The name of the logical type as used in the Avro schema
+	 */
 	public static final String NAME = "ST_GEOMETRY";
 	private static AvroSTGeometry element = new AvroSTGeometry();
 	private static Schema schema;
@@ -113,8 +119,14 @@ public class AvroSTGeometry extends LogicalType implements IAvroPrimitive {
 		}
 	}
 
+	/**
+	 * Factory to create an instance of this class when reading the schema.
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor for the factory
+		 */
 		public Factory() {
 		}
 

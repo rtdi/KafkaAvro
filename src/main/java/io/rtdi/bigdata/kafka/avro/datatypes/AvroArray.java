@@ -19,7 +19,13 @@ import io.rtdi.bigdata.kafka.avro.AvroUtils;
  *
  */
 public class AvroArray extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory instance to be registered with Avro
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * The name of this logical type
+	 */
 	public static final String NAME = "ARRAY";
 	private Schema schema;
 
@@ -121,8 +127,14 @@ public class AvroArray extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a List");
 	}
 
+	/**
+	 * Factory to create the logical type during Avro schema parsing
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor to register the factory with Avro
+		 */
 		public Factory() {
 		}
 

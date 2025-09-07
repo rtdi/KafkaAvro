@@ -7,8 +7,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 
+/**
+ * The foundation of all Avro data types.
+ */
 public interface IAvroDatatype {
 
+	/**
+	 * @param b the StringBuffer to append to
+	 * @param value the value to convert to a string
+	 */
 	void toString(StringBuffer b, Object value);
 
 	/**
@@ -53,7 +60,7 @@ public interface IAvroDatatype {
 	 * @param value
 	 * @return the JSON string representation of the value
 	 * @throws AvroDataTypeException if the conversion fails
-	 * @throws JsonProcessingException
+	 * @throws JsonProcessingException if the conversion to JSON fails
 	 */
 	String convertToJson(Object value) throws AvroDataTypeException, JsonProcessingException;
 }

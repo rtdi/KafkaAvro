@@ -22,11 +22,17 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroDate extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create an instance of this logical type
+	 */
 	public static final Factory factory = new Factory();
 	private static Schema schema;
 	static {
 		schema = LogicalTypes.date().addToSchema(Schema.create(Type.INT));
 	}
+	/**
+	 * The name of this type as used in the schema definition
+	 */
 	public static final String NAME = "DATE";
 	private static AvroDate element = new AvroDate();
 	private org.apache.avro.LogicalTypes.Date date = LogicalTypes.date();
@@ -114,8 +120,14 @@ public class AvroDate extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Date");
 	}
 
+	/**
+	 * Factory to create an instance of this logical type
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor for the factory
+		 */
 		public Factory() {
 		}
 

@@ -15,6 +15,9 @@ import io.rtdi.bigdata.kafka.avro.datatypes.AvroNVarchar;
 import io.rtdi.bigdata.kafka.avro.recordbuilders.SchemaBuilder;
 import io.rtdi.bigdata.kafka.avro.recordbuilders.ValueSchema;
 
+/**
+ * Some basic tests to create a schema
+ */
 public class SchemaCreationTest {
 
 	private static final String expectedschemajson = "{\r\n"
@@ -261,14 +264,24 @@ public class SchemaCreationTest {
 			+ "  } ],\r\n"
 			+ "  \"__originalname\" : \"Schema1\"\r\n"
 			+ "}";
+
+	/**
+	 * @throws Exception
+	 */
 	@BeforeAll
 	public static void setUp() throws Exception {
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	@AfterAll
 	public static void tearDown() throws Exception {
 	}
 
+	/**
+	 * Tessts
+	 */
 	@Test
 	public void test() {
 		try {

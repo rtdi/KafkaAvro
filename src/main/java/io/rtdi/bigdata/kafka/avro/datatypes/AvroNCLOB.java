@@ -18,7 +18,13 @@ import io.rtdi.bigdata.kafka.avro.AvroUtils;
  *
  */
 public class AvroNCLOB extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create instances of this class
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * The name of the type as used in the Avro schema
+	 */
 	public static final String NAME = "NCLOB";
 	private static AvroNCLOB element = new AvroNCLOB();
 	private static Schema schema;
@@ -120,8 +126,14 @@ public class AvroNCLOB extends LogicalType implements IAvroPrimitive {
 		}
 	}
 
+	/**
+	 * Factory to create instances of this class
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor for the factory
+		 */
 		public Factory() {
 		}
 

@@ -20,7 +20,13 @@ import io.rtdi.bigdata.kafka.avro.AvroUtils;
  *
  */
 public class AvroVarchar extends LogicalTypeWithLength {
+	/**
+	 * Factory instance to be registered with the Avro library
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * Name of the logical type as used in Avro schemas
+	 */
 	public static final String NAME = "VARCHAR";
 	private Schema schema;
 	private ObjectMapper om = new ObjectMapper();
@@ -133,8 +139,14 @@ public class AvroVarchar extends LogicalTypeWithLength {
 		}
 	}
 
+	/**
+	 * Factory to create an instance of this logical type from the schema
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor to register the factory with the Avro library
+		 */
 		public Factory() {
 		}
 

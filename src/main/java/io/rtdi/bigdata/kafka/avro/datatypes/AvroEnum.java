@@ -15,7 +15,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroEnum extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory instance to be registered with Avro
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * Name of the logical type
+	 */
 	public static final String NAME = "ENUM";
 	private Schema schema;
 
@@ -153,8 +159,14 @@ public class AvroEnum extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Enum");
 	}
 
+	/**
+	 * Factory to create this logical type
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor to register with Avro
+		 */
 		public Factory() {
 		}
 

@@ -5,17 +5,38 @@ package io.rtdi.bigdata.kafka.avro.datatypes;
  *
  */
 public enum AvroDatatypeClass {
+	/**
+	 * ASCII text
+	 */
 	TEXTASCII(0),
+	/**
+	 * Unicode text
+	 */
 	TEXTUNICODE(1),
-	
+
+	/**
+	 * All numeric types
+	 */
 	NUMBER(0),
-	
+
+	/**
+	 * Binary data
+	 */
 	BINARY(0),
-	
+
+	/**
+	 * All other types
+	 */
 	COMPLEX(0),
-	
+
+	/**
+	 * Boolean type
+	 */
 	BOOLEAN(0),
-	
+
+	/**
+	 * Date and Time type
+	 */
 	DATETIME(0);
 
 	private int level;
@@ -30,6 +51,6 @@ public enum AvroDatatypeClass {
 	public int getLevel() {
 		return level;
 	}
-	
+
 
 }

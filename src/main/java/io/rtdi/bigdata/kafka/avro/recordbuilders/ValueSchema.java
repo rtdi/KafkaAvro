@@ -26,23 +26,77 @@ import io.rtdi.bigdata.kafka.avro.datatypes.AvroVarchar;
  */
 public class ValueSchema extends SchemaBuilder {
 
+	/**
+	 * Transform result quality column name
+	 */
 	public static final String AUDIT_TRANSFORMRESULT_QUALITY = "__transformresult_quality";
+	/**
+	 * Transform result text column name
+	 */
 	public static final String AUDITTRANSFORMRESULTTEXT = "__transformresult_text";
+	/**
+	 * Transformation name column name
+	 */
 	public static final String AUDITTRANSFORMATIONNAME = "__transformationname";
+	/**
+	 * Audit details column name
+	 */
 	public static final String AUDITDETAILS = "__details";
+	/**
+	 * Transform result column name
+	 */
 	public static final String TRANSFORMRESULT = "__transformresult";
+	/**
+	 * Audit column name
+	 */
 	public static final String AUDIT = "__audit";
+	/**
+	 * Schema property name for regulations that apply to this schema
+	 */
 	public static final String SCHEMA_INFO_REGULATIONS = "data_classifications";
+	/**
+	 * Schema property name for retention period
+	 */
 	public static final String SCHEMA_INFO_RETENTION_PERIOD = "retention_period";
+	/**
+	 * Schema property name for deletion policy
+	 */
 	public static final String SCHEMA_INFO_DELETION_POLICY = "deletion_policy";
+	/**
+	 * Schema property name for the data product owner email address
+	 */
 	public static final String SCHEMA_INFO_DATAPRODUCT_OWNER = "data_product_owner_email";
+	/**
+	 * Schema property name for the ticket system url
+	 */
 	public static final String SCHEMA_INFO_TICKETS_URL = "tickets_url";
+	/**
+	 * Schema property name for the repository url
+	 */
 	public static final String SCHEMA_INFO_REPO_URL = "repo_url";
+	/**
+	 * Schema property name for the primary key column names (list of strings)
+	 */
 	public static final String PRIMARY_KEYS = "pks";
+	/**
+	 * Schema property name for the foreign key relationships (list of FKCondition objects)
+	 */
 	public static final String FOREIGN_KEYS = "fks";
+	/**
+	 * Extension schema builder
+	 */
 	public static SchemaBuilder extension;
+	/**
+	 * Default audit record builder
+	 */
 	public static SchemaBuilder audit;
+	/**
+	 * Audit details record array builder
+	 */
 	public static AvroRecordArray audit_details;
+	/**
+	 * Audit details array schema (element type of the array)
+	 */
 	public static Schema auditdetails_array_schema;
 
 	static {
@@ -143,7 +197,7 @@ public class ValueSchema extends SchemaBuilder {
 	/**
 	 * Set the url of the ticket system where issues can be reported
 	 *
-	 * @param email as string - not validated
+	 * @param url as string - not validated
 	 */
 	public void setTicketUrl(String url) {
 		addProp(SCHEMA_INFO_TICKETS_URL, url);
@@ -163,8 +217,8 @@ public class ValueSchema extends SchemaBuilder {
 	 *
 	 * @param url as string - not validated
 	 */
-	public void setRepoUrl(String email) {
-		addProp(SCHEMA_INFO_REPO_URL, email);
+	public void setRepoUrl(String url) {
+		addProp(SCHEMA_INFO_REPO_URL, url);
 	}
 
 	/**
@@ -219,7 +273,11 @@ public class ValueSchema extends SchemaBuilder {
 	/**
 	 * Add a simple foreign key relationship to another schema.
 	 *
-	 * @param condition
+	 * @param name name of the FK
+	 * @param schema_fqn target schema fully qualified name
+	 * @param left left side column name
+	 * @param right right side column name
+	 * @param condition optional condition, e.g. "AND enddate IS NULL"
 	 */
 	public void addForeignKey(String name, String schema_fqn, String left, String right, String condition) {
 		FKCondition fk = new FKCondition(name, schema_fqn, left, right, condition);
@@ -294,6 +352,11 @@ public class ValueSchema extends SchemaBuilder {
 		this(name, null, description);
 	}
 
+	/**
+	 * Add the audit field to a schema builder
+	 *
+	 * @param builder to add the audit field to
+	 */
 	public static void addAuditField(SchemaBuilder builder) {
 		builder.addColumnRecord(AUDIT, audit, "If data is transformed this information is recorded here", true).setInternal();
 	}

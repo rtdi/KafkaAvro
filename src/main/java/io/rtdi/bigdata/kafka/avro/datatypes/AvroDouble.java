@@ -12,7 +12,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroDouble extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create instances of this class
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * The name of this type
+	 */
 	public static final String NAME = "DOUBLE";
 	private static AvroDouble element = new AvroDouble();
 	private static Schema schema;
@@ -105,8 +111,14 @@ public class AvroDouble extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Double");
 	}
 
+	/**
+	 * Factory to create instances of {@link AvroDouble}
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor
+		 */
 		public Factory() {
 		}
 

@@ -4,6 +4,9 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilderException;
 
 
+/**
+ * Array record
+ */
 public class AvroRecordArray extends AvroRecordAbstract {
 
 	/**
@@ -35,5 +38,5 @@ public class AvroRecordArray extends AvroRecordAbstract {
 	public SchemaBuilder getArrayElementSchemaBuilder() {
 		return schemabuilder;
 	}
-		
+
 }

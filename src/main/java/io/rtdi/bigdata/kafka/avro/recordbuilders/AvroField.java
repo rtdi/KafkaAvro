@@ -7,12 +7,30 @@ import org.apache.avro.Schema.Type;
 
 import io.rtdi.bigdata.kafka.avro.AvroNameEncoder;
 
+/**
+ * Field in Avro
+ */
 public class AvroField extends Field {
 
+	/**
+	 * Data type information from the source system
+	 */
 	public static final String COLUMN_PROP_SOURCEDATATYPE = "__source_data_type";
+	/**
+	 * Original name of the field, because Avro has a limited set of characters allowed in field names
+	 */
 	public static final String COLUMN_PROP_ORIGINALNAME = "__originalname";
+	/**
+	 * Hint that this field is an internal field
+	 */
 	public static final String COLUMN_PROP_INTERNAL = "__internal";
-	public static final String COLUMN_PROP_TECHNICAL = "__technical"; // cannot be used in mappings as the values are set when sending the rows to the pipeline server
+	/**
+	 * Cannot be used in mappings as the values are set when sending the rows to the pipeline server
+	 */
+	public static final String COLUMN_PROP_TECHNICAL = "__technical";
+	/**
+	 * Column sensitivity information, see {@link ContentSensitivity}
+	 */
 	public static final String COLUMN_PROP_CONTENT_SENSITIVITY = "__sensitivity";
 
 	/**

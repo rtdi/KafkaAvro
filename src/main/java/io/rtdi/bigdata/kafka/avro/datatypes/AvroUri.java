@@ -12,7 +12,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroUri extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory for this datatype
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * The name of the datatype as used in the Avro schema
+	 */
 	public static final String NAME = "URI";
 	private static AvroUri element = new AvroUri();
 	private static Schema schema;
@@ -113,8 +119,14 @@ public class AvroUri extends LogicalType implements IAvroPrimitive {
 		}
 	}
 
+	/**
+	 * Factory to create the datatype from a schema
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor
+		 */
 		public Factory() {
 		}
 

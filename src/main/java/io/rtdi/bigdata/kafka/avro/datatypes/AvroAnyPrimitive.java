@@ -10,6 +10,9 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroAnyPrimitive implements IAvroPrimitive {
+	/**
+	 * Name of this datatype
+	 */
 	public static final String NAME = "ANYPRIMITIVE";
 	private static AvroAnyPrimitive element = new AvroAnyPrimitive();
 	private static Schema schema;

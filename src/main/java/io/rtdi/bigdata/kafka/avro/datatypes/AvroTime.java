@@ -23,8 +23,14 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroTime extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create instances of this class
+	 */
 	public static final Factory factory = new Factory();
 	private static Schema schema;
+	/**
+	 * The name of the type as used in the AVRO schema
+	 */
 	public static final String NAME = "TIME";
 	private static AvroTime element = new AvroTime();
 	private TimeMillis time = LogicalTypes.timeMillis();
@@ -117,8 +123,14 @@ public class AvroTime extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Time");
 	}
 
+	/**
+	 * Factory to create instances of this class
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor of the factory
+		 */
 		public Factory() {
 		}
 

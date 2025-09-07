@@ -12,7 +12,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroInt extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create an instance of this class when reading the schema.
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * The name of the logical type as used in the schema
+	 */
 	public static final String NAME = "INT";
 	private static AvroInt element = new AvroInt();
 	private static Schema schema;
@@ -109,8 +115,14 @@ public class AvroInt extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Integer");
 	}
 
+	/**
+	 * Factory to create an instance of this class when reading the schema.
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor for the factory
+		 */
 		public Factory() {
 		}
 

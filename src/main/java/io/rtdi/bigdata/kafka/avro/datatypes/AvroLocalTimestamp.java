@@ -20,11 +20,17 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroLocalTimestamp extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create an instance of this logical type
+	 */
 	public static final Factory factory = new Factory();
 	private static Schema schema;
 	static {
 		schema = LogicalTypes.localTimestampMillis().addToSchema(Schema.create(Type.LONG));
 	}
+	/**
+	 * The name of the logical type as used in the Avro schema
+	 */
 	public static final String NAME = "LOCALTIMESTAMP";
 	private static AvroLocalTimestamp element = new AvroLocalTimestamp();
 	private LocalTimestampMillis time = LogicalTypes.localTimestampMillis();
@@ -109,8 +115,14 @@ public class AvroLocalTimestamp extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a LocalDateTime");
 	}
 
+	/**
+	 * Factory to create an instance of this logical type
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor of the factory
+		 */
 		public Factory() {
 		}
 

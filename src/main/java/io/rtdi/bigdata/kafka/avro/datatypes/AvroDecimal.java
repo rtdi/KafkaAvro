@@ -20,8 +20,14 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroDecimal extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory instance to be used when registering this logical type
+	 */
 	public static final Factory factory = new Factory();
 	private static final DecimalConversion DECIMAL_CONVERTER = new DecimalConversion();
+	/**
+	 * The name of this logical type as used in the schema
+	 */
 	public static final String NAME = "decimal";
 	private Decimal decimal;
 	private Schema schema;
@@ -182,8 +188,14 @@ public class AvroDecimal extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Decimal");
 	}
 
+	/**
+	 * Factory class to create an instance of this logical type
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor to register this factory
+		 */
 		public Factory() {
 		}
 

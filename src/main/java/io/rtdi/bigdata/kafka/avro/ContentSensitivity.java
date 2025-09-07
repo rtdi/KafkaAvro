@@ -1,5 +1,8 @@
 package io.rtdi.bigdata.kafka.avro;
 
+/**
+ * Examples of content sensitivity levels.
+ */
 public enum ContentSensitivity {
 	/**
 	 * This data can be shown to everybody logged in

@@ -7,9 +7,20 @@ import org.apache.avro.Schema;
 
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroMap;
 
+/**
+ * Avro schema for a commit record
+ */
 public class CommitSchema extends SchemaBuilder {
+	/**
+	 * Singleton instance of the schema
+	 */
 	public static final CommitSchema COMMIT_SCHEMA = new CommitSchema();
 
+	/**
+	 * Get the singleton instance of the schema
+	 *
+	 * @return the schema
+	 */
 	public static CommitSchema getInstance() {
 		return COMMIT_SCHEMA;
 	}

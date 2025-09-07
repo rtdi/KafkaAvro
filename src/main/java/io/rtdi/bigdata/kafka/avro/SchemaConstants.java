@@ -1,5 +1,8 @@
 package io.rtdi.bigdata.kafka.avro;
 
+/**
+ * Some constants for schema field names
+ */
 public class SchemaConstants {
 
 	/**

@@ -17,8 +17,14 @@ import io.rtdi.bigdata.kafka.avro.AvroUtils;
  *
  */
 public class AvroString extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create instances of this class
+	 */
 	public static final Factory factory = new Factory();
 	private static Schema schema;
+	/**
+	 * The name of this type as used in the schema
+	 */
 	public static final String NAME = "STRING";
 	private static AvroString element = new AvroString();
 	private ObjectMapper om = new ObjectMapper();
@@ -110,8 +116,14 @@ public class AvroString extends LogicalType implements IAvroPrimitive {
 		}
 	}
 
+	/**
+	 * Factory to create instances of that class
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor of the factory
+		 */
 		public Factory() {
 		}
 

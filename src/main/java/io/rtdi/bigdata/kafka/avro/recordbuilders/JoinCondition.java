@@ -1,5 +1,8 @@
 package io.rtdi.bigdata.kafka.avro.recordbuilders;
 
+/**
+ * Defines a join condition between two schemas.
+ */
 public class JoinCondition {
 	private String left;
 	private String right;
@@ -53,14 +56,29 @@ public class JoinCondition {
 		return left + " " + condition + " " + right;
 	}
 
+	/**
+	 * Set the left side expression
+	 *
+	 * @param left the left side expression
+	 */
 	public void setLeft(String left) {
 		this.left = left;
 	}
 
+	/**
+	 * Set the right side expression
+	 *
+	 * @param right the right side expression
+	 */
 	public void setRight(String right) {
 		this.right = right;
 	}
 
+	/**
+	 * Set the condition operator
+	 *
+	 * @param condition the condition operator
+	 */
 	public void setCondition(String condition) {
 		this.condition = condition;
 	}

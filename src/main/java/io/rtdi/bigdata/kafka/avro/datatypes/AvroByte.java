@@ -12,7 +12,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroByte extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create an instance of this logical type
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * Fixed name of this logical type
+	 */
 	public static final String NAME = "BYTE";
 	private static AvroByte element = new AvroByte();
 	private static Schema schema;
@@ -111,8 +117,14 @@ public class AvroByte extends LogicalType implements IAvroPrimitive {
 		}
 	}
 
+	/**
+	 * Factory to create an instance of this logical type
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Factory constructor
+		 */
 		public Factory() {
 		}
 

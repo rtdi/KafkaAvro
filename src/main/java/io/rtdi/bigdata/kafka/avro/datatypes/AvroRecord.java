@@ -11,13 +11,24 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 import io.rtdi.bigdata.kafka.avro.AvroUtils;
 
+/**
+ * Generic Avro Record
+ */
 public class AvroRecord implements IAvroDatatype {
+	/**
+	 * The name of this datatype
+	 */
 	public static final String NAME = "RECORD";
 	static AvroRecord element = new AvroRecord();
 
 	private AvroRecord() {
 	}
 
+	/**
+	 * Static factory method to create an instance of this datatype
+	 *
+	 * @return an instance of AvroRecord
+	 */
 	public static AvroRecord create() {
 		return element;
 	}

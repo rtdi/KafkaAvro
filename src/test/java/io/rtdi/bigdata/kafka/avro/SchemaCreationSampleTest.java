@@ -20,16 +20,28 @@ import io.rtdi.bigdata.kafka.avro.recordbuilders.FKCondition;
 import io.rtdi.bigdata.kafka.avro.recordbuilders.TimeUnit;
 import io.rtdi.bigdata.kafka.avro.recordbuilders.ValueSchema;
 
+/**
+ * Some tests to create a schema
+ */
 public class SchemaCreationSampleTest {
 
+	/**
+	 * @throws Exception
+	 */
 	@BeforeAll
 	public static void setUp() throws Exception {
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	@AfterAll
 	public static void tearDown() throws Exception {
 	}
 
+	/**
+	 * Create a schema for a CUSTOMER table
+	 */
 	@Test
 	public void test() {
 		try {

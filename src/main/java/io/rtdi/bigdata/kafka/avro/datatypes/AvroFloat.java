@@ -12,7 +12,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroFloat extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create instances of this logical type
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * Name of the logical type in Avro
+	 */
 	public static final String NAME = "FLOAT";
 	private static AvroFloat element = new AvroFloat();
 	private static Schema schema;
@@ -108,8 +114,14 @@ public class AvroFloat extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Float");
 	}
 
+	/**
+	 * Factory to create instances of this logical type
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Factory constructor
+		 */
 		public Factory() {
 		}
 

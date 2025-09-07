@@ -14,9 +14,15 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroUUID extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory for this type
+	 */
 	public static final Factory factory = new Factory();
 	private static Schema schema;
 	private static AvroUUID element = new AvroUUID();
+	/**
+	 * The name of the type as used in the schema
+	 */
 	public static final String NAME = "UUID";
 
 	static {
@@ -117,8 +123,14 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 		}
 	}
 
+	/**
+	 * Factory to create an instance of this logical type
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor for the factory
+		 */
 		public Factory() {
 		}
 

@@ -12,7 +12,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroLong extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create an instance of this class when reading the schema.
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * The name of this type
+	 */
 	public static final String NAME = "LONG";
 	private static AvroLong element = new AvroLong();
 	private static Schema schema;
@@ -108,8 +114,14 @@ public class AvroLong extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Long");
 	}
 
+	/**
+	 * Factory to create an instance of this class when reading the schema.
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Factory constructor
+		 */
 		public Factory() {
 		}
 

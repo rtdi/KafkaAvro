@@ -18,7 +18,13 @@ import io.rtdi.bigdata.kafka.avro.AvroUtils;
  *
  */
 public class AvroNVarchar extends LogicalTypeWithLength {
+	/**
+	 * The name of the logical type as used in Avro schema definitions
+	 */
 	public static final String NAME = "NVARCHAR";
+	/**
+	 * The factory instance to be registered with Avro
+	 */
 	public static final Factory factory = new Factory();
 	private Schema schema;
 	private ObjectMapper om = new ObjectMapper();
@@ -127,8 +133,14 @@ public class AvroNVarchar extends LogicalTypeWithLength {
 		}
 	}
 
+	/**
+	 * The factory class to be registered with Avro
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor to be used by Avro when the factory is registered
+		 */
 		public Factory() {
 		}
 

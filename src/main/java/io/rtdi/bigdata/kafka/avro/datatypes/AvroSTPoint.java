@@ -15,7 +15,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroSTPoint extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create instances of this class when reading the schema.
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * The name of the type as used in the schema
+	 */
 	public static final String NAME = "ST_POINT";
 	private static AvroSTPoint element = new AvroSTPoint();
 	private static Schema schema;
@@ -113,8 +119,14 @@ public class AvroSTPoint extends LogicalType implements IAvroPrimitive {
 		}
 	}
 
+	/**
+	 * Factory class to create instances of this class when reading the schema.
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor for the factory
+		 */
 		public Factory() {
 		}
 

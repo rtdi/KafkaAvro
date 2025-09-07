@@ -18,7 +18,13 @@ import io.rtdi.bigdata.kafka.avro.AvroUtils;
  *
  */
 public class AvroMap extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory instance to be registered with Avro
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * Name of the logical type
+	 */
 	public static final String NAME = "MAP";
 	private Schema schema;
 
@@ -62,6 +68,11 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 		return element;
 	}
 
+	/**
+	 * The schema of the entire Map, including the value type
+	 *
+	 * @return the schema
+	 */
 	public Schema getSchema() {
 		return schema;
 	}
@@ -121,8 +132,14 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Map");
 	}
 
+	/**
+	 * Factory class to create an instance of the LogicalType
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Factory constructor
+		 */
 		public Factory() {
 		}
 
