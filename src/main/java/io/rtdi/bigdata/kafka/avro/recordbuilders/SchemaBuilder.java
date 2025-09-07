@@ -14,6 +14,8 @@ import org.apache.avro.Schema.Type;
 import org.apache.avro.SchemaBuilderException;
 import org.apache.avro.generic.GenericRecord;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.rtdi.bigdata.kafka.avro.AvroNameEncoder;
 import io.rtdi.bigdata.kafka.avro.AvroUtils;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroInt;
@@ -29,6 +31,7 @@ public class SchemaBuilder {
 	private Schema schema;
 	private boolean isbuilt = false;
 	private Map<String, SchemaBuilder> childbuilders = new HashMap<>();
+	protected ObjectMapper om = new ObjectMapper();
 
 	/**
 	 * Create a new schema with the given name, namespace is optionally provided as well
@@ -461,7 +464,7 @@ public class SchemaBuilder {
 	 * @param value of the property
 	 */
 	public void addProp(String propertyName, Object value) {
-		schema.addProp(propertyName, value);
+		schema.addProp(propertyName, om.valueToTree(value));
 	}
 
 	/**

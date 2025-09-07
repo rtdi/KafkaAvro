@@ -32,8 +32,12 @@ public class ValueSchema extends SchemaBuilder {
 	public static final String AUDITDETAILS = "__details";
 	public static final String TRANSFORMRESULT = "__transformresult";
 	public static final String AUDIT = "__audit";
-	private static final String SCHEMA_INFO_REGULATIONS = "regulations";
+	public static final String SCHEMA_INFO_REGULATIONS = "data_classifications";
+	public static final String SCHEMA_INFO_RETENTION_PERIOD = "retention_period";
+	public static final String SCHEMA_INFO_DELETION_POLICY = "deletion_policy";
 	public static final String SCHEMA_INFO_DATAPRODUCT_OWNER = "data_product_owner_email";
+	public static final String SCHEMA_INFO_TICKETS_URL = "tickets_url";
+	public static final String SCHEMA_INFO_REPO_URL = "repo_url";
 	public static final String PRIMARY_KEYS = "pks";
 	public static final String FOREIGN_KEYS = "fks";
 	public static SchemaBuilder extension;
@@ -63,6 +67,14 @@ public class ValueSchema extends SchemaBuilder {
 		}
 	}
 
+	private List<FKCondition> fks;
+
+	@Override
+	public void build() throws SchemaBuilderException {
+		addProp(FOREIGN_KEYS, om.valueToTree(fks));
+		super.build();
+	}
+
 	/**
 	 * In order to create a complex Avro schema for the value record from scratch, this builder is used.<br>
 	 * It adds mandatory columns to the root level and optional extension columns.
@@ -76,7 +88,7 @@ public class ValueSchema extends SchemaBuilder {
 		super(name, namespace, description);
 		add(SchemaConstants.SCHEMA_COLUMN_CHANGE_TYPE,
 				AvroVarchar.getSchema(1),
-				"Indicates how the row is to be processed: Insert, Update, Delete, upsert/Autocorrect, eXterminate, Truncate",
+				"Indicates how the row is to be processed: Insert, Update, Delete, upsert/Autocorrect, eXterminate, Truncate,...",
 				false, RowType.UPSERT.name()).setInternal().setTechnical();
 		add(SchemaConstants.SCHEMA_COLUMN_TRUNCATE,
 				AvroMap.getSchema(AvroString.getSchema()),
@@ -112,11 +124,56 @@ public class ValueSchema extends SchemaBuilder {
 	}
 
 	/**
+	 * Add regulations that apply to this schema, e.g. GDPR, HIPAA, CCPA, ...
+	 *
+	 * @param regulations list of regulations
+	 */
+	public void setRegulations(String... regulations) {
+		addProp(SCHEMA_INFO_REGULATIONS, Arrays.asList(regulations));
+	}
+
+	/**
 	 * @return the regulations that apply to this schema, e.g. GDPR, HIPAA, CCPA, ...
 	 */
 	@SuppressWarnings("unchecked")
 	public Collection<String> getRegulations() {
 		return getProp(SCHEMA_INFO_REGULATIONS, Collection.class);
+	}
+
+	/**
+	 * Set the url of the ticket system where issues can be reported
+	 *
+	 * @param email as string - not validated
+	 */
+	public void setTicketUrl(String url) {
+		addProp(SCHEMA_INFO_TICKETS_URL, url);
+	}
+
+	/**
+	 * Get the url of the ticket system where issues can be reported
+	 *
+	 * @return url as string - not validated
+	 */
+	public String getTicketUrl() {
+		return getProp(SCHEMA_INFO_TICKETS_URL, String.class);
+	}
+
+	/**
+	 * Set the repository url where the code for this data product is located
+	 *
+	 * @param url as string - not validated
+	 */
+	public void setRepoUrl(String email) {
+		addProp(SCHEMA_INFO_REPO_URL, email);
+	}
+
+	/**
+	 * Get the repository url where the code for this data product is located
+	 *
+	 * @return url as string - not validated
+	 */
+	public String getRepoUrl() {
+		return getProp(SCHEMA_INFO_REPO_URL, String.class);
 	}
 
 	/**
@@ -137,6 +194,7 @@ public class ValueSchema extends SchemaBuilder {
 		return getProp(SCHEMA_INFO_DATAPRODUCT_OWNER, String.class);
 	}
 
+
 	/**
 	 * Set the primary key columns of this schema.
 	 *
@@ -149,16 +207,23 @@ public class ValueSchema extends SchemaBuilder {
 	/**
 	 * Add a foreign key relationship to another schema.
 	 *
-	 * @param name
 	 * @param condition
 	 */
-	public void addForeignKey(String name, FKCondition condition) {
-		List<FKCondition> fks = getForeignKeys();
+	public void addForeignKey(FKCondition condition) {
 		if (fks == null) {
 			fks = new ArrayList<>();
-			addProp(FOREIGN_KEYS, fks);
 		}
 		fks.add(condition);
+	}
+
+	/**
+	 * Add a simple foreign key relationship to another schema.
+	 *
+	 * @param condition
+	 */
+	public void addForeignKey(String name, String schema_fqn, String left, String right, String condition) {
+		FKCondition fk = new FKCondition(name, schema_fqn, left, right, condition);
+		addForeignKey(fk);
 	}
 
 	/**
@@ -166,9 +231,17 @@ public class ValueSchema extends SchemaBuilder {
 	 *
 	 * @return list of FKConditions or null if none are defined
 	 */
-	@SuppressWarnings("unchecked")
 	public List<FKCondition> getForeignKeys() {
-		return getProp(FOREIGN_KEYS, List.class);
+		if (getSchema() == null) {
+			return fks;
+		} else {
+			Object maps = getSchema().getObjectProp(FOREIGN_KEYS);
+			if (maps == null) {
+				return null;
+			} else {
+				return om.convertValue(maps, om.getTypeFactory().constructCollectionType(List.class, FKCondition.class));
+			}
+		}
 	}
 
 	/**
@@ -177,6 +250,38 @@ public class ValueSchema extends SchemaBuilder {
 	@SuppressWarnings("unchecked")
 	public List<String> getPrimaryKeys() {
 		return getProp(PRIMARY_KEYS, List.class);
+	}
+
+	/**
+	 * Hint the retention period for this data
+	 *
+	 * @param period
+	 */
+	public void setRetentionPeriod(Duration period) {
+		addProp(SCHEMA_INFO_RETENTION_PERIOD, period);
+	}
+
+	/**
+	 * Hint the deletion policy for this data
+	 *
+	 * @param policy
+	 */
+	public void setDeletionPolicy(DeletionPolicy policy) {
+		addProp(SCHEMA_INFO_DELETION_POLICY, policy);
+	}
+
+	/**
+	 * @return the retention period for this data or null if not set
+	 */
+	public Duration getRetentionPeriod() {
+		return getProp(SCHEMA_INFO_RETENTION_PERIOD, Duration.class);
+	}
+
+	/**
+	 * @return the deletion policy for this data or null if not set
+	 */
+	public DeletionPolicy getDeletionPolicy() {
+		return getProp(SCHEMA_INFO_DELETION_POLICY, DeletionPolicy.class);
 	}
 
 	/**

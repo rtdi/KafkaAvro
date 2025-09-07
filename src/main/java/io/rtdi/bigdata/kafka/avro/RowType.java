@@ -61,7 +61,12 @@ public enum RowType {
 	 * Note that an UPSERT would not work in such scenarios as a patient might have had 10 diagnosis rows but meanwhile just 9. The UPSERT would not modify
 	 * record #10, the truncate on the other hand deletes all 10 records and re-inserts 9 records.
 	 */
-	REPLACE ("R");
+	REPLACE ("R"),
+
+	/**
+	 * Marks a record as archived. The record was deleted in the source database, but should probably remain in the target.
+	 */
+	ARCHIVE ("P");
 
 	private String identifer;
 
@@ -107,6 +112,7 @@ public enum RowType {
 		case 'X': return EXTERMINATE;
 		case 'T': return TRUNCATE;
 		case 'R': return REPLACE;
+		case 'B': return BEFORE;
 		default: throw new AvroRuntimeException("Unknow change type \"" + identifier + "\"");
 		}
 	}
