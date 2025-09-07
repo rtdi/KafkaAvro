@@ -22,19 +22,31 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import io.rtdi.bigdata.kafka.avro.datatypes.*;
 
+/**
+ * some tests to verify the conversion options of the data types
+ */
 public class ConversionOptionsTest {
 	private static Instant nowinstant = Instant.now();
 	private static LocalDate nowlocaldate = LocalDate.ofInstant(nowinstant, ZoneId.of("UTC"));
 	private static LocalTime nowlocaltime = LocalTime.ofInstant(nowinstant, ZoneId.of("UTC"));
 
+	/**
+	 * @throws Exception
+	 */
 	@BeforeAll
 	public static void setUp() throws Exception {
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	@AfterAll
 	public static void tearDown() throws Exception {
 	}
 
+	/**
+	 * Test method
+	 */
 	@Test
 	public void test() {
 		try {

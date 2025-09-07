@@ -12,7 +12,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroShort extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create instances of this class
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * The name of this type
+	 */
 	public static final String NAME = "SHORT";
 	private static AvroShort element = new AvroShort();
 	private static Schema schema;
@@ -125,8 +131,14 @@ public class AvroShort extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Short");
 	}
 
+	/**
+	 * Factory to create instances of this class
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor of the factory
+		 */
 		public Factory() {
 		}
 
@@ -150,6 +162,16 @@ public class AvroShort extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROSHORT;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		Short b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return b.toString();
+		}
 	}
 
 }

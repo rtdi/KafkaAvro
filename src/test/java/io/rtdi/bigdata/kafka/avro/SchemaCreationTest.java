@@ -15,6 +15,9 @@ import io.rtdi.bigdata.kafka.avro.datatypes.AvroNVarchar;
 import io.rtdi.bigdata.kafka.avro.recordbuilders.SchemaBuilder;
 import io.rtdi.bigdata.kafka.avro.recordbuilders.ValueSchema;
 
+/**
+ * Some basic tests to create a schema
+ */
 public class SchemaCreationTest {
 
 	private static final String expectedschemajson = "{\r\n"
@@ -261,19 +264,29 @@ public class SchemaCreationTest {
 			+ "  } ],\r\n"
 			+ "  \"__originalname\" : \"Schema1\"\r\n"
 			+ "}";
+
+	/**
+	 * @throws Exception
+	 */
 	@BeforeAll
 	public static void setUp() throws Exception {
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	@AfterAll
 	public static void tearDown() throws Exception {
 	}
 
+	/**
+	 * Tessts
+	 */
 	@Test
 	public void test() {
 		try {
 			ValueSchema builder = new ValueSchema("Schema1", null);
-			builder.add("PKCOL1", AvroNVarchar.getSchema(10), null, false).setPrimaryKey();
+			builder.add("PKCOL1", AvroNVarchar.getSchema(10), null, false);
 			builder.add("An/Avron&unsupported$Columnname", AvroInt.getSchema(), null, true);
 			builder.addColumnArray("ARRAY1", AvroDate.getSchema(), "Array of dates");
 			SchemaBuilder nested_record_builder = new SchemaBuilder("nested_schema1", null);
@@ -281,6 +294,7 @@ public class SchemaCreationTest {
 			nested_record_builder.add("N2", AvroDouble.getSchema(), null, true);
 			builder.addColumnRecord("nested_record", nested_record_builder , null, true);
 			builder.addColumnRecordArray("children", nested_record_builder, null);
+			builder.setPrimaryKey("PKCOL1");
 			builder.build();
 			Schema actualschema = builder.getSchema();
 			Schema expectedschema = new Schema.Parser().parse(expectedschemajson);

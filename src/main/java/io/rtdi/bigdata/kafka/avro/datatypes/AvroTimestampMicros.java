@@ -18,11 +18,17 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroTimestampMicros extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create an instance of this logical type
+	 */
 	public static final Factory factory = new Factory();
 	private static Schema schema;
 	static {
 		schema = LogicalTypes.timestampMicros().addToSchema(Schema.create(Type.LONG));
 	}
+	/**
+	 * The name of this type as used in the schema
+	 */
 	public static final String NAME = "TIMESTAMPMICROS";
 	private static AvroTimestampMicros element = new AvroTimestampMicros();
 	private TimestampMicros time = LogicalTypes.timestampMicros();
@@ -68,7 +74,7 @@ public class AvroTimestampMicros extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return time.hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -103,8 +109,14 @@ public class AvroTimestampMicros extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a TimestampMicros");
 	}
 
+	/**
+	 * Factory to create the logical type from a schema
+	 */
 	public static class Factory implements LogicalTypeFactory {
-		
+
+		/**
+		 * Constructor
+		 */
 		public Factory() {
 		}
 
@@ -140,6 +152,16 @@ public class AvroTimestampMicros extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROTIMESTAMPMICROS;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		Instant b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return "\"" + b.toString() + "\"";
+		}
 	}
 
 }

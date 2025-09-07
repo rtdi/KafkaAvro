@@ -23,8 +23,14 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroTime extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create instances of this class
+	 */
 	public static final Factory factory = new Factory();
 	private static Schema schema;
+	/**
+	 * The name of the type as used in the AVRO schema
+	 */
 	public static final String NAME = "TIME";
 	private static AvroTime element = new AvroTime();
 	private TimeMillis time = LogicalTypes.timeMillis();
@@ -74,7 +80,7 @@ public class AvroTime extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return time.hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -106,7 +112,7 @@ public class AvroTime extends LogicalType implements IAvroPrimitive {
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Time");
 	}
-	
+
 	@Override
 	public LocalTime convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
@@ -117,8 +123,14 @@ public class AvroTime extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Time");
 	}
 
+	/**
+	 * Factory to create instances of this class
+	 */
 	public static class Factory implements LogicalTypeFactory {
-		
+
+		/**
+		 * Constructor of the factory
+		 */
 		public Factory() {
 		}
 
@@ -154,6 +166,16 @@ public class AvroTime extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROTIMEMILLIS;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		LocalTime b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return "\"" + b.toString() + "\"";
+		}
 	}
 
 }

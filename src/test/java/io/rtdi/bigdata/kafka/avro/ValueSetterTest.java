@@ -71,6 +71,9 @@ import io.rtdi.bigdata.kafka.avro.recordbuilders.AvroRecordArray;
 import io.rtdi.bigdata.kafka.avro.recordbuilders.AvroRecordField;
 import io.rtdi.bigdata.kafka.avro.recordbuilders.SchemaBuilder;
 
+/**
+ * Some tests for data conversions
+ */
 public class ValueSetterTest {
 	private static final String OTHER = "other";
 	private static final String COL_ANY_PRIMITIVE = "COL_AnyPrimitive";
@@ -121,14 +124,23 @@ public class ValueSetterTest {
 	private static LocalDate nowlocaldate = LocalDate.ofInstant(nowinstant, ZoneId.of("UTC"));
 	private static LocalTime nowlocaltime = LocalTime.ofInstant(nowinstant, ZoneId.of("UTC"));
 
+	/**
+	 * @throws Exception
+	 */
 	@BeforeAll
 	public static void setUp() throws Exception {
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	@AfterAll
 	public static void tearDown() throws Exception {
 	}
 
+	/**
+	 * Tests
+	 */
 	@Test
 	public void test() {
 		try {

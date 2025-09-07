@@ -3,9 +3,18 @@ package io.rtdi.bigdata.kafka.avro.recordbuilders;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilderException;
 
+/**
+ * Complex Avro type to represent an array of a given schema.
+ */
 public class AvroArray extends AvroField {
 
+	/**
+	 * Optional schema property to define the minimum number of entries in the array
+	 */
 	public static final String COLUMN_PROP_MIN = "__min";
+	/**
+	 * Optional schema property to define the maximum number of entries in the array
+	 */
 	public static final String COLUMN_PROP_MAX = "__max";
 
 	private Schema schema;
@@ -49,9 +58,9 @@ public class AvroArray extends AvroField {
 	 * null means unbounded
 	 * 0 means zero entries are allowed and hence can be used for min only
 	 * 1 means that at least or at most one entry is needed if the array itself is present
-	 * 
+	 *
 	 * @param min allowed occurrences, null, 0 or any positive int
-	 * @param max allowed occurrences, null, 1 or any larger positive int 
+	 * @param max allowed occurrences, null, 1 or any larger positive int
 	 * @return AvroArray object
 	 * @throws SchemaBuilderException if min &gt; max or any other illegal value for min or max
 	 */
@@ -72,7 +81,7 @@ public class AvroArray extends AvroField {
 		}
 		return this;
 	}
-	
+
 	/**
 	 * @param schema of the logical type
 	 * @return the extracted __min property or null if there is none

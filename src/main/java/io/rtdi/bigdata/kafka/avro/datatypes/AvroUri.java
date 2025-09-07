@@ -12,11 +12,17 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroUri extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory for this datatype
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * The name of the datatype as used in the Avro schema
+	 */
 	public static final String NAME = "URI";
 	private static AvroUri element = new AvroUri();
 	private static Schema schema;
-	
+
 	static {
 		schema = create().addToSchema(Schema.create(Type.STRING));
 	}
@@ -27,7 +33,7 @@ public class AvroUri extends LogicalType implements IAvroPrimitive {
 	private AvroUri() {
 		super(NAME);
 	}
-	
+
 	/**
 	 * Create an instance of that type.
 	 * @return the instance
@@ -63,8 +69,12 @@ public class AvroUri extends LogicalType implements IAvroPrimitive {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -72,7 +82,7 @@ public class AvroUri extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -109,8 +119,14 @@ public class AvroUri extends LogicalType implements IAvroPrimitive {
 		}
 	}
 
+	/**
+	 * Factory to create the datatype from a schema
+	 */
 	public static class Factory implements LogicalTypeFactory {
-		
+
+		/**
+		 * Constructor
+		 */
 		public Factory() {
 		}
 
@@ -134,6 +150,16 @@ public class AvroUri extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROURI;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		CharSequence b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return "\"" + b.toString() + "\"";
+		}
 	}
 
 }

@@ -1,9 +1,13 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
 import org.apache.avro.LogicalType;
-import org.apache.avro.Schema;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
+import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
+import org.apache.avro.util.Utf8;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 import io.rtdi.bigdata.kafka.avro.AvroUtils;
@@ -14,10 +18,17 @@ import io.rtdi.bigdata.kafka.avro.AvroUtils;
  *
  */
 public class AvroNCLOB extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create instances of this class
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * The name of the type as used in the Avro schema
+	 */
 	public static final String NAME = "NCLOB";
 	private static AvroNCLOB element = new AvroNCLOB();
 	private static Schema schema;
+	private ObjectMapper om = new ObjectMapper();
 
 	static {
 		schema = create().addToSchema(Schema.create(Type.STRING));
@@ -36,7 +47,7 @@ public class AvroNCLOB extends LogicalType implements IAvroPrimitive {
 	private AvroNCLOB() {
 		super(NAME);
 	}
-	
+
 	/**
 	 * Create an instance of that type.
 	 * @return the instance
@@ -61,8 +72,12 @@ public class AvroNCLOB extends LogicalType implements IAvroPrimitive {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -70,7 +85,7 @@ public class AvroNCLOB extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -97,18 +112,28 @@ public class AvroNCLOB extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	public CharSequence convertToJava(Object value) throws AvroDataTypeException {
+	public String convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
+		} else if (value instanceof String) {
+			return (String) value;
+		} else if (value instanceof Utf8) {
+			return ((Utf8) value).toString();
 		} else if (value instanceof CharSequence) {
-			return (CharSequence) value;
+			return value.toString();
 		} else {
 			return value.toString();
 		}
 	}
 
+	/**
+	 * Factory to create instances of this class
+	 */
 	public static class Factory implements LogicalTypeFactory {
-		
+
+		/**
+		 * Constructor for the factory
+		 */
 		public Factory() {
 		}
 
@@ -132,6 +157,16 @@ public class AvroNCLOB extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVRONCLOB;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException, JsonProcessingException {
+		String b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return om.writeValueAsString(b);
+		}
 	}
 
 }

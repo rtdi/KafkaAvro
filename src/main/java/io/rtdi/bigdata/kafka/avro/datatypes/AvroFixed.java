@@ -1,6 +1,7 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
 import java.nio.ByteBuffer;
+import java.util.Base64;
 
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
@@ -15,7 +16,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
+	/**
+	 * Factory instance to be registered with Avro
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * Name of this data type in Avro schema
+	 */
 	public static final String NAME = "FIXED";
 	private Schema schema;
 
@@ -30,8 +37,8 @@ public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
 	private AvroFixed(int length) {
 		super(NAME, length);
 	}
-	
-	
+
+
 	/**
 	 * @param name of the fixed schema
 	 * @param namespace of the fixed schema
@@ -42,7 +49,13 @@ public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
 	public static AvroFixed create(String name, String namespace, int length, String doc) {
 		return new AvroFixed(name, namespace, length, doc);
 	}
-	
+
+	/**
+	 * Create the logical type from the schema. The schema must be of type FIXED.
+	 *
+	 * @param schema to create the logical type from
+	 * @return the logical type
+	 */
 	public static AvroFixed create(Schema schema) {
 		AvroFixed element = new AvroFixed(schema.getFixedSize());
 		element.schema = schema;
@@ -76,10 +89,15 @@ public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
 		return create(length).getSchema();
 	}
 
+	/**
+	 * Get the schema that describes this logical type
+	 *
+	 * @return the schema
+	 */
 	public Schema getSchema() {
 		return schema;
 	}
-	
+
 	@Override
 	public Schema addToSchema(Schema schema) {
 		return super.addToSchema(schema);
@@ -96,8 +114,12 @@ public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -105,7 +127,7 @@ public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
 	public int hashCode() {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -137,8 +159,14 @@ public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Fixed");
 	}
 
+	/**
+	 * Factory class to create this logical type from a schema
+	 */
 	public static class Factory implements LogicalTypeFactory {
-		
+
+		/**
+		 * Constructor to be used by Avro when the factory is registered
+		 */
 		public Factory() {
 		}
 
@@ -171,6 +199,16 @@ public class AvroFixed extends LogicalTypeWithLength implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROFIXED;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		byte[] b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return "\"" + Base64.getEncoder().encodeToString(b) + "\"";
+		}
 	}
 
 }

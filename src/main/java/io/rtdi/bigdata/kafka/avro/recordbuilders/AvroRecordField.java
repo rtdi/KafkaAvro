@@ -2,6 +2,9 @@ package io.rtdi.bigdata.kafka.avro.recordbuilders;
 
 import org.apache.avro.SchemaBuilderException;
 
+/**
+ * Avro record field definition
+ */
 public class AvroRecordField extends AvroRecordAbstract {
 
 	/**
@@ -35,5 +38,5 @@ public class AvroRecordField extends AvroRecordAbstract {
 	public SchemaBuilder getSchemaBuilder() {
 		return schemabuilder;
 	}
-	
+
 }

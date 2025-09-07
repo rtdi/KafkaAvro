@@ -5,6 +5,9 @@ import org.apache.avro.Schema;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
 import org.apache.avro.Schema.Type;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 
 /**
@@ -12,11 +15,18 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroSTGeometry extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create an instance of this class when reading the schema.
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * The name of the logical type as used in the Avro schema
+	 */
 	public static final String NAME = "ST_GEOMETRY";
 	private static AvroSTGeometry element = new AvroSTGeometry();
 	private static Schema schema;
-	
+	private ObjectMapper om = new ObjectMapper();
+
 	static {
 		schema = create().addToSchema(Schema.create(Type.STRING));
 	}
@@ -34,7 +44,7 @@ public class AvroSTGeometry extends LogicalType implements IAvroPrimitive {
 	private AvroSTGeometry() {
 		super(NAME);
 	}
-	
+
 	/**
 	 * Create an instance of that type.
 	 * @return the instance
@@ -59,8 +69,12 @@ public class AvroSTGeometry extends LogicalType implements IAvroPrimitive {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -68,7 +82,7 @@ public class AvroSTGeometry extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -95,18 +109,24 @@ public class AvroSTGeometry extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	public CharSequence convertToJava(Object value) throws AvroDataTypeException {
+	public String convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
 		} else if (value instanceof CharSequence) {
-			return (CharSequence) value;
+			return value.toString();
 		} else {
 			return value.toString();
 		}
 	}
 
+	/**
+	 * Factory to create an instance of this class when reading the schema.
+	 */
 	public static class Factory implements LogicalTypeFactory {
-		
+
+		/**
+		 * Constructor for the factory
+		 */
 		public Factory() {
 		}
 
@@ -130,6 +150,16 @@ public class AvroSTGeometry extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROSTGEOMETRY;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException, JsonProcessingException {
+		String b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return om.writeValueAsString(b);
+		}
 	}
 
 }

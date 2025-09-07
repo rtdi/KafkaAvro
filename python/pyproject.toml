@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rtdi_kafkaavro"
+version = "0.10.20"
+authors = [
+  { name="Werner Dähn", email="werner.daehn@rtdi.io" },
+]
+description = "Kafka schema support for data integration"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "Apache-2.0"
+license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "avro",
+    "pyarrow"
+]
+[project.urls]
+Homepage = "https://github.com/rtdi/KafkaAvro"
+Issues = "https://github.com/rtdi/KafkaAvro/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kafkaavro"]

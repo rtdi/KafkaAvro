@@ -5,18 +5,27 @@ import java.util.List;
 
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
-import org.apache.avro.Schema.Type;
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Type;
 import org.apache.avro.generic.GenericData.Record;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
+import io.rtdi.bigdata.kafka.avro.AvroUtils;
 
 /**
  * Wrapper around the Avro Type.MAP data type
  *
  */
 public class AvroArray extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory instance to be registered with Avro
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * The name of this logical type
+	 */
 	public static final String NAME = "ARRAY";
 	private Schema schema;
 
@@ -118,8 +127,14 @@ public class AvroArray extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a List");
 	}
 
+	/**
+	 * Factory to create the logical type during Avro schema parsing
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor to register the factory with Avro
+		 */
 		public Factory() {
 		}
 
@@ -179,6 +194,28 @@ public class AvroArray extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROARRAY;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException, JsonProcessingException {
+		List<?> b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			if (schema == null) {
+				throw new AvroDataTypeException("Cannot convert to JSON, the schema is not set for the Array datatype");
+			}
+			StringBuffer sb = new StringBuffer("[");
+			IAvroDatatype datatype = AvroType.getAvroDataType(AvroUtils.getBaseSchema(schema.getElementType()));
+			for (Object v : b) {
+				if (sb.length() > 1) {
+					sb.append(',');
+				}
+				sb.append(datatype.convertToJson(v));
+			}
+			sb.append("]");
+			return sb.toString();
+		}
 	}
 
 }

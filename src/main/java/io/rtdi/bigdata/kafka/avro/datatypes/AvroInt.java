@@ -1,8 +1,8 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
 import org.apache.avro.LogicalType;
-import org.apache.avro.Schema;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
+import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
@@ -12,7 +12,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroInt extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create an instance of this class when reading the schema.
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * The name of the logical type as used in the schema
+	 */
 	public static final String NAME = "INT";
 	private static AvroInt element = new AvroInt();
 	private static Schema schema;
@@ -109,8 +115,14 @@ public class AvroInt extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Integer");
 	}
 
+	/**
+	 * Factory to create an instance of this class when reading the schema.
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor for the factory
+		 */
 		public Factory() {
 		}
 
@@ -141,6 +153,16 @@ public class AvroInt extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROINT;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		Integer b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return b.toString();
+		}
 	}
 
 }

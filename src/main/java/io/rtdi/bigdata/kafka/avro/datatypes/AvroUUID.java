@@ -5,6 +5,7 @@ import org.apache.avro.LogicalTypes;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
+import org.apache.avro.util.Utf8;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 
@@ -13,9 +14,15 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroUUID extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory for this type
+	 */
 	public static final Factory factory = new Factory();
 	private static Schema schema;
 	private static AvroUUID element = new AvroUUID();
+	/**
+	 * The name of the type as used in the schema
+	 */
 	public static final String NAME = "UUID";
 
 	static {
@@ -36,7 +43,7 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 	public static Schema getSchema() {
 		return schema;
 	}
-	
+
 	/**
 	 * Constructor for this static instance
 	 */
@@ -62,8 +69,12 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -71,7 +82,7 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -98,18 +109,28 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	public CharSequence convertToJava(Object value) throws AvroDataTypeException {
+	public String convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
+		} else if (value instanceof String) {
+			return (String) value;
+		} else if (value instanceof Utf8) {
+			return ((Utf8) value).toString();
 		} else if (value instanceof CharSequence) {
-			return (CharSequence) value;
+			return value.toString();
 		} else {
 			return value.toString();
 		}
 	}
 
+	/**
+	 * Factory to create an instance of this logical type
+	 */
 	public static class Factory implements LogicalTypeFactory {
-		
+
+		/**
+		 * Constructor for the factory
+		 */
 		public Factory() {
 		}
 
@@ -133,6 +154,16 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROUUID;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		CharSequence b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return "\"" + b.toString() + "\"";
+		}
 	}
 
 }

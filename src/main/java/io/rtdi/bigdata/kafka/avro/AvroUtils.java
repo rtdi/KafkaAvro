@@ -6,6 +6,9 @@ import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
 import org.apache.commons.text.StringEscapeUtils;
 
+/**
+ * Some utility functions for Avro
+ */
 public class AvroUtils {
 
 	/**
@@ -27,6 +30,9 @@ public class AvroUtils {
 		return StringEscapeUtils.escapeJson(text);
 	}
 
+	/**
+	 * Avro binary messages as stored in Kafka with Schema Registry have a magic byte at the beginning of the message
+	 */
 	public static final byte MAGIC_BYTE = 0x0;
 
 	/**

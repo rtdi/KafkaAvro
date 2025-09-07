@@ -1,21 +1,30 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
+import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
 
-import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
-import org.apache.avro.Schema;
+import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
+import io.rtdi.bigdata.kafka.avro.AvroUtils;
 
 /**
  * Wrapper around the Avro Type.MAP data type
  *
  */
 public class AvroMap extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory instance to be registered with Avro
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * Name of the logical type
+	 */
 	public static final String NAME = "MAP";
 	private Schema schema;
 
@@ -38,18 +47,18 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 
 	/**
 	 * Create an instance of that type.
-	 * @param schema of the value part for the map
+	 * @param schema of the entire Map, including the value type
 	 * @return the instance
 	 */
 	public static AvroMap create(Schema schema) {
 		AvroMap element = new AvroMap();
-		element.schema = Schema.createMap(schema);
+		element.schema = schema;
 		return element;
 	}
 
 	/**
 	 * Creates a Map&lt;String, primitive&gt;
-	 * 
+	 *
 	 * @param primitive the data type for the value part of the map
 	 * @return the AvroMap
 	 */
@@ -59,6 +68,11 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 		return element;
 	}
 
+	/**
+	 * The schema of the entire Map, including the value type
+	 *
+	 * @return the schema
+	 */
 	public Schema getSchema() {
 		return schema;
 	}
@@ -79,8 +93,12 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -88,7 +106,7 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -114,8 +132,14 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Map");
 	}
 
+	/**
+	 * Factory class to create an instance of the LogicalType
+	 */
 	public static class Factory implements LogicalTypeFactory {
-		
+
+		/**
+		 * Factory constructor
+		 */
 		public Factory() {
 		}
 
@@ -148,6 +172,31 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROMAP;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException, JsonProcessingException {
+		Map<?, ?> b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			if (schema == null) {
+				throw new AvroDataTypeException("Cannot convert to JSON, the schema is not set for the Map datatype");
+			}
+			StringBuffer sb = new StringBuffer("{");
+			Schema mtype = schema.getValueType();
+			Schema btype = AvroUtils.getBaseSchema(mtype);
+			IAvroDatatype datatype = AvroType.getAvroDataType(btype);
+			for (Entry<?, ?> v : b.entrySet()) {
+				if (sb.length() > 1) {
+					sb.append(',');
+				}
+				sb.append('\"').append(v.getKey().toString()).append("\":");
+				sb.append(datatype.convertToJson(v.getValue()));
+			}
+			sb.append("}");
+			return sb.toString();
+		}
 	}
 
 }

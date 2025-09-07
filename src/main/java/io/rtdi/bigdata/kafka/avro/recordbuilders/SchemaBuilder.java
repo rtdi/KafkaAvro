@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.avro.JsonProperties;
 import org.apache.avro.Schema;
@@ -13,6 +13,8 @@ import org.apache.avro.Schema.Field;
 import org.apache.avro.Schema.Type;
 import org.apache.avro.SchemaBuilderException;
 import org.apache.avro.generic.GenericRecord;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.rtdi.bigdata.kafka.avro.AvroNameEncoder;
 import io.rtdi.bigdata.kafka.avro.AvroUtils;
@@ -29,6 +31,7 @@ public class SchemaBuilder {
 	private Schema schema;
 	private boolean isbuilt = false;
 	private Map<String, SchemaBuilder> childbuilders = new HashMap<>();
+	protected ObjectMapper om = new ObjectMapper();
 
 	/**
 	 * Create a new schema with the given name, namespace is optionally provided as well
@@ -70,6 +73,13 @@ public class SchemaBuilder {
 		 */
 		schema = Schema.createRecord(AvroNameEncoder.encodeName(nameparts[nameparts.length-1]), description, ns.toString(), false);
 		schema.addProp(AvroField.COLUMN_PROP_ORIGINALNAME, name);
+	}
+
+	/**
+	 * @return the built schema's namespace
+	 */
+	public String getSchemaNamespace() {
+		return schema.getNamespace();
 	}
 
 	/**
@@ -330,6 +340,20 @@ public class SchemaBuilder {
 	}
 
 	/**
+	 * @return the built schema's fields
+	 */
+	public List<Field> getSchemaFields() {
+		return schema.getFields();
+	}
+
+	/**
+	 * @return the built schema's documentation
+	 */
+	public String getSchemaDoc() {
+		return schema.getDoc();
+	}
+
+	/**
 	 * Once all columns are added to the schema it can be built and is locked then.
 	 * The build() process goes through all child record builders as well, building the entire schema.
 	 *
@@ -432,6 +456,43 @@ public class SchemaBuilder {
 					"\" has a field \"" + fieldname + "\" but this is no nested record");
 		}
 		return s;
+	}
+
+	/**
+	 * Add a custom property to the schema
+	 * @param propertyName name of the property
+	 * @param value of the property
+	 */
+	public void addProp(String propertyName, Object value) {
+		schema.addProp(propertyName, om.valueToTree(value));
+	}
+
+	/**
+	 * Returns the named schema property
+	 *
+	 * @param propertyName name of the property
+	 * @return the value of the property or null
+	 */
+	public Object getProp(String propertyName) {
+		return schema.getObjectProp(propertyName);
+	}
+
+	/**
+	 * Returns the named schema property if it is of the expected type
+	 *
+	 * @param <T> expected type of the property
+	 * @param propertyName name of the property
+	 * @param clazz expected class of the property
+	 * @return the value of the property or null
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getProp(String propertyName, Class<T> clazz) {
+		Object value = getProp(propertyName);
+		if (clazz.isInstance(value)) {
+			return (T) value;
+		} else {
+			return null;
+		}
 	}
 
 }

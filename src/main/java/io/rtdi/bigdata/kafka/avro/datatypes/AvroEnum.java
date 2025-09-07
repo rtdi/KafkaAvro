@@ -15,7 +15,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroEnum extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory instance to be registered with Avro
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * Name of the logical type
+	 */
 	public static final String NAME = "ENUM";
 	private Schema schema;
 
@@ -25,7 +31,7 @@ public class AvroEnum extends LogicalType implements IAvroPrimitive {
 	public Schema getSchema() {
 		return schema;
 	}
-	
+
 	/**
 	 * @param <T> Enum type
 	 * @param symbols class of the Enum
@@ -46,7 +52,7 @@ public class AvroEnum extends LogicalType implements IAvroPrimitive {
 	private AvroEnum() {
 		super(NAME);
 	}
-	
+
 	/**
 	 * Create an instance of that type.
 	 * @param name of the enum
@@ -87,7 +93,7 @@ public class AvroEnum extends LogicalType implements IAvroPrimitive {
 
 	/**
 	 * Create this logical type based on an Enum schema
-	 * 
+	 *
 	 * @param schema of the enum
 	 * @return instance of the AvroEnum
 	 */
@@ -113,8 +119,12 @@ public class AvroEnum extends LogicalType implements IAvroPrimitive {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		return true;
 	}
 
@@ -122,7 +132,7 @@ public class AvroEnum extends LogicalType implements IAvroPrimitive {
 	public int hashCode() {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -149,8 +159,14 @@ public class AvroEnum extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Enum");
 	}
 
+	/**
+	 * Factory to create this logical type
+	 */
 	public static class Factory implements LogicalTypeFactory {
-		
+
+		/**
+		 * Constructor to register with Avro
+		 */
 		public Factory() {
 		}
 
@@ -183,6 +199,15 @@ public class AvroEnum extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROENUM;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		if (value == null) {
+			return "null";
+		} else {
+			return "\"" + value + "\"";
+		}
 	}
 
 }

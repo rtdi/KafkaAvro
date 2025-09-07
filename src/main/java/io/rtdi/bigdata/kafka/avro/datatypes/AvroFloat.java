@@ -1,8 +1,8 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
 import org.apache.avro.LogicalType;
-import org.apache.avro.Schema;
 import org.apache.avro.LogicalTypes.LogicalTypeFactory;
+import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
@@ -12,7 +12,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroFloat extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create instances of this logical type
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * Name of the logical type in Avro
+	 */
 	public static final String NAME = "FLOAT";
 	private static AvroFloat element = new AvroFloat();
 	private static Schema schema;
@@ -108,8 +114,14 @@ public class AvroFloat extends LogicalType implements IAvroPrimitive {
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Float");
 	}
 
+	/**
+	 * Factory to create instances of this logical type
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Factory constructor
+		 */
 		public Factory() {
 		}
 
@@ -140,6 +152,16 @@ public class AvroFloat extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROFLOAT;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		Float b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return b.toString();
+		}
 	}
 
 }

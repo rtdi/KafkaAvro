@@ -20,11 +20,17 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroLocalTimestampMicros extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create an instance of this logical type
+	 */
 	public static final Factory factory = new Factory();
 	private static Schema schema;
 	static {
 		schema = LogicalTypes.timestampMicros().addToSchema(Schema.create(Type.LONG));
 	}
+	/**
+	 * The name of this type as used in the schema
+	 */
 	public static final String NAME = "LOCALTIMESTAMPMICROS";
 	private static AvroLocalTimestampMicros element = new AvroLocalTimestampMicros();
 	private LocalTimestampMicros time = LogicalTypes.localTimestampMicros();
@@ -70,7 +76,7 @@ public class AvroLocalTimestampMicros extends LogicalType implements IAvroPrimit
 	public int hashCode() {
 		return time.hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -108,8 +114,14 @@ public class AvroLocalTimestampMicros extends LogicalType implements IAvroPrimit
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a LocalTimestampMicros");
 	}
 
+	/**
+	 * Factory to create the logical type from a schema
+	 */
 	public static class Factory implements LogicalTypeFactory {
-		
+
+		/**
+		 * Constructor
+		 */
 		public Factory() {
 		}
 
@@ -146,6 +158,16 @@ public class AvroLocalTimestampMicros extends LogicalType implements IAvroPrimit
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVROLOCALTIMESTAMPMICROS;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		LocalDateTime b = convertToJava(value);
+		if (b == null) {
+			return "null";
+		} else {
+			return "\"" + b.toString() + "\"";
+		}
 	}
 
 }

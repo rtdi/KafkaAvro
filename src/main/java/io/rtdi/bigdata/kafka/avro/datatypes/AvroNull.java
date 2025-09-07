@@ -12,7 +12,13 @@ import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
  *
  */
 public class AvroNull extends LogicalType implements IAvroPrimitive {
+	/**
+	 * Factory to create instances of this class
+	 */
 	public static final Factory factory = new Factory();
+	/**
+	 * The name of the type as used in Avro Schemas
+	 */
 	public static final String NAME = "NULL";
 	private static AvroNull element = new AvroNull();
 
@@ -80,8 +86,14 @@ public class AvroNull extends LogicalType implements IAvroPrimitive {
 		return null;
 	}
 
+	/**
+	 * Factory to create instances of this class
+	 */
 	public static class Factory implements LogicalTypeFactory {
 
+		/**
+		 * Constructor of the factory
+		 */
 		public Factory() {
 		}
 
@@ -105,6 +117,11 @@ public class AvroNull extends LogicalType implements IAvroPrimitive {
 	@Override
 	public AvroType getAvroType() {
 		return AvroType.AVRONULL;
+	}
+
+	@Override
+	public String convertToJson(Object value) throws AvroDataTypeException {
+		return "null";
 	}
 
 }

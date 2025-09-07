@@ -3,6 +3,9 @@ package io.rtdi.bigdata.kafka.avro.datatypes;
 import org.apache.avro.LogicalType;
 import org.apache.avro.Schema;
 
+/**
+ * Some data types have a length attribute like CHAR(10) or VARCHAR(255).
+ */
 public abstract class LogicalTypeWithLength extends LogicalType implements IAvroPrimitive {
 	static final String LENGTH_PROP = "length";
 
@@ -19,7 +22,7 @@ public abstract class LogicalTypeWithLength extends LogicalType implements IAvro
 	public int getLength() {
 		return length;
 	}
-	
+
 	/**
 	 * @param schema of the logical type
 	 * @return the extracted length information from the schema
@@ -51,12 +54,18 @@ public abstract class LogicalTypeWithLength extends LogicalType implements IAvro
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
 		LogicalTypeWithLength typewithlength = (LogicalTypeWithLength) o;
 
-		if (length != typewithlength.length) return false;
+		if (length != typewithlength.length) {
+			return false;
+		}
 
 		return true;
 	}
