@@ -35,3 +35,4 @@ bin/
 *.log
 
 /.pydevproject
+/pom.xml.versionsBackup
