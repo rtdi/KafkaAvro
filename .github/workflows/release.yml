@@ -1,6 +1,6 @@
 name: Release
 
-# Run workflow on commits to the `master` branch
+# Run workflow on commits to the `main` branch
 on:
   push:
     branches:
@@ -9,20 +9,29 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@main
+      - uses: actions/checkout@v3
 
-      - name: Install Java and Maven
-        uses: actions/setup-java@main
+      - name: Set up JDK 17 for deploy to Sonatype
+        uses: actions/setup-java@v3
         with:
-          java-version: 12
           distribution: 'adopt'
+          java-version: 17
+          server-id: central
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_CENTRAL_TOKEN
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
-      - name: Release Maven package
-        uses: samuelmeuli/action-maven-publish@v1
-        with:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
-          nexus_username: ${{ secrets.OSSRH_USERNAME }}
-          nexus_password: ${{ secrets.OSSRH_TOKEN }}
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
+      - name: Prepare Maven environnement with Java 17 for deployment to Sonatype
+
+      - name: Publish to Apache Maven Central
+        run: mvn deploy -PsonatypeDeploy
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_CENTRAL_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
