@@ -13,11 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up JDK 17 for deploy to Sonatype
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: 17
+          java-version: 21
           server-id: central
           server-username: MAVEN_USERNAME
           server-password: MAVEN_CENTRAL_TOKEN
@@ -26,8 +26,6 @@ jobs:
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
-
-      - name: Prepare Maven environnement with Java 17 for deployment to Sonatype
 
       - name: Publish to Apache Maven Central
         run: mvn deploy -PsonatypeDeploy
