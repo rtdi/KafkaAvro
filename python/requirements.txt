@@ -1,0 +1,3 @@
+pyarrow
+avro
+jsonpickle

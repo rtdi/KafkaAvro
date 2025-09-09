@@ -1,0 +1,55 @@
+package io.rtdi.bigdata.kafka.avro;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
+import org.apache.avro.generic.GenericDatumWriter;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.io.BinaryEncoder;
+import org.apache.avro.io.DatumWriter;
+import org.apache.avro.io.EncoderFactory;
+
+import io.rtdi.bigdata.kafka.avro.datatypes.LogicalDataTypesRegistry;
+
+/**
+ * Creates a a binary representation of an Avro GenericRecord in the Kafka format.
+ * Hence all data put into Kafka can be read by other tools like Kafka Connect.  
+ *
+ */
+public class AvroSerializer {
+	
+	private static EncoderFactory encoderFactory = EncoderFactory.get();
+	static {
+		LogicalDataTypesRegistry.registerAll();
+	}
+
+
+	/**
+	 * Convert an AvroRecord into a Kafka payload to be sent as binary payload, still compatible with all other Kafka Avro serdes.
+	 * 
+	 * @param schemaid the id of the Kafka schema
+	 * @param data AvroRecord
+	 * @return binary representation of the AvroRecord
+	 * @throws IOException in case the AvroRecord cannot be serialized
+	 */
+	public static byte[] serialize(int schemaid, GenericRecord data) throws IOException {
+		try ( ByteArrayOutputStream out = new ByteArrayOutputStream(); ) {
+			out.write(AvroUtils.MAGIC_BYTE);
+			out.write(ByteBuffer.allocate(Integer.BYTES).putInt(schemaid).array());
+			BinaryEncoder encoder = encoderFactory.directBinaryEncoder(out, null);
+			DatumWriter<GenericRecord> writer = new GenericDatumWriter<>(data.getSchema());
+			writer.write(data, encoder);
+			encoder.flush();
+			byte[] bytes = out.toByteArray();
+			return bytes;
+		} catch (Exception e) {
+			if (e instanceof IOException) {
+				throw e;
+			} else {
+				throw new IOException(e);
+			}
+		}
+	}
+
+}
