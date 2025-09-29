@@ -147,11 +147,24 @@ class TargetTable:
         else:
             raise RuntimeError("Such a table exists already")
 
-    def add_1_to_1_mapping(self, source: SourceTable, source_column_name: str, target_column_name: str):
+    def add_1_to_1_mapping(self, source: SourceTable, source_column_name: str, target_column_name: str,
+                           mapping_description: str = "1:1"):
         self.target_table_columns[target_column_name] =\
             TargetTableColumn(target_column_name, "= " + source.source_table_name + "." + source_column_name,
-                              "1:1",
+                              mapping_description,
                               [ColumnSource(source, source_column_name)])
+
+    def add_single_source_column_mapping(self, source: SourceTable, source_column_name: str, target_column_name: str,
+                                         formula: str, mapping_description: str = "simple mapping"):
+        self.target_table_columns[target_column_name] =\
+            TargetTableColumn(target_column_name, formula,
+                              mapping_description,
+                              [ColumnSource(source, source_column_name)])
+
+    def add_constant_mapping(self, source: SourceTable, target_column_name: str,
+                                         formula: str, mapping_description: str = "constant mapping"):
+        self.target_table_columns[target_column_name] =\
+            TargetTableColumn(target_column_name, formula, mapping_description)
 
     def create_dict(self):
         return {
@@ -201,13 +214,13 @@ class TargetTableColumn:
 
 class ImpactLineage:
 
-    def __init__(self, producer_name, dataflow_name):
+    def __init__(self, producer_name: str, dataflow_name: str):
         target_tables: dict[str, TargetTable] = dict()
         self.producer_name = producer_name
         self.dataflow_name = dataflow_name
         self.target_tables = target_tables
 
-    def add_target_table(self, target_table_name, target_connection) -> TargetTable:
+    def add_target_table(self, target_table_name: str, target_connection: str) -> TargetTable:
         targets = self.target_tables
         target_table = TargetTable(target_table_name, target_connection)
         if target_table.key not in targets:

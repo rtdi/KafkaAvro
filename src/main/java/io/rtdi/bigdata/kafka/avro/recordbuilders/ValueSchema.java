@@ -103,7 +103,7 @@ public class ValueSchema extends SchemaBuilder {
 		try {
 			extension = new SchemaBuilder("__extension", "Extension point to add custom values to each record");
 			extension.add("__path", AvroString.getSchema(), "An unique identifier, e.g. \"street\".\"house number component\"", false);
-			extension.add("__value", AvroAnyPrimitive.getSchema(), "The value of any primitive datatype of Avro", false);
+			extension.add("__value", AvroString.getSchema(), "The value of any primitive datatype of Avro", false);
 			extension.build();
 
 			audit = new SchemaBuilder(AUDIT, "If data is transformed this information is recorded here");

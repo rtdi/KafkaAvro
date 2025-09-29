@@ -145,7 +145,7 @@ class RecordSchema:
 extension = RecordSchema(SCHEMA_COLUMN_EXTENSION, doc="Extension point to add custom values to each record")
 extension.add_field("__path", AvroString(), 'An unique identifier, e.g. "street"."house number component"',
                     False)
-extension.add_field("__value", AvroAnyPrimitive(),"The value of any primitive datatype of Avro",
+extension.add_field("__value", AvroString(),"The value of any primitive datatype of Avro",
                     False)
 
 class ArraySchema:
@@ -179,7 +179,7 @@ class RootSchema(RecordSchema):
         schema_data = super().create_schema_dict()
         return schema_data
 
-    def get_json(self):
+    def get_json(self) -> str:
         return jsonpickle.dumps(self.create_schema_dict())
 
 
@@ -306,6 +306,18 @@ class ValueSchema(RootSchema):
             self.data_classifications.remove(data_classification)
         return self
 
+
+class KeySchema(RootSchema):
+    """
+    Derive the key schema from the ValueSchema
+    """
+    def __init__(self, value_schema: ValueSchema):
+        super().__init__(f"{value_schema.name}_key", value_schema.namespace)
+        if value_schema.pks is None:
+            raise RuntimeError("Cannot derive a key from a ValueSchema which has no primary keys defined")
+        for pk_column in value_schema.pks:
+            f = value_schema.field_name_index[pk_column]
+            self.add_field(f.name, f.type, f.doc, False, f.internal, f.technical, f.source_data_type)
 
 commit_value_schema = """
         {
