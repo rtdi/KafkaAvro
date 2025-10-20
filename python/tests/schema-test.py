@@ -1,11 +1,13 @@
 import unittest
 import avro.schema
 
-from python.src.kafkaavro.avro_datatypes import AvroDecimal, AvroInt, AvroNVarchar
+from python.src.kafkaavro.avro_datatypes import (AvroDecimal, AvroInt, AvroNVarchar, AvroVarchar, AvroEnum, AvroFixed, \
+    AvroMap, AvroTime, AvroTimeMicros, AvroDate, AvroTimestamp, AvroTimestampMicros, get_datatype, \
+    encode_name, decode_name)
 from python.src.kafkaavro.data_governance import TimeUnit, FKCondition, Duration
-from python.src.kafkaavro.impact_lineage import ImpactLineage, TargetTable, SourceTable, impact_lineage_value_schema, \
+from python.src.kafkaavro.impact_lineage import ImpactLineage, SourceTable, impact_lineage_value_schema, \
     impact_lineage_key_schema
-from python.src.kafkaavro.schemabuilder import ValueSchema, encode_name, decode_name
+from python.src.kafkaavro.schemabuilder import ValueSchema
 from avro.datafile import DataFileWriter
 from avro.io import DatumWriter
 
@@ -36,7 +38,7 @@ class SchemaTests(unittest.TestCase):
         name = "A complicated $ name with german äöü umlaut"
         encoded = encode_name(name)
         decoded = decode_name(encoded)
-        assert(decoded, name)
+        assert decoded, name
 
 
     def test_impact_lineage(self):
@@ -57,6 +59,22 @@ class SchemaTests(unittest.TestCase):
         writer.append(d)
         writer.close()
 
+    def test_schema_conversion(self):
+        value = ValueSchema("ALL_DATA_TYPES", None)
+        value.add_field("D_INT", AvroInt())
+        value.add_field("D_NVARCHAR", AvroNVarchar(30))
+        value.add_field("D_VARCHAR", AvroVarchar(10))
+        value.add_field("D_ENUM", AvroEnum(["FIRST", "SECOND"]))
+        value.add_field("D_DECIMAL", AvroDecimal(12, 0))
+        value.add_field("D_FIXED", AvroFixed(10))
+        value.add_field("D_MAP", AvroMap(AvroInt()))
+        value.add_field("D_TIME", AvroTime())
+        value.add_field("D_TIME_MICRO", AvroTimeMicros())
+        value.add_field("D_DATE", AvroDate())
+        value.add_field("D_TIMESTAMP", AvroTimestamp())
+        value.add_field("D_TIMESTAMP_MICROS", AvroTimestampMicros())
+        d = value.create_schema_dict()
+        value2 = get_datatype(d)
 
 
 if __name__ == '__main__':

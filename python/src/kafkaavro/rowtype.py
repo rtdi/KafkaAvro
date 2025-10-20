@@ -2,7 +2,7 @@ from enum import Enum
 
 class RowType(str, Enum):
     INSERT="I"
-    # A brand new record was inserted. A record with this primary key was not present before.
+    # A brand-new record was inserted. A record with this primary key was not present before.
     # If there is no guarantee such record does not exist yet, use UPSERT instead.
 
     UPDATE="U"
@@ -13,13 +13,13 @@ class RowType(str, Enum):
     
     DELETE="D"
     # An existing record was deleted, the provided records contains the complete latest version with all payload fields.
-    # If only the primary key of the payload is known, use EXTEMRINATE instead.
+    # If only the primary key of the payload is known, use EXTERMINATE instead.
     
     UPSERT="A"
     # In case either a new record should be created or its last version overwritten, use this UPSERT RowType ("AutoCorrect").
     
     EXTERMINATE="X"
-    # When the payload of a delete has null values everywhere except for the primary key fields, then the proper code is EXTERMINATE.
+    # When the payload of type delete has null values everywhere except for the primary key fields, then the proper code is EXTERMINATE.
     # A database would execute a "delete from table where pk = ?" and ignore all other fields.
     
     TRUNCATE="T"

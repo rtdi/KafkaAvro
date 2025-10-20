@@ -1,9 +1,44 @@
 from datetime import timezone
-from typing import Union
+from typing import Union, Optional
+import re
 
+import jsonpickle
 import pyarrow
 from abc import ABC, abstractmethod
 
+from .data_governance import DataSensitivityEnum
+
+encoder_pattern = re.compile(r'[^A-Za-z0-9_.]')  # dots are allowed also
+decoder_pattern = re.compile(r'_x[0-9a-fA-F]{4}')
+
+COLUMN_PROP_SOURCE_DATATYPE = "__source_data_type"
+COLUMN_PROP_ORIGINAL_NAME = "__originalname"
+COLUMN_PROP_INTERNAL = "__internal"
+COLUMN_PROP_TECHNICAL = "__technical" # cannot be used in mappings as the values are set when sending the rows to the pipeline server
+COLUMN_PROP_CONTENT_SENSITIVITY = "__sensitivity"
+
+def encode_name(s: str) -> str:
+    # Escape the literal "_x" to avoid confusion with escape sequences
+    s = s.replace('_x', '_x005f_x0078')
+    buf = []
+    last_pos = 0
+    matches = re.finditer(encoder_pattern, s)
+    for match in matches:
+        start, end = match.span()
+        buf.append(s[last_pos:start])
+        char = match.group()
+        encoded = f"_x{ord(char):04x}"
+        buf.append(encoded)
+        last_pos = end
+
+    buf.append(s[last_pos:])
+    return ''.join(buf)
+
+def decode_name(name: str) -> str:
+    def replace_match(m):
+        hex_code = m.group()[2:]  # strip '_x'
+        return chr(int(hex_code, 16))
+    return decoder_pattern.sub(replace_match, name)
 
 class AvroPrimitive(ABC):
 
@@ -17,6 +52,49 @@ class AvroPrimitive(ABC):
     @abstractmethod
     def get_pyarrow(self) -> pyarrow.DataType:
         return pyarrow.null()
+
+
+class Field:
+    """
+    A Field contains detailed metadata about the column, technical metadata and business metadata
+    """
+
+    def __init__(self, name: str, datatype: Union[AvroPrimitive, 'ArraySchema', 'RecordSchema'], nullable: bool = True,
+                 doc: str = None,
+                 internal: bool = False, technical: bool = False, source_data_type: str = None):
+        self.name = name  # type: str
+        self.type = datatype  # type: Union[AvroPrimitive, 'AvroArray', 'RecordSchema']
+        self.nullable = nullable  # type: bool
+        self.doc = doc  # type: Optional[str]
+        self.data_sensitivity: DataSensitivityEnum = DataSensitivityEnum.INTERNAL
+        self.internal: bool = internal
+        self.technical: bool = technical
+        self.source_data_type: Optional[str] = source_data_type
+
+    def create_schema_dict(self) -> dict[str, str]:
+        s = dict()
+        s['name'] = encode_name(self.name)
+        s[COLUMN_PROP_ORIGINAL_NAME] = self.name
+        s['doc'] = self.doc
+        s[COLUMN_PROP_CONTENT_SENSITIVITY] = self.data_sensitivity.name
+        s[COLUMN_PROP_INTERNAL] = self.internal
+        s[COLUMN_PROP_TECHNICAL] = self.technical
+        s[COLUMN_PROP_SOURCE_DATATYPE] = self.source_data_type
+        if self.nullable:
+            s['type'] = ["null", self.type.create_schema_dict()]
+            s['default'] = None
+        else:
+            s['type'] = self.type.create_schema_dict()
+        return s
+
+    def set_data_sensitivity(self, data_sensitivity: DataSensitivityEnum) -> "Field":
+        self.data_sensitivity = data_sensitivity
+        return self
+
+    def __repr__(self):
+        class_name = type(self).__name__
+        return f"{class_name}(name={self.name!r}, type={self.type!r})"
+
 
 class AvroUnion:
 
@@ -36,6 +114,58 @@ class AvroUnion:
             l.append(pyarrow.field(type(i).__name__, i.get_pyarrow()))
         return pyarrow.union(l, pyarrow.lib.UnionMode_DENSE)
 
+class RecordSchema:
+
+    def __init__(self, name: str, namespace: Optional[str] = None, doc: Optional[str] = None):
+        self.type = 'record' # type: str
+        self.name = name # type: str
+        self.fields = [] # type: list[Field]
+        self.namespace = namespace # type: Optional[str]
+        self.doc = doc # type: Optional[str]
+        self.field_name_index = {} # type: dict[str, Field]
+
+    def add_field(self, name: str, datatype: any, doc: Optional[str] = None, nullable: bool = True,
+                  internal: bool = False, technical: bool = False, source_data_type: str = None) -> Field:
+        f = Field(name, datatype, nullable, doc, internal, technical, source_data_type)
+        self.fields.append(f)
+        self.field_name_index[name] = f
+        return f
+
+    def create_schema_dict(self) -> dict[str, any]:
+        s = dict()
+        s['name'] = encode_name(self.name)
+        s[COLUMN_PROP_ORIGINAL_NAME] = self.name
+        s['doc'] = self.doc
+        s['type'] = self.type
+        s['namespace'] = self.namespace
+        s['fields'] = [field.create_schema_dict() for field in self.fields]
+        return s
+
+    def __repr__(self):
+        class_name = type(self).__name__
+        return f"{class_name}(name={self.name!r}, namespace={self.namespace!r}, field_count={len(self.fields)})"
+
+    def get_pyarrow(self) -> any:
+        f = [(field.name, field.type.get_pyarrow()) for field in self.fields]
+        return pyarrow.struct(f)
+
+class ArraySchema:
+
+    def __init__(self, items: Union[AvroPrimitive, RecordSchema]):
+        self.items = items
+
+    def create_schema_dict(self) -> dict[str, any]:
+        return {
+            "type": "array",
+            "items": self.items.create_schema_dict()
+        }
+
+    def __repr__(self):
+        class_name = type(self).__name__
+        return f"{class_name}(items={self.items!r})"
+
+    def get_pyarrow(self) -> any:
+        return pyarrow.list_(self.items.get_pyarrow())
 
 class AvroAnyPrimitive(AvroPrimitive):
 
@@ -147,24 +277,32 @@ class AvroDouble(AvroPrimitive):
 
 class AvroEnum(AvroPrimitive):
 
-    def __init__(self):
+    def __init__(self, symbols: Union[list[str], str], name: str):
         super().__init__()
+        if isinstance(symbols, str):
+            self.symbols = jsonpickle.decode(symbols)
+        self.symbols = symbols
+        self.name = name
 
     def create_schema_dict(self) -> dict:
-        return {"type": "enum", "logicalType": "ENUM"}
+        return {"type": "enum", "logicalType": "ENUM", "symbols": self.get_symbol_json(), "name": self.name}
 
     def get_pyarrow(self) -> pyarrow.DataType:
         return pyarrow.string()
 
+    def get_symbol_json(self):
+        return '["' + '","'.join(self.symbols) + '"]'
+
 
 class AvroFixed(AvroPrimitive):
 
-    def __init__(self, length: int):
+    def __init__(self, length: int, name: str):
         super().__init__()
         self.length = length
+        self.name = name
 
     def create_schema_dict(self) -> dict:
-        return {"type": "fixed", "logicalType": "FIXED", "size": self.length}
+        return {"type": "fixed", "logicalType": "FIXED", "size": self.length, "name": self.name}
 
     def get_pyarrow(self) -> pyarrow.DataType:
         return pyarrow.binary(self.length)
@@ -411,3 +549,125 @@ class AvroVarchar(AvroPrimitive):
 
     def get_pyarrow(self) -> pyarrow.DataType:
         return pyarrow.string()
+
+
+
+def get_datatype(schema: dict):
+    t = schema["type"]
+    if isinstance(t, dict):
+        return get_datatype(t)
+    if isinstance(t, list):
+        # Union
+        if len(t) == 2 and (t[0] == "null" or t[1] == "null"):
+            if t[0] == "null":
+                datatype, nullable = get_datatype(t[1])
+                return datatype, True
+            else:
+                datatype, nullable = get_datatype(t[0])
+                return datatype, True
+        else:
+            items = [get_datatype(i) for i in t]
+            return AvroUnion(items), False
+    match t:
+        case "record":
+            r = RecordSchema(schema["name"], schema.get("namespace"), schema.get("doc"))
+            for f in schema["fields"]:
+                datatype, nullable = get_datatype(f)
+                field = r.add_field(f["name"], datatype, f.get("doc"), nullable,
+                                    f.get(COLUMN_PROP_INTERNAL),
+                                    f.get(COLUMN_PROP_TECHNICAL),
+                                    f.get(COLUMN_PROP_SOURCE_DATATYPE))
+                s = f.get(COLUMN_PROP_SOURCE_DATATYPE)
+                if s is not None:
+                    field.set_data_sensitivity(DataSensitivityEnum(s))
+            return r, False
+        case "array":
+            datatype, nullable = get_datatype(schema["items"])
+            return ArraySchema(datatype), False
+    l = schema.get("logicalType")
+    if l is not None:
+        match l:
+            case "BOOLEAN":
+                return AvroBoolean(), False
+            case "BYTE":
+                return AvroByte(), False
+            case "BYTES":
+                return AvroBytes(), False
+            case "CLOB":
+                return AvroCLOB, False
+            case "date":
+                return AvroDate(), False
+            case "decimal":
+                return AvroDecimal(schema.get("precision"), schema.get("scale")), False
+            case "DOUBLE":
+                return AvroDouble(), False
+            case "ENUM":
+                return AvroEnum(schema.get("symbols"), schema.get("name")), False
+            case "FIXED":
+                return AvroFixed(schema.get("size"), schema.get("name")), False
+            case "FLOAT":
+                return AvroFloat(), False
+            case "INT":
+                return AvroInt(), False
+            case "local-timestamp-millis":
+                return AvroLocalTimestamp(), False
+            case "local-timestamp-micros":
+                return AvroLocalTimestampMicros(), False
+            case "LONG":
+                return AvroLong(), False
+            case "MAP":
+                d, n = get_datatype(schema.get("values"))
+                return AvroMap(d), False
+            case "NCLOB":
+                return AvroNCLOB(), False
+            case "NULL":
+                return AvroNull(), False
+            case "NVARCHAR":
+                return AvroNVarchar(schema.get("length")), False
+            case "ST_GEOMETRY":
+                return AvroSTGeometry(), False
+            case "ST_POINT":
+                return AvroSTPoint(), False
+            case "SHORT":
+                return AvroShort(), False
+            case "STRING":
+                return AvroString(), False
+            case "time-millis":
+                return AvroTime(), False
+            case "time-micros":
+                return AvroTimeMicros(), False
+            case "timestamp-millis":
+                return AvroTimestamp(), False
+            case "timestamp-micros":
+                return AvroTimestampMicros(), False
+            case "uuid":
+                return AvroUUID(), False
+            case "URI":
+                return AvroUri(), False
+            case "VARCHAR":
+                return AvroVarchar(schema.get("length")), False
+        match t:
+            case "null":
+                return AvroNull(), False
+            case "boolean":
+                return AvroBoolean(), False
+            case "int":
+                return AvroInt(), False
+            case "long":
+                return AvroLong(), False
+            case "float":
+                return AvroFloat(), False
+            case "double":
+                return AvroDouble(), False
+            case "bytes":
+                return AvroBytes(), False
+            case "string":
+                return AvroString(), False
+            case "enum":
+                return AvroEnum(schema.get("symbols"), schema.get("name")), False
+            case "map":
+                d, n = get_datatype(schema.get("values"))
+                return AvroMap(d), False
+            case "fixed":
+                return AvroFixed(schema.get("size"), schema.get("name")), False
+        raise RuntimeError(f"unknown schema {schema}")
