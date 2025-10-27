@@ -3,7 +3,7 @@ from typing import Optional
 
 from .data_governance import FKCondition, Duration, DeletionPolicy
 from .avro_datatypes import AvroString, AvroVarchar, AvroNVarchar, AvroByte, AvroMap, \
-    AvroTimestamp, RecordSchema, ArraySchema
+    AvroTimestamp, RecordSchema, ArraySchema, AvroTimestampMicros
 
 ROW_SOURCE_SYSTEM = "__source_system"
 ROW_SOURCE_TRANSACTION = "__source_transaction"
@@ -15,20 +15,6 @@ SCHEMA_COLUMN_EXTENSION = "__extension"
 SCHEMA_INFO_TICKETS_URL = "tickets_url"
 SCHEMA_INFO_REPO_URL = "repo_url"
 SCHEMA_INFO_DATAPRODUCT_OWNER = "data_product_owner_email"
-
-def get_key_schema(value_schema: "ValueSchema") -> "RootSchema":
-    key_schema = RootSchema(value_schema.name, value_schema.namespace)
-    if value_schema.pks is not None and len(value_schema.pks) > 0:
-        for pk in value_schema.pks:
-            f = value_schema.field_name_index.get(pk)
-            if f is not None:
-                key_schema.add_field(f.name, f.type, f.doc, f.nullable, f.internal, f.technical, f.source_data_type)
-            else:
-                raise RuntimeError(f"Primary key with name {pk} not found in list of fields of the value schema")
-    else:
-        raise RuntimeError(f"Value schema has no primary key defined")
-    return key_schema
-
 
 extension = RecordSchema(SCHEMA_COLUMN_EXTENSION, doc="Extension point to add custom values to each record")
 extension.add_field("__path", AvroString(), 'An unique identifier, e.g. "street"."house number component"',
@@ -183,7 +169,7 @@ class KeySchema(RootSchema):
     def __init__(self, value_schema: ValueSchema):
         super().__init__(f"{value_schema.name}_key", value_schema.namespace)
         if value_schema.pks is None:
-            raise RuntimeError("Cannot derive a key from a ValueSchema which has no primary keys defined")
+            self.add_field("ts", AvroTimestampMicros(), None, False)
         for pk_column in value_schema.pks:
             f = value_schema.field_name_index[pk_column]
             self.add_field(f.name, f.type, f.doc, False, f.internal, f.technical, f.source_data_type)
