@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rtdi_kafkaavro"
-version = "0.10.31"
+version = "0.10.32"
 authors = [
   { name="Werner Dähn", email="werner.daehn@rtdi.io" },
 ]

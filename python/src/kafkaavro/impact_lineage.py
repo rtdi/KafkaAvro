@@ -1,7 +1,7 @@
 from typing import Optional
 
 from .avro_datatypes import AvroString
-from .schemabuilder import ValueSchema, RecordSchema, ArraySchema, get_key_schema
+from .schemabuilder import ValueSchema, RecordSchema, ArraySchema, KeySchema
 
 # Schema structure
 #
@@ -109,7 +109,7 @@ impact_lineage_value_schema.add_field("dataflow_name", AvroString(),
 impact_lineage_value_schema.add_field("target_tables", table_mappings_array,
                                       "The list of source tables providing information for this target table")
 
-impact_lineage_key_schema = get_key_schema(impact_lineage_value_schema)
+impact_lineage_key_schema = KeySchema(impact_lineage_value_schema)
 
 class SourceTable:
 
@@ -161,7 +161,7 @@ class TargetTable:
                               mapping_description,
                               [ColumnSource(source, source_column_name)])
 
-    def add_constant_mapping(self, source: SourceTable, target_column_name: str,
+    def add_constant_mapping(self, target_column_name: str,
                                          formula: str, mapping_description: str = "constant mapping"):
         self.target_table_columns[target_column_name] =\
             TargetTableColumn(target_column_name, formula, mapping_description)
