@@ -199,6 +199,11 @@ commit_value_schema = """
                     "default": 0 
                 },
                 {
+                    "name": "rollback",
+                    "type": "boolean",
+                    "default": false 
+                },
+                {
                     "name": "topics",
                     "type": [
                         "null",

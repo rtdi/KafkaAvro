@@ -16,7 +16,7 @@ from .schemabuilder import ValueSchema, RecordSchema, ArraySchema, KeySchema
 #     - source_connection
 #     - mapping_formula
 #     - mapping_description
-#   - target_table_columns
+#   - target_table_columnssource_tables
 #     - column_name
 #     - mapping_formula
 #     - column_sources

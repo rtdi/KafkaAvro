@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 
 from .data_governance import DataSensitivityEnum
 
-encoder_pattern = re.compile(r'[^A-Za-z0-9_.]')  # dots are allowed also
+encoder_pattern = re.compile(r'[^A-Za-z0-9_]')
 decoder_pattern = re.compile(r'_x[0-9a-fA-F]{4}')
 
 COLUMN_PROP_SOURCE_DATATYPE = "__source_data_type"
