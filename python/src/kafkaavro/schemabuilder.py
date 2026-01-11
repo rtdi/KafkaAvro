@@ -3,7 +3,7 @@ from typing import Optional
 
 from .data_governance import FKCondition, Duration, DeletionPolicy
 from .avro_datatypes import AvroString, AvroVarchar, AvroNVarchar, AvroByte, AvroMap, \
-    AvroTimestamp, RecordSchema, ArraySchema, AvroTimestampMicros
+    AvroTimestamp, RecordSchema, ArraySchema, AvroTimestampMicros, AvroLong, AvroInt, AvroBoolean
 
 ROW_SOURCE_SYSTEM = "__source_system"
 ROW_SOURCE_TRANSACTION = "__source_transaction"
@@ -174,105 +174,33 @@ class KeySchema(RootSchema):
             f = value_schema.field_name_index[pk_column]
             self.add_field(f.name, f.type, f.doc, False, f.internal, f.technical, f.source_data_type)
 
-commit_value_schema = """
-        {
-            "name": "commit",
-            "type": "record",
-            "pks": ["commit_id", "producer_name"],
-            "fields": [
-                {
-                    "name": "commit_id",
-                    "type": "string"
-                },
-                {
-                    "name": "producer_name",
-                    "type": "string",
-                    "default": ""
-                },
-                {
-                    "name": "commit_epoch_ns",
-                    "type": "long"
-                },
-                {
-                    "name": "record_count",
-                    "type": "int",
-                    "default": 0 
-                },
-                {
-                    "name": "rollback",
-                    "type": "boolean",
-                    "default": false 
-                },
-                {
-                    "name": "topics",
-                    "type": [
-                        "null",
-                        {
-                            "type": "map",
-                            "values" : {
-                                "name": "topic_offsets",
-                                "type": "record",
-                                "fields": [
-                                    {
-                                        "name": "topic_name",
-                                        "type": "string"
-                                    },
-                                    {
-                                        "name": "schema_names",
-                                        "type": {
-                                            "type": "array",
-                                            "items" : "string"
-                                        }
-                                    },
-                                    {
-                                        "name": "offsets",
-                                        "type": [
-                                            {
-                                                "type": "map",
-                                                "values": {
-                                                    "name": "min_max_offsets",
-                                                    "type": "record",
-                                                    "fields": [
-                                                        {
-                                                            "name": "min_offset",
-                                                            "type": "long"
-                                                        },
-                                                        {
-                                                            "name": "max_offset",
-                                                            "type": "long"
-                                                        },
-                                                        {
-                                                            "name": "partition",
-                                                            "type": "int"
-                                                        }
-                                                    ]
-                                                }
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
-                    ]
-                }
-            ]
-        }
-    """
-commit_key_schema = """
-        {
-            "name": "commit_key",
-            "type": "record",
-            "fields":
-                [
-                    {
-                        "name": "commit_id",
-                        "type": "string"
-                    },
-                    {
-                        "name": "producer_name",
-                        "type": "string"
-                    }
-                ]
-        }           
-    """
+class CommitSchema(RootSchema):
+
+    def __init__(self):
+        super().__init__("commit", None)
+
+        offset = RecordSchema("min_max_offsets", None)
+        offset.add_field("min_offset", AvroLong())
+        offset.add_field("max_offset", AvroLong())
+        offset.add_field("partition", AvroInt())
+
+        topic = RecordSchema("topic_offsets", None)
+        topic.add_field("topic_name", AvroString())
+        topic.add_field("schema_names", ArraySchema(AvroString()))
+        topic.add_field("topics", AvroMap(offset))
+
+        self.add_field("commit_id", AvroString())
+        self.add_field("producer_name", AvroString(), default="")
+        self.add_field("commit_epoch_ns", AvroLong())
+        self.add_field("record_count", AvroInt(), default=0)
+        self.add_field("rollback", AvroBoolean(), default=False)
+        self.add_field("topics", AvroMap(topic), nullable=True)
+
+
+class CommitSchemaKey(RootSchema):
+
+    def __init__(self):
+        super().__init__("commit_key", None)
+        self.add_field("commit_id", AvroString())
+        self.add_field("producer_name", AvroString(), default="")
 

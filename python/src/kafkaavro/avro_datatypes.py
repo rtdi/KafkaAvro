@@ -1,5 +1,5 @@
 from datetime import timezone
-from typing import Union, Optional
+from typing import Union, Optional, Any
 import re
 
 import jsonpickle
@@ -61,7 +61,7 @@ class Field:
 
     def __init__(self, name: str, datatype: Union[AvroPrimitive, 'ArraySchema', 'RecordSchema'], nullable: bool = True,
                  doc: str = None,
-                 internal: bool = False, technical: bool = False, source_data_type: str = None):
+                 internal: bool = False, technical: bool = False, source_data_type: str = None, default: Any = None):
         self.name = name  # type: str
         self.type = datatype  # type: Union[AvroPrimitive, 'AvroArray', 'RecordSchema']
         self.nullable = nullable  # type: bool
@@ -70,6 +70,7 @@ class Field:
         self.internal: bool = internal
         self.technical: bool = technical
         self.source_data_type: Optional[str] = source_data_type
+        self.default = default
 
     def create_schema_dict(self) -> dict[str, str]:
         s = dict()
@@ -85,6 +86,7 @@ class Field:
             s['default'] = None
         else:
             s['type'] = self.type.create_schema_dict()
+            s['default'] = self.default
         return s
 
     def set_data_sensitivity(self, data_sensitivity: DataSensitivityEnum) -> "Field":
@@ -125,8 +127,8 @@ class RecordSchema:
         self.field_name_index = {} # type: dict[str, Field]
 
     def add_field(self, name: str, datatype: any, doc: Optional[str] = None, nullable: bool = True,
-                  internal: bool = False, technical: bool = False, source_data_type: str = None) -> Field:
-        f = Field(name, datatype, nullable, doc, internal, technical, source_data_type)
+                  internal: bool = False, technical: bool = False, source_data_type: str = None, default: Any = None) -> Field:
+        f = Field(name, datatype, nullable, doc, internal, technical, source_data_type, default)
         self.fields.append(f)
         self.field_name_index[name] = f
         return f
@@ -370,7 +372,7 @@ class AvroLong(AvroPrimitive):
 
 class AvroMap(AvroPrimitive):
 
-    def __init__(self, value_data_type: AvroPrimitive):
+    def __init__(self, value_data_type: Union[AvroPrimitive, RecordSchema]):
         super().__init__()
         self.value_data_type = value_data_type
 
