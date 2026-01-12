@@ -195,6 +195,7 @@ class CommitSchema(ValueSchema):
         self.add_field("record_count", AvroInt(), default=0)
         self.add_field("rollback", AvroBoolean(), default=False)
         self.add_field("topics", AvroMap(topic), nullable=True)
+        self.set_pks({"commit_id", "producer_name"})
 
 
 class CommitSchemaKey(RootSchema):
