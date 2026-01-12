@@ -83,10 +83,11 @@ class Field:
         s[COLUMN_PROP_SOURCE_DATATYPE] = self.source_data_type
         if self.nullable:
             s['type'] = ["null", self.type.create_schema_dict()]
-            s['default'] = None
+            s['default'] = None # The default of a nullable is null
         else:
             s['type'] = self.type.create_schema_dict()
-            s['default'] = self.default
+            if self.default is not None:
+                s['default'] = self.default # if the field is not nullable, the default cannot be null
         return s
 
     def set_data_sensitivity(self, data_sensitivity: DataSensitivityEnum) -> "Field":
