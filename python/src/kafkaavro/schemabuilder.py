@@ -193,7 +193,7 @@ class CommitSchema(ValueSchema):
         topic = RecordSchema("topic_offsets", None)
         topic.add_field("topic_name", AvroString())
         topic.add_field("schema_names", ArraySchema(AvroString()))
-        topic.add_field("topics", AvroMap(offset))
+        topic.add_field("offsets", AvroMap(offset))
 
         self.add_field("commit_id", AvroString())
         self.add_field("producer_name", AvroString(), default="")
