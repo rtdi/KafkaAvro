@@ -1,6 +1,8 @@
 import jsonpickle
 from typing import Optional
 
+import pyarrow
+
 from .data_governance import FKCondition, Duration, DeletionPolicy
 from .avro_datatypes import AvroString, AvroVarchar, AvroNVarchar, AvroByte, AvroMap, \
     AvroTimestamp, RecordSchema, ArraySchema, AvroTimestampMicros, AvroLong, AvroInt, AvroBoolean
@@ -36,6 +38,10 @@ class RootSchema(RecordSchema):
 
     def get_json(self) -> str:
         return jsonpickle.dumps(self.create_schema_dict())
+
+    def get_pyarrow(self) -> pyarrow.Schema:
+        f = [(field.name, field.type.get_pyarrow()) for field in self.fields]
+        return pyarrow.schema(f)
 
 
 class ValueSchema(RootSchema):
