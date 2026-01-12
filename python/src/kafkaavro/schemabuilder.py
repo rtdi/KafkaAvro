@@ -174,7 +174,7 @@ class KeySchema(RootSchema):
             f = value_schema.field_name_index[pk_column]
             self.add_field(f.name, f.type, f.doc, False, f.internal, f.technical, f.source_data_type)
 
-class CommitSchema(RootSchema):
+class CommitSchema(ValueSchema):
 
     def __init__(self):
         super().__init__("commit", None)
