@@ -178,7 +178,7 @@ class KeySchema(RootSchema):
             self.add_field("ts", AvroTimestampMicros(), None, False)
         for pk_column in value_schema.pks:
             f = value_schema.field_name_index[pk_column]
-            self.add_field(f.name, f.type, f.doc, False, f.internal, f.technical, f.source_data_type)
+            self.add_field(f.name, f.type, f.doc, False, f.internal, f.technical, f.source_data_type, f.default)
 
 class CommitSchema(ValueSchema):
 
