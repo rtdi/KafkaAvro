@@ -174,11 +174,12 @@ class KeySchema(RootSchema):
     """
     def __init__(self, value_schema: ValueSchema):
         super().__init__(f"{value_schema.name}_key", value_schema.namespace)
-        if value_schema.pks is None:
+        if value_schema.pks is None or len(value_schema.pks) == 0:
             self.add_field("ts", AvroTimestampMicros(), None, False)
-        for pk_column in value_schema.pks:
-            f = value_schema.field_name_index[pk_column]
-            self.add_field(f.name, f.type, f.doc, False, f.internal, f.technical, f.source_data_type, f.default)
+        else:
+            for pk_column in value_schema.pks:
+                f = value_schema.field_name_index[pk_column]
+                self.add_field(f.name, f.type, f.doc, False, f.internal, f.technical, f.source_data_type, f.default)
 
 class CommitSchema(ValueSchema):
 
