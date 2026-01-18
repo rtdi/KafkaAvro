@@ -263,7 +263,7 @@ class AvroDecimal(AvroPrimitive):
         return {"type": "bytes", "logicalType": "decimal", "precision": self.precision, "scale": self.scale}
 
     def get_pyarrow(self) -> pyarrow.DataType:
-        return pyarrow.decimal64(self.precision, self.scale)
+        return pyarrow.decimal256(self.precision, self.scale)
 
 
 class AvroDouble(AvroPrimitive):
