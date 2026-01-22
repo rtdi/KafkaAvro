@@ -97,7 +97,7 @@ class ValueSchema(RootSchema):
 
     def create_schema_dict(self) -> dict[str, any]:
         schema_data = super().create_schema_dict()
-        schema_data["pks"] = self.pks
+        schema_data["pks"] = list(self.pks)
         schema_data["fks"] = self.fks
         schema_data[SCHEMA_INFO_DATAPRODUCT_OWNER] = self.data_product_owner_email
         schema_data['retention_period'] = self.retention_period
