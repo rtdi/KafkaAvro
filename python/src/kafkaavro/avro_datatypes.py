@@ -126,6 +126,16 @@ class RecordSchema:
         self.namespace = namespace # type: Optional[str]
         self.doc = doc # type: Optional[str]
         self.field_name_index = {} # type: dict[str, Field]
+        if namespace is None:
+            self.schema_name = name
+        else:
+            self.schema_name = namespace + "." + name
+
+    def get_schema_name(self) -> str:
+        """
+        Return the full schema name, namespace.name
+        """
+        return self.schema_name
 
     def add_field(self, name: str, datatype: any, doc: Optional[str] = None, nullable: bool = True,
                   internal: bool = False, technical: bool = False, source_data_type: str = None, default: Any = None) -> Field:
