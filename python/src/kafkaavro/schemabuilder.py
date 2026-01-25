@@ -70,7 +70,7 @@ class ValueSchema(RootSchema):
         audit_record.add_field("__details", details_array,
                                doc="Details of all transformations")
 
-        self.add_field("__audit", audit_record)
+        self.add_field("__audit", audit_record, internal=True, technical=True)
         self.add_field(ROW_TYPE_FIELD, AvroVarchar(1), internal=True, technical=True,
                        doc="Indicates how the row is to be processed: Insert, Update, Delete, upsert/Autocorrect, eXterminate, Truncate,...")
         self.add_field(ROW_CHANGE_TS, AvroTimestamp(), internal=True, technical=True,
@@ -82,7 +82,8 @@ class ValueSchema(RootSchema):
         self.add_field(ROW_SOURCE_SYSTEM, AvroVarchar(30), internal=True, technical=True,
                        doc="Optional source system information for auditing")
         self.add_field(ROW_TRUNCATE, AvroMap(AvroString()),
-                       doc="In case of a change type of TRUNCATE, this map contains the fields to identify the set of rows to be deleted")
+                       doc="In case of a change type of TRUNCATE, this map contains the fields to identify the set of rows to be deleted",
+                       internal=True, technical=True)
         self.add_field(SCHEMA_COLUMN_EXTENSION, extension, internal=True, doc="Add more columns beyond the official logical data model")
 
         self.pks = None # type: Optional[set[str]]
