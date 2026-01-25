@@ -97,7 +97,10 @@ class ValueSchema(RootSchema):
 
     def create_schema_dict(self) -> dict[str, any]:
         schema_data = super().create_schema_dict()
-        schema_data["pks"] = list(self.pks)
+        if self.pks is not None:
+            schema_data["pks"] = list(self.pks)
+        else:
+            schema_data["pks"] = None
         schema_data["fks"] = self.fks
         schema_data[SCHEMA_INFO_DATAPRODUCT_OWNER] = self.data_product_owner_email
         schema_data['retention_period'] = self.retention_period
