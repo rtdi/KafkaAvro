@@ -383,7 +383,7 @@ class AvroLong(AvroPrimitive):
 
 class AvroMap(AvroPrimitive):
 
-    def __init__(self, value_data_type: Union[AvroPrimitive, RecordSchema]):
+    def __init__(self, value_data_type: Union[AvroPrimitive, RecordSchema, ArraySchema]):
         super().__init__()
         self.value_data_type = value_data_type
 
@@ -607,7 +607,7 @@ def get_datatype(schema: dict):
             case "BYTES":
                 return AvroBytes(), False
             case "CLOB":
-                return AvroCLOB, False
+                return AvroCLOB(), False
             case "date":
                 return AvroDate(), False
             case "decimal":
