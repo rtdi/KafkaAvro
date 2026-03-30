@@ -90,7 +90,10 @@ class ValueSchema(RootSchema):
         self.add_field(SCHEMA_COLUMN_EXTENSION, extension, internal=True, doc="Add more columns beyond the official logical data model")
 
     def set_pks(self, pk_columns: Optional[set[str]]) -> "ValueSchema":
-        self.pks = pk_columns
+        if pk_columns is not None:
+            self.pks = list(pk_columns)
+        else:
+            self.pks = None
         return self
 
     def add_pk(self, column: str) -> "ValueSchema":

@@ -37,7 +37,7 @@ class RootSchema(RecordSchema):
         return schema_data
 
     def get_json(self) -> str:
-        return jsonpickle.dumps(self.create_schema_dict())
+        return jsonpickle.dumps(self.create_schema_dict(), unpicklable=False)
 
     def get_pyarrow(self) -> pyarrow.Schema:
         f = [(field.name, field.type.get_pyarrow()) for field in self.fields]
@@ -86,15 +86,15 @@ class ValueSchema(RootSchema):
                        internal=True, technical=True)
         self.add_field(SCHEMA_COLUMN_EXTENSION, extension, internal=True, doc="Add more columns beyond the official logical data model")
 
-        self.pks = None # type: Optional[set[str]]
-        self.fks = None # type: Optional[list[FKCondition]]
-        self.source_system_uri = None # type: Optional[str]
-        self.data_product_owner_email = None # type: Optional[str]
-        self.retention_period = None # type: Optional[Duration]
-        self.deletion_policy = None # type: Optional[DeletionPolicy]
-        self.data_classifications = None # type: Optional[set[str]]
-        self.repo_url = None # type: Optional[str]
-        self.tickets_url = None # type: Optional[str]
+        self.pks: Optional[set[str]] = None
+        self.fks: Optional[list[FKCondition]] = None
+        self.source_system_uri: Optional[str] = None
+        self.data_product_owner_email: Optional[str] = None
+        self.retention_period: Optional[Duration] = None
+        self.deletion_policy: Optional[DeletionPolicy] = None
+        self.data_classifications: Optional[set[str]] = None
+        self.repo_url: Optional[str] = None
+        self.tickets_url: Optional[str] = None
 
     def create_schema_dict(self) -> dict[str, any]:
         schema_data = super().create_schema_dict()
@@ -106,7 +106,7 @@ class ValueSchema(RootSchema):
         schema_data[SCHEMA_INFO_DATAPRODUCT_OWNER] = self.data_product_owner_email
         schema_data['retention_period'] = self.retention_period
         schema_data['deletion_policy'] = self.deletion_policy
-        schema_data['data_classifications'] = self.data_classifications
+        schema_data['data_classifications'] = list(self.data_classifications) if self.data_classifications is not None else None
         schema_data[SCHEMA_INFO_TICKETS_URL] = self.tickets_url
         schema_data[SCHEMA_INFO_REPO_URL] = self.repo_url
         schema_data['source_system_uri'] = self.source_system_uri

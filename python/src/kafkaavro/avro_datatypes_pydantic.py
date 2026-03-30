@@ -88,7 +88,7 @@ datatype_annotation = Annotated[
             Annotated['AvroBytes', Tag('BYTES')] |
             Annotated['AvroBytes', Tag('bytes')] |
             Annotated['AvroCLOB', Tag('CLOB')] |
-            Annotated['AvroDate', Tag('DATE')] |
+            Annotated['AvroDate', Tag('date')] |
             Annotated['AvroDecimal', Tag('decimal')] |
             Annotated['AvroDouble', Tag('DOUBLE')] |
             Annotated['AvroDouble', Tag('double')] |
