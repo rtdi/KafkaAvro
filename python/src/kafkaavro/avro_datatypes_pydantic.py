@@ -1,4 +1,5 @@
 from datetime import timezone
+from enum import Enum
 from typing import Union, Optional, Any, Literal, Annotated, Self
 import re
 
@@ -163,6 +164,41 @@ datatype_union = Union[
             'AvroNative'
     ]
 
+class ColumnType(Enum):
+    MEASURE="MEASURE"
+    ATTRIBUTE="ATTRIBUTE"
+    CURRENCY="CURRENCY"
+    UOM="UOM"
+    TEXT="TEXT"
+    HIERARCHY="HIERARCHY"
+
+class ColumnSemantic(BaseModel):
+    type: Optional[ColumnType]
+    aggregation_formula: Optional[str] = None
+    """
+    A SQL formula used to aggregate the values, e.g. sum(AMOUNT) or sum(BALANCE)/count(distinct BOOKING_DATE)
+    """
+    currency_field_name: Optional[str] = None
+    """
+    With field of the table contains the currency information for this amount column
+    """
+    currency_conversion_date: Optional[str] = None
+    """
+    The field name used to convert the currency, e.g. VALUTA_DATE
+    """
+    uom_field_name: Optional[str] = None
+    """
+    This field contains an unit of measure value, e.g. 10, and the field
+    named "SALES_UNIT" is the corresponding UOM field with e.g. kg
+    """
+    hierarchy_name: Optional[str] = None
+    """
+    This field is part of an hierarchy with this name, e.g. the field COUNTRY, CITY both use the GEO hierarchy name
+    """
+    hierarchy_level: Optional[int] = None
+    """
+    This field is level n (starts with 1) of a hierarchy, e.g. COUNTRY is level 1, CITY level 2
+    """
 
 class Field(BaseModel):
     """
@@ -179,6 +215,7 @@ class Field(BaseModel):
     manual: bool = Pydantic_Field(default=False, exclude=True)
     internal: bool = Pydantic_Field(alias=COLUMN_PROP_INTERNAL, default=False)
     technical: bool = Pydantic_Field(alias=COLUMN_PROP_TECHNICAL, default=False)
+    semantics: Optional[ColumnSemantic]
 
     model_config = ConfigDict(serialize_by_alias=True)
 

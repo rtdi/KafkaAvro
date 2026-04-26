@@ -1,6 +1,8 @@
+from enum import Enum
 from typing import Optional, Any
 
 import pyarrow
+from pydantic import BaseModel
 
 from .data_governance_pydantic import FKCondition, Duration, DeletionPolicy
 from .avro_datatypes_pydantic import AvroString, AvroVarchar, AvroNVarchar, AvroByte, AvroMap, \
@@ -52,6 +54,81 @@ class RootSchema(RecordSchema):
         f = [(field.name, field.type.get_pyarrow()) for field in self.fields]
         return pyarrow.schema(f)
 
+class RLS(BaseModel):
+    """
+    Rowlevel security is implemented using a permission table. That table has a structure like
+    | dimension | value | username  |
+    +-----------+-------+-----------+
+    | region    | US    | user1     |
+    | region    | EMEA  | user2     |
+
+    The data table will be joined with the permission table like
+    select * from SALES
+    where SALES_REGION in (select value from permission_table where username=user() and dimension = <dimension>)
+    """
+    dimension: str
+    """
+    The dimension name to be used in the permission table
+    """
+    field: str
+    """
+    The field name in this schema that holds the dimension's value, e.g. data_table's SALES_REGION column
+    """
+
+
+class TableType(Enum):
+    FACT="FACT"
+    """
+    This is primarily a fact table
+    """
+    DIMENSION="DIMENSION"
+    """
+    This is primarily a dimension table
+    """
+    FACT_DIMENSION="FACT_DIMENSION"
+    """
+    This table has the character of a dimension and a fact, e.g. the sales order header is a fact
+    but also a dimension for the sales order line item table.
+    """
+    MULTILANGUAGE_TEXT="MULTILANGUAGE_TEXT"
+    """
+    A table with ID and LANGUAGE as logical primary key and a test field
+    """
+    PARENT_CHILD_HIERARCHY="PARENT_CHILD_HIERARCHY"
+    """
+    Contains a hierarchy in form of a parent child table
+    """
+    CURRENCY_CONVERSION="CURRENCY_CONVERSION"
+    """
+    A table used to convert one currency into another
+    """
+    UOM_CONVERSION="UOM_CONVERSION"
+    """
+    A table used to convert one unit of measure into another, e.g. kg into tons
+    """
+    BRIDGE_TABLE="BRIDGE_TABLE"
+    """
+    A technical table used to resolve m:n relationships
+    """
+    VALUE_MAPPING="VALUE_MAPPING"
+    """
+    Maps a value of one system to another system, e.g. a SAP customer number to a Salesforce customer id
+    """
+    INTERNAL="INTERNAL"
+    """
+    Mark this table as internal - not meant to be used by anybody but data engineers
+    """
+    SECURITY="SECURITY"
+    """
+    This table contains permission related information, e.g. users, roles, role assignments, row level security filters
+    """
+
+
+class TableSemantic(BaseModel):
+    type: TableType
+    """
+    What is the main purpose of this table? Fact, dimension,... 
+    """
 
 class ValueSchema(RootSchema):
     """
@@ -68,6 +145,10 @@ class ValueSchema(RootSchema):
     data_classifications: Optional[list[str]] = None
     repo_url: Optional[str] = None
     tickets_url: Optional[str] = None
+    object_level_security: Optional[list[str]] = None
+    row_level_security: Optional[list[RLS]] = None
+    partition_by: Optional[list[str]] = None
+    semantics: Optional[TableSemantic]
 
     def model_post_init(self, context: Any) -> None:
         for f in self.fields:
@@ -88,6 +169,15 @@ class ValueSchema(RootSchema):
                        doc="In case of a change type of TRUNCATE, this map contains the fields to identify the set of rows to be deleted",
                        internal=True, technical=True)
         self.add_field(SCHEMA_COLUMN_EXTENSION, extension, internal=True, doc="Add more columns beyond the official logical data model")
+
+    def set_object_level_security(self, groups: Optional[list[str]]):
+        self.object_level_security = groups
+
+    def set_row_level_security(self, rls: Optional[list[RLS]]):
+        self.row_level_security = rls
+
+    def set_partition_by(self, partitions: Optional[list[str]]):
+        self.partition_by = partitions
 
     def set_pks(self, pk_columns: Optional[set[str]]) -> "ValueSchema":
         if pk_columns is not None:
