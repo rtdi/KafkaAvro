@@ -219,6 +219,30 @@ class Field(BaseModel):
 
     model_config = ConfigDict(serialize_by_alias=True)
 
+    def set_semantic_as_measure(self, formula: str):
+        self.semantics = ColumnSemantic(type=ColumnType.MEASURE,
+                                        aggregation_formula=formula)
+
+    def set_sematic_as_attribute(self):
+        self.semantics = ColumnSemantic(type=ColumnType.ATTRIBUTE)
+
+    def set_semantic_as_currency(self, currency_field: str, currency_date_field: str):
+        self.semantics = ColumnSemantic(type=ColumnType.CURRENCY,
+                                        currency_field_name=currency_field,
+                                        currency_conversion_date=currency_date_field)
+
+    def set_semantic_as_text(self):
+        self.semantics = ColumnSemantic(type=ColumnType.TEXT)
+
+    def set_semantic_as_uom(self, uom_field: str):
+        self.semantics = ColumnSemantic(type=ColumnType.UOM,
+                                        uom_field_name=uom_field)
+
+    def set_semantic_as_hierarchy(self, hierarchy_name: str, hierarchy_level: int):
+        self.semantics = ColumnSemantic(type=ColumnType.HIERARCHY,
+                                        hierarchy_name=hierarchy_name,
+                                        hierarchy_level=hierarchy_level)
+
     @model_validator(mode='after')
     def set_values(self) -> Self:
         # a data type union[null, something] is unwrapped to data type something and the nullable flag set to true

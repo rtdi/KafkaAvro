@@ -150,6 +150,9 @@ class ValueSchema(RootSchema):
     partition_by: Optional[list[str]] = None
     semantics: Optional[TableSemantic]
 
+    def set_semantic(self, table_type: TableType):
+        self.semantics = TableSemantic(type=table_type)
+
     def model_post_init(self, context: Any) -> None:
         for f in self.fields:
             if isinstance(f.type, RecordSchema) and f.name == "__audit":
