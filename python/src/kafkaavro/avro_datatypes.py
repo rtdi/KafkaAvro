@@ -1,44 +1,14 @@
 from datetime import timezone
 from typing import Union, Optional, Any
-import re
 
 import jsonpickle
 import pyarrow
 from abc import ABC, abstractmethod
 
-from .data_governance import DataSensitivityEnum
+from .name_encoding import encode_name
+from .table_constants import DataSensitivityEnum, COLUMN_PROP_ORIGINAL_NAME, COLUMN_PROP_CONTENT_SENSITIVITY, \
+    COLUMN_PROP_INTERNAL, COLUMN_PROP_TECHNICAL, COLUMN_PROP_SOURCE_DATATYPE, ColumnType, SEMANTICS
 
-encoder_pattern = re.compile(r'[^A-Za-z0-9_]')
-decoder_pattern = re.compile(r'_x[0-9a-fA-F]{4}')
-
-COLUMN_PROP_SOURCE_DATATYPE = "__source_data_type"
-COLUMN_PROP_ORIGINAL_NAME = "__originalname"
-COLUMN_PROP_INTERNAL = "__internal"
-COLUMN_PROP_TECHNICAL = "__technical" # cannot be used in mappings as the values are set when sending the rows to the pipeline server
-COLUMN_PROP_CONTENT_SENSITIVITY = "__sensitivity"
-
-def encode_name(s: str) -> str:
-    # Escape the literal "_x" to avoid confusion with escape sequences
-    s = s.replace('_x', '_x005f_x0078')
-    buf = []
-    last_pos = 0
-    matches = re.finditer(encoder_pattern, s)
-    for match in matches:
-        start, end = match.span()
-        buf.append(s[last_pos:start])
-        char = match.group()
-        encoded = f"_x{ord(char):04x}"
-        buf.append(encoded)
-        last_pos = end
-
-    buf.append(s[last_pos:])
-    return ''.join(buf)
-
-def decode_name(name: str) -> str:
-    def replace_match(m):
-        hex_code = m.group()[2:]  # strip '_x'
-        return chr(int(hex_code, 16))
-    return decoder_pattern.sub(replace_match, name)
 
 class AvroPrimitive(ABC):
 
@@ -53,6 +23,53 @@ class AvroPrimitive(ABC):
     def get_pyarrow(self) -> pyarrow.DataType:
         return pyarrow.null()
 
+
+class ColumnSemantic:
+
+    def __init__(self, column_type: ColumnType,
+                 aggregation_formula: Optional[str] = None,
+                 currency_field_name: Optional[str] = None,
+                 currency_conversion_date: Optional[str] = None,
+                 uom_field_name: Optional[str] = None,
+                 hierarchy_name: Optional[str] = None,
+                 hierarchy_level: Optional[int] = None):
+        self.type: Optional[ColumnType] = column_type
+        self.aggregation_formula: Optional[str] = aggregation_formula
+        """
+        A SQL formula used to aggregate the values, e.g. sum(AMOUNT) or sum(BALANCE)/count(distinct BOOKING_DATE)
+        """
+        self.currency_field_name: Optional[str] = currency_field_name
+        """
+        With field of the table contains the currency information for this amount column
+        """
+        self.currency_conversion_date: Optional[str] = currency_conversion_date
+        """
+        The field name used to convert the currency, e.g. VALUTA_DATE
+        """
+        self.uom_field_name: Optional[str] = uom_field_name
+        """
+        This field contains an unit of measure value, e.g. 10, and the field
+        named "SALES_UNIT" is the corresponding UOM field with e.g. kg
+        """
+        self.hierarchy_name: Optional[str] = hierarchy_name
+        """
+        This field is part of an hierarchy with this name, e.g. the field COUNTRY, CITY both use the GEO hierarchy name
+        """
+        self.hierarchy_level: Optional[int] = hierarchy_level
+        """
+        This field is level n (starts with 1) of a hierarchy, e.g. COUNTRY is level 1, CITY level 2
+        """
+
+    def create_schema_dict(self) -> dict[str, str]:
+        return {
+            "type": self.type.name,
+            "aggregation_formula": self.aggregation_formula,
+            "currency_field_name": self.currency_field_name,
+            "currency_conversion_date": self.currency_conversion_date,
+            "uom_field_name": self.uom_field_name,
+            "hierarchy_name": self.hierarchy_name,
+            "hierarchy_level": self.hierarchy_level
+        }
 
 class Field:
     """
@@ -71,6 +88,7 @@ class Field:
         self.technical: bool = technical
         self.source_data_type: Optional[str] = source_data_type
         self.default = default
+        self.semantics: Optional[ColumnSemantic] = None
 
     def create_schema_dict(self) -> dict[str, str]:
         s = dict()
@@ -88,6 +106,7 @@ class Field:
             s['type'] = self.type.create_schema_dict()
             if self.default is not None:
                 s['default'] = self.default # if the field is not nullable, the default cannot be null
+        s[SEMANTICS] = self.semantics.create_schema_dict() if self.semantics is not None else None
         return s
 
     def set_data_sensitivity(self, data_sensitivity: DataSensitivityEnum) -> "Field":
@@ -97,6 +116,30 @@ class Field:
     def __repr__(self):
         class_name = type(self).__name__
         return f"{class_name}(name={self.name!r}, type={self.type!r})"
+
+    def set_semantic_as_measure(self, formula: str):
+        self.semantics = ColumnSemantic(column_type=ColumnType.MEASURE,
+                                        aggregation_formula=formula)
+
+    def set_sematic_as_attribute(self):
+        self.semantics = ColumnSemantic(column_type=ColumnType.ATTRIBUTE)
+
+    def set_semantic_as_currency(self, currency_field: str, currency_date_field: str):
+        self.semantics = ColumnSemantic(column_type=ColumnType.CURRENCY,
+                                        currency_field_name=currency_field,
+                                        currency_conversion_date=currency_date_field)
+
+    def set_semantic_as_text(self):
+        self.semantics = ColumnSemantic(column_type=ColumnType.TEXT)
+
+    def set_semantic_as_uom(self, uom_field: str):
+        self.semantics = ColumnSemantic(column_type=ColumnType.UOM,
+                                        uom_field_name=uom_field)
+
+    def set_semantic_as_hierarchy(self, hierarchy_name: str, hierarchy_level: int):
+        self.semantics = ColumnSemantic(column_type=ColumnType.HIERARCHY,
+                                        hierarchy_name=hierarchy_name,
+                                        hierarchy_level=hierarchy_level)
 
 
 class AvroUnion:

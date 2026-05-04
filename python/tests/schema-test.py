@@ -8,8 +8,8 @@ import python.src.kafkaavro.schemabuilder as sb
 import python.src.kafkaavro.avro_datatypes_pydantic as adp
 import python.src.kafkaavro.data_governance_pydantic as dgp
 import python.src.kafkaavro.schemabuilder_pydantic as sbp
-from avro.datafile import DataFileWriter
-from avro.io import DatumWriter
+from python.src.kafkaavro.name_encoding import encode_name, decode_name
+from python.src.kafkaavro.table_constants import TableType, DataSensitivityEnum
 
 
 class SchemaTests(unittest.TestCase):
@@ -20,30 +20,42 @@ class SchemaTests(unittest.TestCase):
         value.add_field("COMPANY_NAME", ad.AvroNVarchar(length=30), None, True)
         value.add_field("ADDRESS_ID", ad.AvroInt(), None, True)
         value.add_field("EMPLOYEES", ad.AvroInt(), None, True)
-        value.add_field("REVENUE$", ad.AvroDecimal(precision=12, scale=0), None, True)
+        f = value.add_field("REVENUE$", ad.AvroDecimal(precision=12, scale=0), None, True)
+        f.set_data_sensitivity(DataSensitivityEnum.SENSITIVE)
+        f.set_semantic_as_measure("sum(REVENUE$)")
         value.set_pks({"CUSTOMER_ID"})
         value.add_fk(sb.FKCondition(fk_name="Customer to Address", fk_schema_fqn="ADDRESS", left_field_name="ADDRESS_ID", right_field_name="ADDRESS_ID", condition="="))
         value.set_data_product_owner_email("owner@company.com")
         value.set_retention_period(dg.Duration(value=6, unit=dg.TimeUnit.YEARS.name))
         value.add_data_classifications("GDPR")
         value.add_data_classifications("EAR")
+        value.set_partition_by(["ADDRESS_ID"])
+        value.set_semantic(TableType.DIMENSION)
+        value.set_row_level_security([sb.RLS("CUSTOMER", "CUSTOMER_ID")])
+        value.set_object_level_security(["HR"])
         schema_str = value.get_json()
         schema = avro.schema.parse(schema_str)
-        with open("customer.avsc", "w") as f:
-            f.write(schema_str)
+        with open("customer.avsc", "w") as avsc:
+            avsc.write(schema_str)
 
         value3 = sbp.ValueSchema(name="CUSTOMER", namespace=None)
         value3.add_field("CUSTOMER_ID", adp.AvroInt(), None, False)
         value3.add_field("COMPANY_NAME", adp.AvroNVarchar(length=30), None, True)
         value3.add_field("ADDRESS_ID", adp.AvroInt(), None, True)
         value3.add_field("EMPLOYEES", adp.AvroInt(), None, True)
-        value3.add_field("REVENUE$", adp.AvroDecimal(precision=12, scale=0), None, True)
+        f3 = value3.add_field("REVENUE$", adp.AvroDecimal(precision=12, scale=0), None, True)
+        f3.set_data_sensitivity(DataSensitivityEnum.SENSITIVE)
+        f3.set_semantic_as_measure("sum(REVENUE$)")
         value3.set_pks({"CUSTOMER_ID"})
         value3.add_fk(sbp.FKCondition(fk_name="Customer to Address", fk_schema_fqn="ADDRESS", conditions=[dgp.JoinCondition(left_field_name="ADDRESS_ID", right_field_name="ADDRESS_ID", condition="=")]))
         value3.set_data_product_owner_email("owner@company.com")
         value3.set_retention_period(dgp.Duration(value=6, unit=dg.TimeUnit.YEARS.name))
         value3.add_data_classifications("GDPR")
         value3.add_data_classifications("EAR")
+        value3.set_partition_by(["ADDRESS_ID"])
+        value3.set_semantic(TableType.DIMENSION)
+        value3.set_row_level_security([sbp.RLS(dimension="CUSTOMER", field="CUSTOMER_ID")])
+        value3.set_object_level_security(["HR"])
         schema_str3 = value3.model_dump_json()
         schema3 = avro.schema.parse(schema_str3)
 
@@ -54,8 +66,8 @@ class SchemaTests(unittest.TestCase):
 
     def test_name_encoding(self):
         name = "A complicated $ name with german äöü umlaut"
-        encoded = ad.encode_name(name)
-        decoded = ad.decode_name(encoded)
+        encoded = encode_name(name)
+        decoded = decode_name(encoded)
         self.assertEqual(decoded, name)
 
 

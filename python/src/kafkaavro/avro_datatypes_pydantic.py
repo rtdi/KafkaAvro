@@ -1,7 +1,5 @@
 from datetime import timezone
-from enum import Enum
 from typing import Union, Optional, Any, Literal, Annotated, Self
-import re
 
 import pyarrow
 from abc import ABC, abstractmethod
@@ -10,41 +8,10 @@ from pydantic import BaseModel, Field as Pydantic_Field, Tag, Discriminator, \
     field_serializer, model_serializer, ConfigDict, model_validator, RootModel
 from pydantic_core.core_schema import SerializerFunctionWrapHandler
 
-from .data_governance import DataSensitivityEnum
+from .name_encoding import decode_name, encode_name
+from .table_constants import ColumnType, DataSensitivityEnum, COLUMN_PROP_CONTENT_SENSITIVITY, \
+    COLUMN_PROP_SOURCE_DATATYPE, DEFAULT_NOT_SET, COLUMN_PROP_ORIGINAL_NAME, COLUMN_PROP_INTERNAL, COLUMN_PROP_TECHNICAL
 
-encoder_pattern = re.compile(r'[^A-Za-z0-9_]')
-decoder_pattern = re.compile(r'_x[0-9a-fA-F]{4}')
-
-COLUMN_PROP_SOURCE_DATATYPE = "__source_data_type"
-COLUMN_PROP_ORIGINAL_NAME = "__originalname"
-COLUMN_PROP_INTERNAL = "__internal"
-COLUMN_PROP_TECHNICAL = "__technical" # cannot be used in mappings as the values are set when sending the rows to the pipeline server
-COLUMN_PROP_CONTENT_SENSITIVITY = "__sensitivity"
-
-DEFAULT_NOT_SET = "DEFAULT_NOT_SET"
-
-def encode_name(s: str) -> str:
-    # Escape the literal "_x" to avoid confusion with escape sequences
-    s = s.replace('_x', '_x005f_x0078')
-    buf = []
-    last_pos = 0
-    matches = re.finditer(encoder_pattern, s)
-    for match in matches:
-        start, end = match.span()
-        buf.append(s[last_pos:start])
-        char = match.group()
-        encoded = f"_x{ord(char):04x}"
-        buf.append(encoded)
-        last_pos = end
-
-    buf.append(s[last_pos:])
-    return ''.join(buf)
-
-def decode_name(name: str) -> str:
-    def replace_match(m):
-        hex_code = m.group()[2:]  # strip '_x'
-        return chr(int(hex_code, 16))
-    return decoder_pattern.sub(replace_match, name)
 
 class AvroPrimitive(ABC, BaseModel):
 
@@ -164,13 +131,6 @@ datatype_union = Union[
             'AvroNative'
     ]
 
-class ColumnType(Enum):
-    MEASURE="MEASURE"
-    ATTRIBUTE="ATTRIBUTE"
-    CURRENCY="CURRENCY"
-    UOM="UOM"
-    TEXT="TEXT"
-    HIERARCHY="HIERARCHY"
 
 class ColumnSemantic(BaseModel):
     type: Optional[ColumnType]
@@ -215,7 +175,7 @@ class Field(BaseModel):
     manual: bool = Pydantic_Field(default=False, exclude=True)
     internal: bool = Pydantic_Field(alias=COLUMN_PROP_INTERNAL, default=False)
     technical: bool = Pydantic_Field(alias=COLUMN_PROP_TECHNICAL, default=False)
-    semantics: Optional[ColumnSemantic]
+    semantics: Optional[ColumnSemantic] = None
 
     model_config = ConfigDict(serialize_by_alias=True)
 

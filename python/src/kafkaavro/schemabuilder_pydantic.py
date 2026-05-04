@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Optional, Any
 
 import pyarrow
@@ -7,17 +6,8 @@ from pydantic import BaseModel
 from .data_governance_pydantic import FKCondition, Duration, DeletionPolicy
 from .avro_datatypes_pydantic import AvroString, AvroVarchar, AvroNVarchar, AvroByte, AvroMap, \
     AvroTimestamp, RecordSchema, ArraySchema, AvroTimestampMicros, AvroLong, AvroInt, AvroBoolean
-
-ROW_SOURCE_SYSTEM = "__source_system"
-ROW_SOURCE_TRANSACTION = "__source_transaction"
-ROW_RECORD_ID = "__source_rowid"
-ROW_CHANGE_TS = "__change_time"
-ROW_TYPE_FIELD = "__change_type"
-ROW_TRUNCATE = "__truncate"
-SCHEMA_COLUMN_EXTENSION = "__extension"
-SCHEMA_INFO_TICKETS_URL = "tickets_url"
-SCHEMA_INFO_REPO_URL = "repo_url"
-SCHEMA_INFO_DATAPRODUCT_OWNER = "data_product_owner_email"
+from .table_constants import ROW_SOURCE_SYSTEM, ROW_SOURCE_TRANSACTION, ROW_RECORD_ID, ROW_CHANGE_TS, ROW_TYPE_FIELD, \
+    ROW_TRUNCATE, SCHEMA_COLUMN_EXTENSION, TableType, AUDIT
 
 extension = RecordSchema(name=SCHEMA_COLUMN_EXTENSION, doc="Extension point to add custom values to each record")
 extension.add_field("__path", AvroString(), 'An unique identifier, e.g. "street"."house number component"',
@@ -35,7 +25,7 @@ audit_details_record.add_field("__transformresult_quality", AvroByte(),
                                doc="Transforms can optionally return a percent value from 0 (FAIL) to 100 (PASS)")
 
 details_array = ArraySchema(items=audit_details_record)
-audit_record = RecordSchema(name="__audit", namespace=None)
+audit_record = RecordSchema(name=AUDIT, namespace=None)
 audit_record.add_field("__transformresult", AvroVarchar(length=4),
                        doc="Is the record PASS, FAIL or WARN?")
 audit_record.add_field("__details", details_array,
@@ -76,54 +66,6 @@ class RLS(BaseModel):
     """
 
 
-class TableType(Enum):
-    FACT="FACT"
-    """
-    This is primarily a fact table
-    """
-    DIMENSION="DIMENSION"
-    """
-    This is primarily a dimension table
-    """
-    FACT_DIMENSION="FACT_DIMENSION"
-    """
-    This table has the character of a dimension and a fact, e.g. the sales order header is a fact
-    but also a dimension for the sales order line item table.
-    """
-    MULTILANGUAGE_TEXT="MULTILANGUAGE_TEXT"
-    """
-    A table with ID and LANGUAGE as logical primary key and a test field
-    """
-    PARENT_CHILD_HIERARCHY="PARENT_CHILD_HIERARCHY"
-    """
-    Contains a hierarchy in form of a parent child table
-    """
-    CURRENCY_CONVERSION="CURRENCY_CONVERSION"
-    """
-    A table used to convert one currency into another
-    """
-    UOM_CONVERSION="UOM_CONVERSION"
-    """
-    A table used to convert one unit of measure into another, e.g. kg into tons
-    """
-    BRIDGE_TABLE="BRIDGE_TABLE"
-    """
-    A technical table used to resolve m:n relationships
-    """
-    VALUE_MAPPING="VALUE_MAPPING"
-    """
-    Maps a value of one system to another system, e.g. a SAP customer number to a Salesforce customer id
-    """
-    INTERNAL="INTERNAL"
-    """
-    Mark this table as internal - not meant to be used by anybody but data engineers
-    """
-    SECURITY="SECURITY"
-    """
-    This table contains permission related information, e.g. users, roles, role assignments, row level security filters
-    """
-
-
 class TableSemantic(BaseModel):
     type: TableType
     """
@@ -148,16 +90,16 @@ class ValueSchema(RootSchema):
     object_level_security: Optional[list[str]] = None
     row_level_security: Optional[list[RLS]] = None
     partition_by: Optional[list[str]] = None
-    semantics: Optional[TableSemantic]
+    semantics: Optional[TableSemantic] = None
 
     def set_semantic(self, table_type: TableType):
         self.semantics = TableSemantic(type=table_type)
 
     def model_post_init(self, context: Any) -> None:
         for f in self.fields:
-            if isinstance(f.type, RecordSchema) and f.name == "__audit":
+            if isinstance(f.type, RecordSchema) and f.name == AUDIT:
                 return
-        self.add_field("__audit", audit_record, internal=True, technical=True)
+        self.add_field(AUDIT, audit_record, internal=True, technical=True)
         self.add_field(ROW_TYPE_FIELD, AvroVarchar(length=1), internal=True, technical=True,
                        doc="Indicates how the row is to be processed: Insert, Update, Delete, upsert/Autocorrect, eXterminate, Truncate,...")
         self.add_field(ROW_CHANGE_TS, AvroTimestamp(), internal=True, technical=True,

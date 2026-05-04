@@ -6,17 +6,10 @@ import pyarrow
 from .data_governance import FKCondition, Duration, DeletionPolicy
 from .avro_datatypes import AvroString, AvroVarchar, AvroNVarchar, AvroByte, AvroMap, \
     AvroTimestamp, RecordSchema, ArraySchema, AvroTimestampMicros, AvroLong, AvroInt, AvroBoolean
-
-ROW_SOURCE_SYSTEM = "__source_system"
-ROW_SOURCE_TRANSACTION = "__source_transaction"
-ROW_RECORD_ID = "__source_rowid"
-ROW_CHANGE_TS = "__change_time"
-ROW_TYPE_FIELD = "__change_type"
-ROW_TRUNCATE = "__truncate"
-SCHEMA_COLUMN_EXTENSION = "__extension"
-SCHEMA_INFO_TICKETS_URL = "tickets_url"
-SCHEMA_INFO_REPO_URL = "repo_url"
-SCHEMA_INFO_DATAPRODUCT_OWNER = "data_product_owner_email"
+from .table_constants import ROW_SOURCE_SYSTEM, ROW_SOURCE_TRANSACTION, ROW_RECORD_ID, ROW_CHANGE_TS, ROW_TYPE_FIELD, \
+    ROW_TRUNCATE, SCHEMA_COLUMN_EXTENSION, TableType, SCHEMA_INFO_DATAPRODUCT_OWNER, SCHEMA_INFO_TICKETS_URL, \
+    SCHEMA_INFO_REPO_URL, RETENTION_PERIOD, DELETION_POLICY, DATA_CLASSIFICATIONS, SOURCE_SYSTEM_URI, AUDIT, PKS, FKS, \
+    OBJECT_LEVEL_SECURITY, ROW_LEVEL_SECURITY, PARTITION_BY, SEMANTICS
 
 extension = RecordSchema(SCHEMA_COLUMN_EXTENSION, doc="Extension point to add custom values to each record")
 extension.add_field("__path", AvroString(), 'An unique identifier, e.g. "street"."house number component"',
@@ -44,6 +37,50 @@ class RootSchema(RecordSchema):
         return pyarrow.schema(f)
 
 
+class RLS:
+    """
+    Rowlevel security is implemented using a permission table. That table has a structure like
+    | dimension | value | username  |
+    +-----------+-------+-----------+
+    | region    | US    | user1     |
+    | region    | EMEA  | user2     |
+
+    The data table will be joined with the permission table like
+    select * from SALES
+    where SALES_REGION in (select value from permission_table where username=user() and dimension = <dimension>)
+    """
+
+    def __init__(self, dimension: str, field: str):
+        self.dimension: str = dimension
+        """
+        The dimension name to be used in the permission table
+        """
+        self.field: str = field
+        """
+        The field name in this schema that holds the dimension's value, e.g. data_table's SALES_REGION column
+        """
+
+    def create_schema_dict(self):
+        return {
+            "dimension": self.dimension,
+            "field": self.field
+        }
+
+
+class TableSemantic:
+    """
+    What is the main purpose of this table? Fact, dimension,...
+    """
+
+    def __init__(self, table_type: TableType):
+        self.type: TableType = table_type
+
+    def create_schema_dict(self):
+        return {
+            "type": self.type.name
+        }
+
+
 class ValueSchema(RootSchema):
     """
     The valueSchema is the schema used for the Kafka payload.
@@ -64,13 +101,13 @@ class ValueSchema(RootSchema):
                                        doc="Transforms can optionally return a percent value from 0 (FAIL) to 100 (PASS)")
 
         details_array = ArraySchema(audit_details_record)
-        audit_record = RecordSchema("__audit", None)
+        audit_record = RecordSchema(AUDIT, None)
         audit_record.add_field("__transformresult", AvroVarchar(4),
                                doc="Is the record PASS, FAIL or WARN?")
         audit_record.add_field("__details", details_array,
                                doc="Details of all transformations")
 
-        self.add_field("__audit", audit_record, internal=True, technical=True)
+        self.add_field(AUDIT, audit_record, internal=True, technical=True)
         self.add_field(ROW_TYPE_FIELD, AvroVarchar(1), internal=True, technical=True,
                        doc="Indicates how the row is to be processed: Insert, Update, Delete, upsert/Autocorrect, eXterminate, Truncate,...")
         self.add_field(ROW_CHANGE_TS, AvroTimestamp(), internal=True, technical=True,
@@ -95,22 +132,42 @@ class ValueSchema(RootSchema):
         self.data_classifications: Optional[set[str]] = None
         self.repo_url: Optional[str] = None
         self.tickets_url: Optional[str] = None
+        self.object_level_security: Optional[list[str]] = None
+        self.row_level_security: Optional[list[RLS]] = None
+        self.partition_by: Optional[list[str]] = None
+        self.semantics: Optional[TableSemantic] = None
+
+    def set_semantic(self, table_type: TableType):
+        self.semantics = TableSemantic(table_type)
 
     def create_schema_dict(self) -> dict[str, any]:
         schema_data = super().create_schema_dict()
         if self.pks is not None:
-            schema_data["pks"] = list(self.pks)
+            schema_data[PKS] = list(self.pks)
         else:
-            schema_data["pks"] = None
-        schema_data["fks"] = self.fks
+            schema_data[PKS] = None
+        schema_data[FKS] = self.fks
         schema_data[SCHEMA_INFO_DATAPRODUCT_OWNER] = self.data_product_owner_email
-        schema_data['retention_period'] = self.retention_period
-        schema_data['deletion_policy'] = self.deletion_policy
-        schema_data['data_classifications'] = list(self.data_classifications) if self.data_classifications is not None else None
+        schema_data[RETENTION_PERIOD] = self.retention_period
+        schema_data[DELETION_POLICY] = self.deletion_policy
+        schema_data[DATA_CLASSIFICATIONS] = list(self.data_classifications) if self.data_classifications is not None else None
         schema_data[SCHEMA_INFO_TICKETS_URL] = self.tickets_url
         schema_data[SCHEMA_INFO_REPO_URL] = self.repo_url
-        schema_data['source_system_uri'] = self.source_system_uri
+        schema_data[SOURCE_SYSTEM_URI] = self.source_system_uri
+        schema_data[OBJECT_LEVEL_SECURITY] = self.object_level_security
+        schema_data[ROW_LEVEL_SECURITY] = [i.create_schema_dict() for i in self.row_level_security] if self.row_level_security is not None else None
+        schema_data[PARTITION_BY] = self.partition_by
+        schema_data[SEMANTICS] = self.semantics.create_schema_dict() if self.semantics is not None else None
         return schema_data
+
+    def set_object_level_security(self, groups: Optional[list[str]]):
+        self.object_level_security = groups
+
+    def set_row_level_security(self, rls: Optional[list[RLS]]):
+        self.row_level_security = rls
+
+    def set_partition_by(self, partitions: Optional[list[str]]):
+        self.partition_by = partitions
 
     def set_pks(self, pk_columns: Optional[set[str]]) -> "ValueSchema":
         self.pks = pk_columns
