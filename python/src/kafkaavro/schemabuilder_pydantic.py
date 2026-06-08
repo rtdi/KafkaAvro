@@ -5,9 +5,9 @@ from pydantic import BaseModel
 
 from .data_governance_pydantic import FKCondition, Duration, DeletionPolicy
 from .avro_datatypes_pydantic import AvroString, AvroVarchar, AvroNVarchar, AvroByte, AvroMap, \
-    AvroTimestamp, RecordSchema, ArraySchema, AvroTimestampMicros, AvroLong, AvroInt, AvroBoolean
+    AvroTimestamp, RecordSchema, ArraySchema, AvroTimestampMicros, AvroLong, AvroInt, AvroBoolean, AvroUnion, AvroNull
 from .table_constants import ROW_SOURCE_SYSTEM, ROW_SOURCE_TRANSACTION, ROW_RECORD_ID, ROW_CHANGE_TS, ROW_TYPE_FIELD, \
-    ROW_TRUNCATE, SCHEMA_COLUMN_EXTENSION, TableType, AUDIT
+    ROW_TRUNCATE, SCHEMA_COLUMN_EXTENSION, TableType, AUDIT, SCHEMA_COLUMN_EXTENSION_MAP
 
 extension = RecordSchema(name=SCHEMA_COLUMN_EXTENSION, doc="Extension point to add custom values to each record")
 extension.add_field("__path", AvroString(), 'An unique identifier, e.g. "street"."house number component"',
@@ -113,7 +113,8 @@ class ValueSchema(RootSchema):
         self.add_field(ROW_TRUNCATE, AvroMap(values=AvroString()),
                        doc="In case of a change type of TRUNCATE, this map contains the fields to identify the set of rows to be deleted",
                        internal=True, technical=True)
-        self.add_field(SCHEMA_COLUMN_EXTENSION, extension, internal=True, doc="Add more columns beyond the official logical data model")
+        self.add_field(SCHEMA_COLUMN_EXTENSION, extension, internal=True, nullable=True, default=None, doc="Add more columns beyond the official logical data model")
+        self.add_field(SCHEMA_COLUMN_EXTENSION_MAP, AvroMap(values=AvroString()), internal=True, nullable=True, default=None, doc="Add more values as a map beyond the official logical data model")
 
     def set_object_level_security(self, groups: Optional[list[str]]):
         self.object_level_security = groups

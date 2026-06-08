@@ -249,7 +249,7 @@ class AvroNative(RootModel[str]):
             case 'string': return pyarrow.string()
 
 
-class AvroUnion(RootModel[list[datatype_union]]):
+class AvroUnion(RootModel):
     root: list[datatype_union]
 
     def get_pyarrow(self) -> any:

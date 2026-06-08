@@ -315,7 +315,7 @@ schema_json = """
 
 class SchemaTests(unittest.TestCase):
 
-    def test_name_encoding(self):
+    def test_conversion(self):
         rec1 = sb.ValueSchema(name="rec/1", namespace=None)
         rec1.add_field("f1", dt.AvroBoolean(), nullable=True)
         rec1.add_field("f$2", dt.AvroUnion(items=[dt.AvroBoolean(), dt.AvroString()]), nullable=False)

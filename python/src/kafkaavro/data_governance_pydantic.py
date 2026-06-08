@@ -12,16 +12,16 @@ class DeletionPolicy(BaseModel):
 
     value: Optional[int]
     unit: str
-    description: str
+    description: Optional[str]
 
 
 class FKCondition(BaseModel):
 
-    fk_name : str
-    fk_schema_fqn: str
-    conditions: List["JoinCondition"] = []
+    fk_name : Optional[str]
+    fk_schema_fqn: Optional[str]
+    conditions: Optional[List["JoinCondition"]] = []
 
-    def add_condition(self, left_field_name: str, right_field_name: str, condition: str = None):
+    def add_condition(self, left_field_name: str, right_field_name: str, condition: Optional[str] = None):
         self.conditions.append(JoinCondition(left_field_name=left_field_name, right_field_name=right_field_name, condition=condition))
 
 
@@ -29,6 +29,6 @@ class JoinCondition(BaseModel):
 
     left_field_name: str
     right_field_name: str
-    condition: str = "="
+    condition: Optional[str] = "="
 
 

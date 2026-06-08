@@ -5,6 +5,7 @@ import jsonpickle
 import pyarrow
 from abc import ABC, abstractmethod
 
+
 from .name_encoding import encode_name
 from .table_constants import DataSensitivityEnum, COLUMN_PROP_ORIGINAL_NAME, COLUMN_PROP_CONTENT_SENSITIVITY, \
     COLUMN_PROP_INTERNAL, COLUMN_PROP_TECHNICAL, COLUMN_PROP_SOURCE_DATATYPE, ColumnType, SEMANTICS
@@ -142,24 +143,6 @@ class Field:
                                         hierarchy_level=hierarchy_level)
 
 
-class AvroUnion:
-
-    def __init__(self, items: list[AvroPrimitive]):
-        self.items = items
-
-    def create_schema_dict(self) -> Union[list, dict[str, any]]:
-        return [i.create_schema_dict() for i in self.items]
-
-    def __repr__(self):
-        class_name = type(self).__name__
-        return f"{class_name}(items={self.items!r})"
-
-    def get_pyarrow(self) -> any:
-        l = []
-        for i in self.items:
-            l.append(pyarrow.field(type(i).__name__, i.get_pyarrow()))
-        return pyarrow.union(l, pyarrow.lib.UnionMode_DENSE)
-
 class RecordSchema:
 
     def __init__(self, name: str, namespace: Optional[str] = None, doc: Optional[str] = None):
@@ -222,6 +205,37 @@ class ArraySchema:
 
     def get_pyarrow(self) -> any:
         return pyarrow.list_(self.items.get_pyarrow())
+
+
+class AvroNull(AvroPrimitive):
+
+    def __init__(self):
+        super().__init__()
+
+    def create_schema_dict(self) -> dict:
+        return {"type": "null", "logicalType": "NULL"}
+
+    def get_pyarrow(self) -> pyarrow.DataType:
+        return pyarrow.null()
+
+
+class AvroUnion:
+
+    def __init__(self, items: list[AvroPrimitive | RecordSchema | AvroNull]):
+        self.items = items
+
+    def create_schema_dict(self) -> Union[list, dict[str, any]]:
+        return [i.create_schema_dict() for i in self.items]
+
+    def __repr__(self):
+        class_name = type(self).__name__
+        return f"{class_name}(items={self.items!r})"
+
+    def get_pyarrow(self) -> any:
+        l = []
+        for i in self.items:
+            l.append(pyarrow.field(type(i).__name__, i.get_pyarrow()))
+        return pyarrow.union(l, pyarrow.lib.UnionMode_DENSE)
 
 class AvroAnyPrimitive(AvroPrimitive):
 
@@ -460,18 +474,6 @@ class AvroNVarchar(AvroPrimitive):
 
     def get_pyarrow(self) -> pyarrow.DataType:
         return pyarrow.string()
-
-
-class AvroNull(AvroPrimitive):
-
-    def __init__(self):
-        super().__init__()
-
-    def create_schema_dict(self) -> dict:
-        return {"type": "null", "logicalType": "NULL"}
-
-    def get_pyarrow(self) -> pyarrow.DataType:
-        return pyarrow.null()
 
 
 class AvroSTGeometry(AvroPrimitive):

@@ -5,11 +5,11 @@ import pyarrow
 
 from .data_governance import FKCondition, Duration, DeletionPolicy
 from .avro_datatypes import AvroString, AvroVarchar, AvroNVarchar, AvroByte, AvroMap, \
-    AvroTimestamp, RecordSchema, ArraySchema, AvroTimestampMicros, AvroLong, AvroInt, AvroBoolean
+    AvroTimestamp, RecordSchema, ArraySchema, AvroTimestampMicros, AvroLong, AvroInt, AvroBoolean, AvroUnion, AvroNull
 from .table_constants import ROW_SOURCE_SYSTEM, ROW_SOURCE_TRANSACTION, ROW_RECORD_ID, ROW_CHANGE_TS, ROW_TYPE_FIELD, \
     ROW_TRUNCATE, SCHEMA_COLUMN_EXTENSION, TableType, SCHEMA_INFO_DATAPRODUCT_OWNER, SCHEMA_INFO_TICKETS_URL, \
     SCHEMA_INFO_REPO_URL, RETENTION_PERIOD, DELETION_POLICY, DATA_CLASSIFICATIONS, SOURCE_SYSTEM_URI, AUDIT, PKS, FKS, \
-    OBJECT_LEVEL_SECURITY, ROW_LEVEL_SECURITY, PARTITION_BY, SEMANTICS
+    OBJECT_LEVEL_SECURITY, ROW_LEVEL_SECURITY, PARTITION_BY, SEMANTICS, SCHEMA_COLUMN_EXTENSION_MAP
 
 extension = RecordSchema(SCHEMA_COLUMN_EXTENSION, doc="Extension point to add custom values to each record")
 extension.add_field("__path", AvroString(), 'An unique identifier, e.g. "street"."house number component"',
@@ -121,7 +121,8 @@ class ValueSchema(RootSchema):
         self.add_field(ROW_TRUNCATE, AvroMap(AvroString()),
                        doc="In case of a change type of TRUNCATE, this map contains the fields to identify the set of rows to be deleted",
                        internal=True, technical=True)
-        self.add_field(SCHEMA_COLUMN_EXTENSION, extension, internal=True, doc="Add more columns beyond the official logical data model")
+        self.add_field(SCHEMA_COLUMN_EXTENSION, extension, internal=True, nullable=True, doc="Add more columns beyond the official logical data model")
+        self.add_field(SCHEMA_COLUMN_EXTENSION_MAP, AvroMap(AvroString()), internal=True, nullable=True, doc="Add more values as a map beyond the official logical data model")
 
         self.pks: Optional[set[str]] = None
         self.fks: Optional[list[FKCondition]] = None
