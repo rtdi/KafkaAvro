@@ -67,9 +67,8 @@ import io.rtdi.bigdata.kafka.avro.datatypes.AvroUUID;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroUri;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroVarchar;
 import io.rtdi.bigdata.kafka.avro.datatypes.LogicalDataTypesRegistry;
-import io.rtdi.bigdata.kafka.avro.recordbuilders.AvroRecordArray;
-import io.rtdi.bigdata.kafka.avro.recordbuilders.AvroRecordField;
-import io.rtdi.bigdata.kafka.avro.recordbuilders.SchemaBuilder;
+import io.rtdi.bigdata.kafka.avro.datatypes.RecordSchema;
+import io.rtdi.bigdata.kafka.avro.recordbuilders.RowType;
 
 /**
  * Some tests for data conversions
@@ -128,6 +127,10 @@ public class ValueSetterTest {
 	 * @throws Exception if something goes wrong
 	 */
 	@BeforeAll
+	/**
+	 * Executes the void setUp operation and returns the resulting value.
+	 * @return the resulting value
+	 */
 	public static void setUp() throws Exception {
 	}
 
@@ -135,6 +138,10 @@ public class ValueSetterTest {
 	 * @throws Exception if something goes wrong
 	 */
 	@AfterAll
+	/**
+	 * Executes the void tearDown operation and returns the resulting value.
+	 * @return the resulting value
+	 */
 	public static void tearDown() throws Exception {
 	}
 
@@ -142,6 +149,9 @@ public class ValueSetterTest {
 	 * Tests
 	 */
 	@Test
+	/**
+	 * Executes the void test operation.
+	 */
 	public void test() {
 		try {
 			LogicalDataTypesRegistry.registerAll();
@@ -295,46 +305,52 @@ public class ValueSetterTest {
 	}
 
 	private static Schema buildAllDataTypesSchema() {
-		SchemaBuilder builder = new SchemaBuilder("Schema1", null);
+		RecordSchema builder = new RecordSchema("Schema1", null);
 
-		AvroRecordField builderNumbers = builder.addColumnRecord(NUMBERS, null, true, NUMBERS_SCHEMA, null);
-		builderNumbers.add(COL_INT, AvroInt.getSchema(), null, true);
-		builderNumbers.add(COL_BYTE, AvroByte.getSchema(), null, true);
-		builderNumbers.add(COL_DECIMAL, AvroDecimal.getSchema(20,7), null, true);
-		builderNumbers.add(COL_DOUBLE, AvroDouble.getSchema(), null, true);
-		builderNumbers.add(COL_FLOAT, AvroFloat.getSchema(), null, true);
-		builderNumbers.add(COL_LONG, AvroLong.getSchema(), null, true);
-		builderNumbers.add(COL_SHORT, AvroShort.getSchema(), null, true);
-		AvroRecordField builderText = builder.addColumnRecord(TEXT, null, true, TEXT_SCHEMA, null);
-		builderText.add(COL_CLOB, AvroCLOB.getSchema(), null, true);
-		builderText.add(COL_NCLOB, AvroNCLOB.getSchema(), null, true);
-		builderText.add(COL_NVARCHAR, AvroNVarchar.getSchema(20), null, true);
-		builderText.add(COL_STRING, AvroString.getSchema(), null, true);
-		builderText.add(COL_VARCHAR, AvroVarchar.getSchema(30), null, true);
-		AvroRecordField builderDate = builder.addColumnRecord(DATE, null, true, DATE_SCHEMA, null);
-		builderDate.add(COL_DATE, AvroDate.getSchema(), null, true);
-		builderDate.add(COL_TIME, AvroTime.getSchema(), null, true);
-		builderDate.add(COL_TIME_MICROS, AvroTimeMicros.getSchema(), null, true);
-		builderDate.add(COL_TIMESTAMP, AvroTimestamp.getSchema(), null, true);
-		builderDate.add(COL_TIMESTAMP_MICROS, AvroTimestampMicros.getSchema(), null, true);
-		builderDate.add(COL_LOCALTIMESTAMP, AvroLocalTimestamp.getSchema(), null, true);
-		builderDate.add(COL_LOCALTIMESTAMP_MICROS, AvroLocalTimestampMicros.getSchema(), null, true);
-		AvroRecordField builderSpatial = builder.addColumnRecord(SPATIAL, null, true, SPATIAL_SCHEMA, null);
-		builderSpatial.add(COL_ST_GEOMETRY, AvroSTGeometry.getSchema(), null, true);
-		builderSpatial.add(COL_ST_POINT, AvroSTPoint.getSchema(), null, true);
-		AvroRecordField builderComplex = builder.addColumnRecord(COMPLEX, null, true, COMPLEX_SCHEMA, null);
-		builderComplex.add(COL_ENUM, AvroEnum.getSchema(RowType.class), null, true);
-		builderComplex.add(COL_MAP, AvroMap.getSchema(AvroLong.getSchema()), null, true);
-		builderComplex.add(COL_ARRAY, AvroArray.getSchema(AvroInt.getSchema()), null, true);
-		AvroRecordArray builderOther = builder.addColumnRecordArray(OTHER, null, OTHER_SCHEMA, null);
-		builderOther.add(COL_BOOLEAN, AvroBoolean.getSchema(), null, true);
-		builderOther.add(COL_BYTES, AvroBytes.getSchema(), null, true);
-		builderOther.add(COL_FIXED, AvroFixed.getSchema(5), null, true);
-		builderOther.add(COL_URI, AvroUri.getSchema(), null, true);
-		builderOther.add(COL_UUID, AvroUUID.getSchema(), null, true);
-		builderOther.add(COL_ANY_PRIMITIVE, AvroAnyPrimitive.getSchema(), null, true);
-		builder.build();
-		Schema schema = builder.getSchema();
+		RecordSchema builderNumbers = new RecordSchema(NUMBERS_SCHEMA, null);
+		builderNumbers.add(COL_INT, AvroInt.create(), null, true);
+		builderNumbers.add(COL_BYTE, AvroByte.create(), null, true);
+		builderNumbers.add(COL_DECIMAL, AvroDecimal.create(20, 7), null, true);
+		builderNumbers.add(COL_DOUBLE, AvroDouble.create(), null, true);
+		builderNumbers.add(COL_FLOAT, AvroFloat.create(), null, true);
+		builderNumbers.add(COL_LONG, AvroLong.create(), null, true);
+		builderNumbers.add(COL_SHORT, AvroShort.create(), null, true);
+		RecordSchema builderText = new RecordSchema(TEXT_SCHEMA, null);
+		builderText.add(COL_CLOB, AvroCLOB.create(), null, true);
+		builderText.add(COL_NCLOB, AvroNCLOB.create(), null, true);
+		builderText.add(COL_NVARCHAR, AvroNVarchar.create(20), null, true);
+		builderText.add(COL_STRING, AvroString.create(), null, true);
+		builderText.add(COL_VARCHAR, AvroVarchar.create(30), null, true);
+		RecordSchema builderDate = new RecordSchema(DATE_SCHEMA, null);
+		builderDate.add(COL_DATE, AvroDate.create(), null, true);
+		builderDate.add(COL_TIME, AvroTime.create(), null, true);
+		builderDate.add(COL_TIME_MICROS, AvroTimeMicros.create(), null, true);
+		builderDate.add(COL_TIMESTAMP, AvroTimestamp.create(), null, true);
+		builderDate.add(COL_TIMESTAMP_MICROS, AvroTimestampMicros.create(), null, true);
+		builderDate.add(COL_LOCALTIMESTAMP, AvroLocalTimestamp.create(), null, true);
+		builderDate.add(COL_LOCALTIMESTAMP_MICROS, AvroLocalTimestampMicros.create(), null, true);
+		RecordSchema builderSpatial = new RecordSchema(SPATIAL_SCHEMA, null);
+		builderSpatial.add(COL_ST_GEOMETRY, AvroSTGeometry.create(), null, true);
+		builderSpatial.add(COL_ST_POINT, AvroSTPoint.create(), null, true);
+		RecordSchema builderComplex = new RecordSchema(COMPLEX_SCHEMA, null);
+		builderComplex.add(COL_ENUM, AvroEnum.create(RowType.class), null, true);
+		builderComplex.add(COL_MAP, new AvroMap(AvroLong.create()), null, true);
+		builderComplex.add(COL_ARRAY, new AvroArray(AvroInt.create()), null, true);
+		RecordSchema builderOther = new RecordSchema(OTHER_SCHEMA, null);
+		builderOther.add(COL_BOOLEAN, AvroBoolean.create(), null, true);
+		builderOther.add(COL_BYTES, AvroBytes.create(), null, true);
+		builderOther.add(COL_FIXED, AvroFixed.create(5), null, true);
+		builderOther.add(COL_URI, AvroUri.create(), null, true);
+		builderOther.add(COL_UUID, AvroUUID.create(), null, true);
+		builderOther.add(COL_ANY_PRIMITIVE, AvroAnyPrimitive.create(), null, true);
+
+		builder.add(NUMBERS, builderNumbers, null, false);
+		builder.add(TEXT, builderText, null, false);
+		builder.add(DATE, builderDate, null, false);
+		builder.add(SPATIAL, builderSpatial, null, false);
+		builder.add(COMPLEX, builderComplex, null, false);
+		builder.add(OTHER, new AvroArray(builderOther), null, false);
+		Schema schema = builder.createSchema();
 		return schema;
 	}
 

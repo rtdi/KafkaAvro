@@ -21,25 +21,46 @@ public class AvroAnyPrimitive implements IAvroPrimitive {
 		schema =
 				Schema.createUnion(
 						Schema.create(Type.NULL),
-						AvroBoolean.getSchema(),
-						AvroBytes.getSchema(),
-						AvroDouble.getSchema(),
-						AvroFloat.getSchema(),
-						AvroInt.getSchema(),
-						AvroLong.getSchema(),
-						AvroString.getSchema());
+						AvroBoolean.create().createSchema(),
+						AvroBytes.create().createSchema(),
+						AvroDouble.create().createSchema(),
+						AvroFloat.create().createSchema(),
+						AvroInt.create().createSchema(),
+						AvroLong.create().createSchema(),
+						AvroString.create().createSchema());
 	}
 
 	/**
 	 * @return the static schema of this type
 	 */
-	public static Schema getSchema() {
+	/**
+	 * Executes the Schema createSchema operation.
+	 */
+	public Schema createSchema() {
 		return schema;
 	}
 
 	/**
+	 * Executes the String getName operation.
+	 */
+	public String getName() {
+		return NAME;
+	}
+	
+    /**
+     * Executes the String getType operation.
+     */
+    public String getType() {
+        return getName();
+    }
+
+	/**
 	 * Create an instance of that type.
 	 * @return the instance
+	 */
+	/**
+	 * Executes the AvroAnyPrimitive create operation and returns the resulting value.
+	 * @return the resulting value
 	 */
 	public static AvroAnyPrimitive create() {
 		return element;
@@ -47,6 +68,10 @@ public class AvroAnyPrimitive implements IAvroPrimitive {
 
 
 	@Override
+	/**
+	 * Executes the boolean equals operation.
+	 * @param o the parameter value
+	 */
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -58,26 +83,45 @@ public class AvroAnyPrimitive implements IAvroPrimitive {
 	}
 
 	@Override
+	/**
+	 * Executes the int hashCode operation.
+	 */
 	public int hashCode() {
 		return 1;
 	}
 
 	@Override
+	/**
+	 * Executes the String toString operation.
+	 */
 	public String toString() {
 		return NAME;
 	}
 
 	@Override
+	/**
+	 * Executes the Object convertToInternal operation.
+	 * @param value the parameter value
+	 */
 	public Object convertToInternal(Object value) {
 		return value;
 	}
 
 	@Override
+	/**
+	 * Executes the Object convertToJava operation.
+	 * @param value the parameter value
+	 */
 	public Object convertToJava(Object value) throws AvroDataTypeException {
 		return value;
 	}
 
 	@Override
+	/**
+	 * Executes the void toString operation.
+	 * @param b the parameter value
+	 * @param value the parameter value
+	 */
 	public void toString(StringBuffer b, Object value) {
 		if (value != null) {
 			b.append(value.toString());
@@ -85,21 +129,34 @@ public class AvroAnyPrimitive implements IAvroPrimitive {
 	}
 
 	@Override
+	/**
+	 * Executes the Type getBackingType operation.
+	 */
 	public Type getBackingType() {
 		return Type.UNION;
 	}
 
 	@Override
+	/**
+	 * Executes the Schema getDatatypeSchema operation.
+	 */
 	public Schema getDatatypeSchema() {
 		return schema;
 	}
 
 	@Override
+	/**
+	 * Executes the AvroType getAvroType operation.
+	 */
 	public AvroType getAvroType() {
 		return AvroType.AVROANYPRIMITIVE;
 	}
 
 	@Override
+	/**
+	 * Executes the String convertToJson operation.
+	 * @param value the parameter value
+	 */
 	public String convertToJson(Object value) {
 		if (value == null) {
 			return "null";

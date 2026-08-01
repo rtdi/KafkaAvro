@@ -1,34 +1,43 @@
 package io.rtdi.bigdata.kafka.avro;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 import org.apache.avro.Schema;
-import org.apache.avro.SchemaFormatter;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroDecimal;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroInt;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroNVarchar;
-import io.rtdi.bigdata.kafka.avro.recordbuilders.Duration;
-import io.rtdi.bigdata.kafka.avro.recordbuilders.FKCondition;
-import io.rtdi.bigdata.kafka.avro.recordbuilders.TimeUnit;
+import io.rtdi.bigdata.kafka.avro.datatypes.ColumnSemantics;
+import io.rtdi.bigdata.kafka.avro.datatypes.AvroField.ColumnType;
+import io.rtdi.bigdata.kafka.avro.objects.Duration;
+import io.rtdi.bigdata.kafka.avro.objects.TableSemantics;
+import io.rtdi.bigdata.kafka.avro.objects.TableType;
+import io.rtdi.bigdata.kafka.avro.objects.TimeUnit;
 import io.rtdi.bigdata.kafka.avro.recordbuilders.ValueSchema;
 
 /**
  * Some tests to create a schema
  */
 public class SchemaCreationSampleTest {
-
+	private ObjectMapper om = AvroUtils.createJacksonOM();
 	/**
 	 * @throws Exception if something goes wrong
 	 */
 	@BeforeAll
+	/**
+	 * Executes the void setUp operation and returns the resulting value.
+	 * @return the resulting value
+	 */
 	public static void setUp() throws Exception {
 	}
 
@@ -36,6 +45,10 @@ public class SchemaCreationSampleTest {
 	 * @throws Exception if something goes wrong
 	 */
 	@AfterAll
+	/**
+	 * Executes the void tearDown operation and returns the resulting value.
+	 * @return the resulting value
+	 */
 	public static void tearDown() throws Exception {
 	}
 
@@ -43,31 +56,61 @@ public class SchemaCreationSampleTest {
 	 * Create a schema for a CUSTOMER table
 	 */
 	@Test
+	/**
+	 * Executes the void test operation.
+	 */
 	public void test() {
 		try {
-			ValueSchema value = new ValueSchema("CUSTOMER", null);
-			value.add("CUSTOMER_ID", AvroInt.getSchema(), null, false);
-			value.add("COMPANY_NAME", AvroNVarchar.getSchema(30), null, true);
-			value.add("ADDRESS_ID", AvroInt.getSchema(), null, true);
-			value.add("EMPLOYEES", AvroInt.getSchema(), null, true);
-			value.add("REVENUE$", AvroDecimal.getSchema(12, 0), null, true);
-			value.setPrimaryKey("CUSTOMER_ID");
-			value.addForeignKey("Customer to Address", "ADDRESS", "ADDRESS_ID", "ADDRESS_ID", "=");
-			value.setDataProductOwner("owner@company.com");
-			value.setRetentionPeriod(new Duration(6, TimeUnit.YEARS));
-			value.setRegulations("GDPR", "EAR");
-			value.build();
-			Schema actualschema = value.getSchema();
-			String schema_text = SchemaFormatter.format("json/pretty", actualschema);
-			System.out.println(schema_text);
-			Files.createDirectories(Path.of("src/test/resources"));
-			Path path = Path.of("src/test/resources", "customer.avsc");
-			Files.writeString(path, schema_text);
+			ValueSchema valueschema = new ValueSchema("CUSTOMER", null);
+			valueschema.add("CUSTOMER_ID", AvroInt.create(), null, false);
+			valueschema.add("COMPANY_NAME", AvroNVarchar.create(30), null, true).setSemantics(new ColumnSemantics(ColumnType.TEXT));
+			valueschema.add("ADDRESS_ID", AvroInt.create(), null, true);
+			valueschema.add("EMPLOYEES", AvroInt.create(), null, true);
+			valueschema.add("REVENUE$", AvroDecimal.create(12, 0), null, true);
+			valueschema.add("GBU", AvroNVarchar.create(10), null, true);
+			valueschema.setPrimaryKeys("CUSTOMER_ID");
+			valueschema.addForeignKey("Customer to Address", "ADDRESS", "ADDRESS_ID", "ADDRESS_ID", "=");
+			valueschema.setDataProductOwner("owner@company.com");
+			valueschema.setRetentionPeriod(new Duration(6, TimeUnit.YEARS));
+			valueschema.setRegulations("GDPR", "EAR");
+			valueschema.setObjectLevelSecurity("group1", "group2");
+			valueschema.addRowLevelSecurity("GBU", "GBU");
+			valueschema.setSemantics(new TableSemantics(TableType.FACT));
 
-			List<FKCondition> fks = value.getForeignKeys();
-			System.out.println("Foreign Keys: " + fks);
-			List<String> pks = value.getPrimaryKeys();
-			System.out.println("Primary Keys: " + pks);
+			Files.createDirectories(Path.of("src/test/resources"));
+
+			// save its Avro Schema Json as file
+			{
+				String json = valueschema.toAvroJson();
+				Path path = Path.of("src/test/resources", "customer.avsc");
+				Files.writeString(path, json);
+
+				JsonNode json_tree = om.readTree(json);
+				path = Path.of("src/test/resources/expected", "customer.avsc");
+				JsonNode expected_tree = om.readTree(path.toFile());
+				assertEquals(expected_tree, json_tree, "The built schema is different from the expected schema");
+
+				Schema avroschema = valueschema.createSchema();
+
+				// Create a ValueSchema from an Avro Schema
+				ValueSchema valueschema2 = new ValueSchema(avroschema);
+				assertEquals(valueschema, valueschema2);
+			}
+
+			// Test the object json format
+			{
+				String json = valueschema.toObjectJson();
+				Path path = Path.of("src/test/resources", "customer.json");
+				Files.writeString(path, json);
+
+				JsonNode json_tree = om.readTree(json);
+				path = Path.of("src/test/resources/expected", "customer.json");
+				JsonNode expected_tree = om.readTree(path.toFile());
+				assertEquals(expected_tree, json_tree, "The built object schema is different from the expected schema");
+
+				ValueSchema valueschema2 = ValueSchema.fromObjectJson(json);
+				assertEquals(valueschema, valueschema2);
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();

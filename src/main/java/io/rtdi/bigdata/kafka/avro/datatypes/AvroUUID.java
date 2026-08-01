@@ -7,13 +7,15 @@ import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
 import org.apache.avro.util.Utf8;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 
 /**
  * Wrapper for LogicalTypes.uuid()
  *
  */
-public class AvroUUID extends LogicalType implements IAvroPrimitive {
+public class AvroUUID extends AvroLogicalType implements IAvroPrimitive {
 	/**
 	 * Factory for this type
 	 */
@@ -33,6 +35,11 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 	 * Create an instance of that type.
 	 * @return the instance
 	 */
+	@JsonCreator
+	/**
+	 * Executes the AvroUUID create operation and returns the resulting value.
+	 * @return the resulting value
+	 */
 	public static AvroUUID create() {
 		return element;
 	}
@@ -40,7 +47,10 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 	/**
 	 * @return the static schema of this type
 	 */
-	public static Schema getSchema() {
+	/**
+	 * Executes the Schema createSchema operation.
+	 */
+	public Schema createSchema() {
 		return schema;
 	}
 
@@ -53,12 +63,20 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 
 
 	@Override
+	/**
+	 * Executes the Schema addToSchema operation.
+	 * @param schema the parameter value
+	 */
 	public Schema addToSchema(Schema schema) {
 		super.addToSchema(schema);
 		return schema;
 	}
 
 	@Override
+	/**
+	 * Executes the void validate operation.
+	 * @param schema the parameter value
+	 */
 	public void validate(Schema schema) {
 		super.validate(schema);
 		// validate the type
@@ -68,6 +86,10 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
+	/**
+	 * Executes the boolean equals operation.
+	 * @param o the parameter value
+	 */
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -79,16 +101,27 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
+	/**
+	 * Executes the int hashCode operation.
+	 */
 	public int hashCode() {
 		return 1;
 	}
 
 	@Override
+	/**
+	 * Executes the String toString operation.
+	 */
 	public String toString() {
 		return NAME;
 	}
 
 	@Override
+	/**
+	 * Executes the void toString operation.
+	 * @param b the parameter value
+	 * @param value the parameter value
+	 */
 	public void toString(StringBuffer b, Object value) {
 		if (value != null) {
 			b.append('\"');
@@ -98,6 +131,10 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
+	/**
+	 * Executes the CharSequence convertToInternal operation.
+	 * @param value the parameter value
+	 */
 	public CharSequence convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
@@ -109,6 +146,10 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
+	/**
+	 * Executes the String convertToJava operation.
+	 * @param value the parameter value
+	 */
 	public String convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
@@ -131,10 +172,17 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 		/**
 		 * Constructor for the factory
 		 */
+		/**
+		 * Executes the Factory operation.
+		 */
 		public Factory() {
 		}
 
 		@Override
+		/**
+		 * Executes the LogicalType fromSchema operation.
+		 * @param schema the parameter value
+		 */
 		public LogicalType fromSchema(Schema schema) {
 			return AvroUUID.create();
 		}
@@ -142,21 +190,34 @@ public class AvroUUID extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
+	/**
+	 * Executes the Type getBackingType operation.
+	 */
 	public Type getBackingType() {
 		return Type.STRING;
 	}
 
 	@Override
+	/**
+	 * Executes the Schema getDatatypeSchema operation.
+	 */
 	public Schema getDatatypeSchema() {
 		return schema;
 	}
 
 	@Override
+	/**
+	 * Executes the AvroType getAvroType operation.
+	 */
 	public AvroType getAvroType() {
 		return AvroType.AVROUUID;
 	}
 
 	@Override
+	/**
+	 * Executes the String convertToJson operation.
+	 * @param value the parameter value
+	 */
 	public String convertToJson(Object value) throws AvroDataTypeException {
 		CharSequence b = convertToJava(value);
 		if (b == null) {

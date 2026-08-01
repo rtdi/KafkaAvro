@@ -17,7 +17,7 @@ import io.rtdi.bigdata.kafka.avro.AvroUtils;
  * Wrapper around the Avro Type.MAP data type
  *
  */
-public class AvroMap extends LogicalType implements IAvroPrimitive {
+public class AvroMap extends AvroLogicalType implements IAvroPrimitive {
 	/**
 	 * Factory instance to be registered with Avro
 	 */
@@ -27,22 +27,64 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 	 */
 	public static final String NAME = "MAP";
 	private Schema schema;
+	private IAvroDatatype datatype;
 
 	/**
 	 * @param valueschema with the details of the Map
 	 * @return the schema of the logical type
 	 */
+	/**
+	 * Executes the Schema getSchema operation and returns the resulting value.
+	 * @param valueschema the parameter value
+	 * @return the resulting value
+	 */
 	public static Schema getSchema(Schema valueschema) {
-		AvroMap element = new AvroMap();
-		element.schema = Schema.createMap(valueschema);
-		return element.addToSchema(element.schema);
+		return create(valueschema).createSchema();
+	}
+
+	/**
+	 * Constructor for this static instance
+	 * @param valueschema complete schema definition for this data type
+	 */
+	private AvroMap(Schema valueschema) {
+		super(NAME);
+		this.schema = addToSchema(Schema.createMap(valueschema));
 	}
 
 	/**
 	 * Constructor for this static instance
 	 */
-	private AvroMap() {
+	/**
+	 * Creates a new instance of this class.
+	 */
+	public AvroMap() {
 		super(NAME);
+	}
+
+	/**
+	 * Creates a new instance of this class.
+	 * @param datatype the parameter value
+	 */
+	public AvroMap(IAvroDatatype datatype) {
+		super(NAME);
+		this.datatype = datatype;
+		this.schema = addToSchema(Schema.createMap(datatype.createSchema()));
+	}
+
+	/**
+	 * Executes the void setDatatype operation.
+	 * @param datatype the parameter value
+	 */
+	public void setDatatype(IAvroDatatype datatype) {
+		this.datatype = datatype;
+		this.schema = addToSchema(Schema.createMap(datatype.createSchema()));
+	}
+
+	/**
+	 * Executes the IAvroDatatype getDatatype operation.
+	 */
+	public IAvroDatatype getDatatype() {
+		return datatype;
 	}
 
 	/**
@@ -50,10 +92,13 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 	 * @param schema of the entire Map, including the value type
 	 * @return the instance
 	 */
+	/**
+	 * Executes the AvroMap create operation and returns the resulting value.
+	 * @param schema the parameter value
+	 * @return the resulting value
+	 */
 	public static AvroMap create(Schema schema) {
-		AvroMap element = new AvroMap();
-		element.schema = schema;
-		return element;
+		return new AvroMap(schema);
 	}
 
 	/**
@@ -62,10 +107,13 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 	 * @param primitive the data type for the value part of the map
 	 * @return the AvroMap
 	 */
+	/**
+	 * Executes the AvroMap create operation and returns the resulting value.
+	 * @param primitive the parameter value
+	 * @return the resulting value
+	 */
 	public static AvroMap create(IAvroPrimitive primitive) {
-		AvroMap element = new AvroMap();
-		element.schema = Schema.createMap(primitive.getDatatypeSchema());
-		return element;
+		return create(primitive.getDatatypeSchema());
 	}
 
 	/**
@@ -73,16 +121,27 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 	 *
 	 * @return the schema
 	 */
-	public Schema getSchema() {
+	/**
+	 * Executes the Schema createSchema operation.
+	 */
+	public Schema createSchema() {
 		return schema;
 	}
 
 	@Override
+	/**
+	 * Executes the Schema addToSchema operation.
+	 * @param schema the parameter value
+	 */
 	public Schema addToSchema(Schema schema) {
 		return super.addToSchema(schema);
 	}
 
 	@Override
+	/**
+	 * Executes the void validate operation.
+	 * @param schema the parameter value
+	 */
 	public void validate(Schema schema) {
 		super.validate(schema);
 		// validate the type
@@ -92,6 +151,10 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
+	/**
+	 * Executes the boolean equals operation.
+	 * @param o the parameter value
+	 */
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -103,11 +166,17 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
+	/**
+	 * Executes the int hashCode operation.
+	 */
 	public int hashCode() {
 		return 1;
 	}
 
 	@Override
+	/**
+	 * Executes the String toString operation.
+	 */
 	public String toString() {
 		return NAME;
 	}
@@ -140,10 +209,17 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 		/**
 		 * Factory constructor
 		 */
+		/**
+		 * Executes the Factory operation.
+		 */
 		public Factory() {
 		}
 
 		@Override
+		/**
+		 * Executes the LogicalType fromSchema operation.
+		 * @param schema the parameter value
+		 */
 		public LogicalType fromSchema(Schema schema) {
 			return AvroMap.create(schema);
 		}
@@ -151,6 +227,11 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
+	/**
+	 * Executes the void toString operation.
+	 * @param b the parameter value
+	 * @param value the parameter value
+	 */
 	public void toString(StringBuffer b, Object value) {
 		if (value != null) {
 			b.append('\"');
@@ -160,21 +241,34 @@ public class AvroMap extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
+	/**
+	 * Executes the Type getBackingType operation.
+	 */
 	public Type getBackingType() {
 		return Type.MAP;
 	}
 
 	@Override
+	/**
+	 * Executes the Schema getDatatypeSchema operation.
+	 */
 	public Schema getDatatypeSchema() {
 		return null;
 	}
 
 	@Override
+	/**
+	 * Executes the AvroType getAvroType operation.
+	 */
 	public AvroType getAvroType() {
 		return AvroType.AVROMAP;
 	}
 
 	@Override
+	/**
+	 * Executes the String convertToJson operation.
+	 * @param value the parameter value
+	 */
 	public String convertToJson(Object value) throws AvroDataTypeException, JsonProcessingException {
 		Map<?, ?> b = convertToJava(value);
 		if (b == null) {

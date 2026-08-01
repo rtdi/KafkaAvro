@@ -1,8 +1,11 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
+import org.apache.avro.JsonProperties;
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes.Decimal;
 import org.apache.avro.Schema;
@@ -10,6 +13,10 @@ import org.apache.avro.Schema.Field;
 import org.apache.avro.Schema.Type;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericData.Record;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import org.apache.avro.generic.GenericRecord;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
@@ -167,6 +174,11 @@ public enum AvroType {
 	 * @param schema the Avro schema for this data type, with or without logical type information
 	 * @return the best suited AvroType or null
 	 */
+	/**
+	 * Executes the AvroType getType operation and returns the resulting value.
+	 * @param schema the parameter value
+	 * @return the resulting value
+	 */
 	public static AvroType getType(Schema schema) {
 		LogicalType l = schema.getLogicalType();
 		if (l != null) {
@@ -206,7 +218,7 @@ public enum AvroType {
 		case ARRAY: return AVROARRAY;
 		case RECORD: return AVRORECORD;
 		case UNION:
-			if (schema.equals(AvroAnyPrimitive.getSchema())) {
+			if (schema.equals(AvroAnyPrimitive.create().createSchema())) {
 				return AVROANYPRIMITIVE;
 			} else {
 				return AVROUNION;
@@ -219,6 +231,11 @@ public enum AvroType {
 	/**
 	 * @param schema the Avro schema for this data type, with or without logical type information
 	 * @return the best suited AvroDataType or null
+	 */
+	/**
+	 * Executes the IAvroDatatype getAvroDataType operation and returns the resulting value.
+	 * @param schema the parameter value
+	 * @return the resulting value
 	 */
 	public static IAvroDatatype getAvroDataType(Schema schema) {
 		Schema baseschema = AvroUtils.getBaseSchema(schema);
@@ -252,14 +269,9 @@ public enum AvroType {
 		case MAP: return AvroMap.create(baseschema);
 		case STRING: return AvroString.create();
 		case ARRAY: return AvroArray.create(baseschema);
-		case RECORD: return AvroRecord.create();
-		case UNION:
-			if (schema.equals(AvroAnyPrimitive.getSchema())) {
-				return AvroAnyPrimitive.create();
-			} else {
-				return AvroUnion.create(schema);
-			}
 		case NULL: return AvroNull.create();
+		case UNION: return AvroUnion.create(baseschema);
+		case RECORD: return new RecordSchema(baseschema);
 		default: return null;
 		}
 	}
@@ -271,6 +283,13 @@ public enum AvroType {
 	 * @param fieldname is the Avro-encoded name
 	 * @param value a compatible value for this data type
 	 * @throws AvroDataTypeException in case the field cannot be found, it has an unsupported data type or the provided value is not compatible
+	 */
+	/**
+	 * Executes the void putRecordValue operation and returns the resulting value.
+	 * @param record the parameter value
+	 * @param fieldname the parameter value
+	 * @param value the parameter value
+	 * @return the resulting value
 	 */
 	public static void putRecordValue(GenericRecord record, String fieldname, Object value) throws AvroDataTypeException {
 		Field f = record.getSchema().getField(fieldname);
@@ -293,6 +312,12 @@ public enum AvroType {
 	 * @param fieldname the name of the field
 	 * @return GenericRecord to be used to
 	 * @throws AvroDataTypeException in case the field cannot be found or is not a record type
+	 */
+	/**
+	 * Executes the GenericRecord createChildRecordFor operation and returns the resulting value.
+	 * @param record the parameter value
+	 * @param fieldname the parameter value
+	 * @return the resulting value
 	 */
 	public static GenericRecord createChildRecordFor(GenericRecord record, String fieldname) throws AvroDataTypeException {
 		Field f = record.getSchema().getField(fieldname);
@@ -317,6 +342,12 @@ public enum AvroType {
 	 * @param fieldname the name of the field
 	 * @return GenericRecord to be used to
 	 * @throws AvroDataTypeException in case the field cannot be found or is not a record type
+	 */
+	/**
+	 * Executes the GenericRecord addChildToArrayOfRecords operation and returns the resulting value.
+	 * @param record the parameter value
+	 * @param fieldname the parameter value
+	 * @return the resulting value
 	 */
 	public static GenericRecord addChildToArrayOfRecords(GenericRecord record, String fieldname) throws AvroDataTypeException {
 		Field f = record.getSchema().getField(fieldname);
@@ -353,6 +384,12 @@ public enum AvroType {
 	 * @return best suited Java object
 	 * @throws AvroDataTypeException in case the field does not exist, has no supported logical data type or the conversion failed
 	 */
+	/**
+	 * Executes the Object getRecordFieldValue operation and returns the resulting value.
+	 * @param record the parameter value
+	 * @param fieldname the parameter value
+	 * @return the resulting value
+	 */
 	public static Object getRecordFieldValue(GenericRecord record, String fieldname) throws AvroDataTypeException {
 		Field f = record.getSchema().getField(fieldname);
 		if (f == null) {
@@ -375,6 +412,12 @@ public enum AvroType {
 	 * @param fieldname to read the record from
 	 * @return a GenericRecord with the data
 	 * @throws AvroDataTypeException in case the field does not exist, has no supported logical data type or the conversion failed
+	 */
+	/**
+	 * Executes the GenericRecord getSubRecord operation and returns the resulting value.
+	 * @param record the parameter value
+	 * @param fieldname the parameter value
+	 * @return the resulting value
 	 */
 	public static GenericRecord getSubRecord(GenericRecord record, String fieldname) throws AvroDataTypeException {
 		Field f = record.getSchema().getField(fieldname);
@@ -426,6 +469,11 @@ public enum AvroType {
 	 * @param schema the Avro schema for this data type, with or without logical type information
 	 * @return text representation of the best suited data type, e.g. VARCHAR(10)
 	 */
+	/**
+	 * Executes the String getAvroDatatype operation and returns the resulting value.
+	 * @param schema the parameter value
+	 * @return the resulting value
+	 */
 	public static String getAvroDatatype(Schema schema) {
 		if (schema.getType() == Type.UNION) {
 			if (schema.getTypes().size() > 2) {
@@ -450,35 +498,40 @@ public enum AvroType {
 	 * @param text the textual representation of a data type like VARCHAR(10)
 	 * @return the Avro schema for this data type
 	 */
+	/**
+	 * Executes the Schema getSchemaFromDataTypeRepresentation operation and returns the resulting value.
+	 * @param text the parameter value
+	 * @return the resulting value
+	 */
 	public static Schema getSchemaFromDataTypeRepresentation(String text) {
 		switch (text) {
-		case AvroBoolean.NAME: return AvroBoolean.getSchema();
-		case AvroBytes.NAME: return AvroBytes.getSchema();
-		case AvroDouble.NAME: return AvroDouble.getSchema();
-		case AvroFloat.NAME: return AvroFloat.getSchema();
-		case AvroInt.NAME: return AvroInt.getSchema();
-		case AvroLong.NAME: return AvroLong.getSchema();
-		case AvroString.NAME: return AvroString.getSchema();
-		case AvroDate.NAME: return AvroDate.getSchema();
-		case AvroTime.NAME: return AvroTime.getSchema();
-		case AvroTimestamp.NAME: return AvroTimestamp.getSchema();
-		case AvroLocalTimestamp.NAME: return AvroLocalTimestamp.getSchema();
-		case AvroUUID.NAME: return AvroUUID.getSchema();
-		case AvroAnyPrimitive.NAME: return AvroAnyPrimitive.getSchema();
+		case AvroBoolean.NAME: return AvroBoolean.create().createSchema();
+		case AvroBytes.NAME: return AvroBytes.create().createSchema();
+		case AvroDouble.NAME: return AvroDouble.create().createSchema();
+		case AvroFloat.NAME: return AvroFloat.create().createSchema();
+		case AvroInt.NAME: return AvroInt.create().createSchema();
+		case AvroLong.NAME: return AvroLong.create().createSchema();
+		case AvroString.NAME: return AvroString.create().createSchema();
+		case AvroDate.NAME: return AvroDate.create().createSchema();
+		case AvroTime.NAME: return AvroTime.create().createSchema();
+		case AvroTimestamp.NAME: return AvroTimestamp.create().createSchema();
+		case AvroLocalTimestamp.NAME: return AvroLocalTimestamp.create().createSchema();
+		case AvroUUID.NAME: return AvroUUID.create().createSchema();
+		case AvroAnyPrimitive.NAME: return AvroAnyPrimitive.create().createSchema();
 		case AvroByte.NAME:
-			return AvroByte.getSchema();
+			return AvroByte.create().createSchema();
 		case AvroCLOB.NAME:
-			return AvroCLOB.getSchema();
+			return AvroCLOB.create().createSchema();
 		case AvroNCLOB.NAME:
-			return AvroNCLOB.getSchema();
+			return AvroNCLOB.create().createSchema();
 		case AvroShort.NAME:
-			return AvroShort.getSchema();
+			return AvroShort.create().createSchema();
 		case AvroSTGeometry.NAME:
-			return AvroSTGeometry.getSchema();
+			return AvroSTGeometry.create().createSchema();
 		case AvroSTPoint.NAME:
-			return AvroSTPoint.getSchema();
+			return AvroSTPoint.create().createSchema();
 		case AvroUri.NAME:
-			return AvroUri.getSchema();
+			return AvroUri.create().createSchema();
 		}
 		if (text.startsWith(AvroDecimal.NAME)) {
 			return AvroDecimal.getSchema(text);
@@ -494,6 +547,11 @@ public enum AvroType {
 	/**
 	 * @param text the textual representation of a data type like VARCHAR(10)
 	 * @return the Avro data type for this data type
+	 */
+	/**
+	 * Executes the IAvroDatatype getDataTypeFromString operation and returns the resulting value.
+	 * @param text the parameter value
+	 * @return the resulting value
 	 */
 	public static IAvroDatatype getDataTypeFromString(String text) {
 		if (text == null) {
@@ -527,8 +585,6 @@ public enum AvroType {
 			return AvroSTPoint.create();
 		case AvroUri.NAME:
 			return AvroUri.create();
-		case AvroRecord.NAME:
-			return AvroRecord.create();
 		case AvroUnion.NAME:
 			return AvroUnion.create();
 		case AvroNull.NAME:
@@ -548,12 +604,18 @@ public enum AvroType {
 	/**
 	 * @return the level attribute for this data type
 	 */
+	/**
+	 * Executes the int getLevel operation.
+	 */
 	public int getLevel() {
 		return level;
 	}
 
 	/**
 	 * @return the group attribute for this data type
+	 */
+	/**
+	 * Executes the AvroDatatypeClass getGroup operation.
 	 */
 	public AvroDatatypeClass getGroup() {
 		return group;
@@ -564,6 +626,10 @@ public enum AvroType {
 	 * Example: The VARCHAR(10) can store ASCII chars only, but now Unicode is needed as well
 	 * @param t extended type
 	 * @return best suited AvroType
+	 */
+	/**
+	 * Executes the AvroType aggregate operation.
+	 * @param t the parameter value
 	 */
 	public AvroType aggregate(AvroType t) {
 		if (this == t) {
@@ -590,6 +656,88 @@ public enum AvroType {
 		}
 	}
 
+	public static List<String> getStringListProp(Schema schema, String name) {
+    	return getTypedListProp(schema, name, String.class);
+    }
+
+	public static <T> List<T> getTypedListProp(Schema schema, String name, Class<T> elementType) {
+		ObjectMapper om = AvroUtils.createJacksonOM();
+		List<?> l = getProp(schema, name, List.class);
+		if (l != null) {
+			ArrayList<T> newlist = new ArrayList<>(l.size());
+			for (Object o : l) {
+				T item = om.convertValue(o, elementType);
+				newlist.add(item);
+			}
+			return newlist;
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the named schema property if it is of the expected type
+	 *
+	 * @param <T> expected type of the property
+	 * @param schema Avro schema
+	 * @param propertyName name of the property
+	 * @param clazz expected class of the property
+	 * @return the value of the property or null
+	 */
+	@SuppressWarnings("unchecked")
+	/**
+	 * Executes the T getProp operation and returns the resulting value.
+	 * @param schema the parameter value
+	 * @param propertyName the parameter value
+	 * @param clazz the parameter value
+	 * @return the resulting value
+	 */
+	public static <T> T getProp(Schema schema, String propertyName, Class<T> clazz) {
+		Object value = schema.getObjectProp(propertyName);
+		if (value == null) {
+			return null;
+		} else if (clazz.isInstance(value)) {
+			return (T) value;
+		} else {
+			return new ObjectMapper().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS).convertValue(value, clazz);
+		}
+	}
+
+	/**
+	 * Returns the named schema property if it is of the expected type
+	 *
+	 * @param <T> expected type of the property
+	 * @param field Avro schema
+	 * @param propertyName name of the property
+	 * @param clazz expected class of the property
+	 * @return the value of the property or null
+	 */
+	@SuppressWarnings("unchecked")
+	/**
+	 * Executes the T getProp operation and returns the resulting value.
+	 * @param field the parameter value
+	 * @param propertyName the parameter value
+	 * @param clazz the parameter value
+	 * @return the resulting value
+	 */
+	public static <T> T getProp(Field field, String propertyName, Class<T> clazz) {
+		Object value = field.getObjectProp(propertyName);
+		if (value == null) {
+			return null;
+		} else if (clazz.isInstance(value)) {
+			return (T) value;
+		} else if (value instanceof HashMap h) {
+			/*
+			 * If the object has {value: null}, this is converted to a JacksonProperties.NULL_VALUE and the convertValue cannot handle these.
+			 */
+			h.values().removeAll(Collections.singleton(JsonProperties.NULL_VALUE));
+			T o = AvroUtils.createJacksonOM().convertValue(h, clazz);
+			return o;
+		} else {
+			return null;
+		}
+	}
+
+
 	/**
 	 * Based on the provided information return the best suited Avro data type.
 	 * Default is a NVARCHAR(100).
@@ -598,6 +746,13 @@ public enum AvroType {
 	 * @param length maximum length of the data type, ignored if it does not apply
 	 * @param scale in case of a decimal, not used for all others
 	 * @return the Avro data type
+	 */
+	/**
+	 * Executes the IAvroDatatype getDataType operation and returns the resulting value.
+	 * @param type the parameter value
+	 * @param length the parameter value
+	 * @param scale the parameter value
+	 * @return the resulting value
 	 */
 	public static IAvroDatatype getDataType(AvroType type, int length, int scale) {
 		if (type == null) {
@@ -632,8 +787,6 @@ public enum AvroType {
 				return AvroCLOB.create();
 			case AVRONVARCHAR:
 				return AvroNVarchar.create(length);
-			case AVRORECORD:
-				return AvroRecord.create();
 			case AVROSHORT:
 				return AvroShort.create();
 			case AVROSTGEOMETRY:

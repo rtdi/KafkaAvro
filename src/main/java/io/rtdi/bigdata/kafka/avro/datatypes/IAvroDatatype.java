@@ -3,13 +3,54 @@ package io.rtdi.bigdata.kafka.avro.datatypes;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
+import io.rtdi.bigdata.kafka.avro.recordbuilders.ValueSchema;
 
 /**
  * The foundation of all Avro data types.
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type", visible = true)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = AvroAnyPrimitive.class, name = AvroAnyPrimitive.NAME),
+    @JsonSubTypes.Type(value = AvroArray.class, name = AvroArray.NAME),
+	@JsonSubTypes.Type(value = AvroBoolean.class, name = AvroBoolean.NAME),
+	@JsonSubTypes.Type(value = AvroByte.class, name = AvroByte.NAME),
+	@JsonSubTypes.Type(value = AvroBytes.class, name = AvroBytes.NAME),
+	@JsonSubTypes.Type(value = AvroCLOB.class, name = AvroCLOB.NAME),
+	@JsonSubTypes.Type(value = AvroDate.class, name = AvroDate.NAME),
+	@JsonSubTypes.Type(value = AvroDecimal.class, name = AvroDecimal.NAME),
+	@JsonSubTypes.Type(value = AvroDouble.class, name = AvroDouble.NAME),
+	@JsonSubTypes.Type(value = AvroEnum.class, name = AvroEnum.NAME),
+	@JsonSubTypes.Type(value = AvroFixed.class, name = AvroFixed.NAME),
+	@JsonSubTypes.Type(value = AvroFloat.class, name = AvroFloat.NAME),
+	@JsonSubTypes.Type(value = AvroInt.class, name = AvroInt.NAME),
+	@JsonSubTypes.Type(value = AvroLocalTimestamp.class, name = AvroLocalTimestamp.NAME),
+	@JsonSubTypes.Type(value = AvroLocalTimestampMicros.class, name = AvroLocalTimestampMicros.NAME),
+	@JsonSubTypes.Type(value = AvroLong.class, name = AvroLong.NAME),
+	@JsonSubTypes.Type(value = AvroMap.class, name = AvroMap.NAME),
+	@JsonSubTypes.Type(value = AvroNCLOB.class, name = AvroNCLOB.NAME),
+	@JsonSubTypes.Type(value = AvroNull.class, name = AvroNull.NAME),
+	@JsonSubTypes.Type(value = AvroNVarchar.class, name = AvroNVarchar.NAME),
+	@JsonSubTypes.Type(value = AvroShort.class, name = AvroShort.NAME),
+	@JsonSubTypes.Type(value = AvroSTGeometry.class, name = AvroSTGeometry.NAME),
+	@JsonSubTypes.Type(value = AvroSTPoint.class, name = AvroSTPoint.NAME),
+	@JsonSubTypes.Type(value = AvroString.class, name = AvroString.NAME),
+	@JsonSubTypes.Type(value = AvroTime.class, name = AvroTime.NAME),
+	@JsonSubTypes.Type(value = AvroTimeMicros.class, name = AvroTimeMicros.NAME),
+	@JsonSubTypes.Type(value = AvroTimestamp.class, name = AvroTimestamp.NAME),
+	@JsonSubTypes.Type(value = AvroTimestampMicros.class, name = AvroTimestampMicros.NAME),
+	@JsonSubTypes.Type(value = AvroUnion.class, name = AvroUnion.NAME),
+	@JsonSubTypes.Type(value = AvroUri.class, name = AvroUri.NAME),
+	@JsonSubTypes.Type(value = AvroUUID.class, name = AvroUUID.NAME),
+	@JsonSubTypes.Type(value = AvroVarchar.class, name = AvroVarchar.NAME),
+	@JsonSubTypes.Type(value = RecordSchema.class, name = RecordSchema.NAME),
+	@JsonSubTypes.Type(value = ValueSchema.class, name = ValueSchema.NAME)
+})
 public interface IAvroDatatype {
 
 	/**
@@ -17,6 +58,16 @@ public interface IAvroDatatype {
 	 * @param value the value to convert to a string
 	 */
 	void toString(StringBuffer b, Object value);
+
+	public String getType();
+
+	/**
+	 * 
+	 * The Avro Schema representation of this object
+	 * 
+	 * @return
+	 */
+	public Schema createSchema();
 
 	/**
 	 * Convert a Java object to the compatible Java object expected by Avro.
@@ -31,16 +82,19 @@ public interface IAvroDatatype {
 	/**
 	 * @return the Avro expected data type
 	 */
+	@JsonIgnore
 	Type getBackingType();
 
 	/**
 	 * @return the full Avro schema definition needed for this datatype, e.g. String with length information
 	 */
+	@JsonIgnore
 	Schema getDatatypeSchema();
 
 	/**
 	 * @return the AvroType of this data type
 	 */
+	@JsonIgnore
 	AvroType getAvroType();
 
 	/**

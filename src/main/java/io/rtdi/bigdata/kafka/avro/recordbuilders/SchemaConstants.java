@@ -1,4 +1,4 @@
-package io.rtdi.bigdata.kafka.avro;
+package io.rtdi.bigdata.kafka.avro.recordbuilders;
 
 /**
  * Some constants for schema field names
@@ -33,5 +33,8 @@ public class SchemaConstants {
 	 * Truncate information in case the change type is truncate.
 	 */
 	public static final String SCHEMA_COLUMN_TRUNCATE = "__truncate";
-
+	/**
+	 * A place for adding key/value pairs to a message.
+	 */
+	public static final String SCHEMA_COLUMN_EXTENSION_MAP = "__extension_map";
 }

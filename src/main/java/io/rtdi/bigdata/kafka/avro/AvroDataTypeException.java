@@ -12,6 +12,10 @@ public class AvroDataTypeException extends AvroRuntimeException {
 	/**
 	 * @param message to be shown
 	 */
+	/**
+	 * Creates a new instance of this class.
+	 * @param message the parameter value
+	 */
 	public AvroDataTypeException(String message) {
 		super(message);
 	}

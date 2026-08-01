@@ -16,13 +16,15 @@ import org.apache.avro.LogicalTypes.LogicalTypeFactory;
 import org.apache.avro.LogicalTypes.TimeMillis;
 import org.apache.avro.Schema.Type;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 
 /**
  * Wrapper of LogicalTypes.timeMillis()
  *
  */
-public class AvroTime extends LogicalType implements IAvroPrimitive {
+public class AvroTime extends AvroLogicalType implements IAvroPrimitive {
 	/**
 	 * Factory to create instances of this class
 	 */
@@ -42,7 +44,10 @@ public class AvroTime extends LogicalType implements IAvroPrimitive {
 	/**
 	 * @return the static schema of this type
 	 */
-	public static Schema getSchema() {
+	/**
+	 * Executes the Schema createSchema operation.
+	 */
+	public Schema createSchema() {
 		return schema;
 	}
 
@@ -57,36 +62,69 @@ public class AvroTime extends LogicalType implements IAvroPrimitive {
 	 * Create an instance of that type.
 	 * @return the instance
 	 */
+	@JsonCreator
+	/**
+	 * Executes the AvroTime create operation and returns the resulting value.
+	 * @return the resulting value
+	 */
 	public static AvroTime create() {
 		return element;
 	}
 
 	@Override
+	/**
+	 * Executes the Schema addToSchema operation.
+	 * @param schema the parameter value
+	 */
 	public Schema addToSchema(Schema schema) {
 		return super.addToSchema(schema);
 	}
 
 	@Override
+	/**
+	 * Executes the void validate operation.
+	 * @param schema the parameter value
+	 */
 	public void validate(Schema schema) {
 		time.validate(schema);
 	}
 
 	@Override
+	/**
+	 * Executes the boolean equals operation.
+	 * @param o the parameter value
+	 */
 	public boolean equals(Object o) {
-		return time.equals(o);
+		if (o == null) {
+			return false;
+		} else if (o instanceof AvroTime t) {
+			return this.getName()== t.getName();
+		} else {
+			return false;
+		}
 	}
 
 	@Override
+	/**
+	 * Executes the int hashCode operation.
+	 */
 	public int hashCode() {
 		return time.hashCode();
 	}
 
 	@Override
+	/**
+	 * Executes the String toString operation.
+	 */
 	public String toString() {
 		return NAME;
 	}
 
 	@Override
+	/**
+	 * Executes the Integer convertToInternal operation.
+	 * @param value the parameter value
+	 */
 	public Integer convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
@@ -114,6 +152,10 @@ public class AvroTime extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
+	/**
+	 * Executes the LocalTime convertToJava operation.
+	 * @param value the parameter value
+	 */
 	public LocalTime convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
@@ -131,10 +173,17 @@ public class AvroTime extends LogicalType implements IAvroPrimitive {
 		/**
 		 * Constructor of the factory
 		 */
+		/**
+		 * Executes the Factory operation.
+		 */
 		public Factory() {
 		}
 
 		@Override
+		/**
+		 * Executes the LogicalType fromSchema operation.
+		 * @param schema the parameter value
+		 */
 		public LogicalType fromSchema(Schema schema) {
 			return AvroTime.create();
 		}
@@ -142,6 +191,11 @@ public class AvroTime extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
+	/**
+	 * Executes the void toString operation.
+	 * @param b the parameter value
+	 * @param value the parameter value
+	 */
 	public void toString(StringBuffer b, Object value) {
 		if (value != null) {
 			if (value instanceof Integer) {
@@ -154,21 +208,34 @@ public class AvroTime extends LogicalType implements IAvroPrimitive {
 	}
 
 	@Override
+	/**
+	 * Executes the Type getBackingType operation.
+	 */
 	public Type getBackingType() {
 		return Type.INT;
 	}
 
 	@Override
+	/**
+	 * Executes the Schema getDatatypeSchema operation.
+	 */
 	public Schema getDatatypeSchema() {
 		return schema;
 	}
 
 	@Override
+	/**
+	 * Executes the AvroType getAvroType operation.
+	 */
 	public AvroType getAvroType() {
 		return AvroType.AVROTIMEMILLIS;
 	}
 
 	@Override
+	/**
+	 * Executes the String convertToJson operation.
+	 * @param value the parameter value
+	 */
 	public String convertToJson(Object value) throws AvroDataTypeException {
 		LocalTime b = convertToJava(value);
 		if (b == null) {

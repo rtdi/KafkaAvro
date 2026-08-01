@@ -1,4 +1,4 @@
-package io.rtdi.bigdata.kafka.avro;
+package io.rtdi.bigdata.kafka.avro.recordbuilders;
 
 /**
  * The __audit field has Rule Results
@@ -22,6 +22,9 @@ public enum RuleResult {
 	 *
 	 * @return quality score
 	 */
+	/**
+	 * Executes the float getDefaultQuality operation.
+	 */
 	public float getDefaultQuality() {
 		switch (this) {
 		case PASS: return 1.0f;
@@ -35,6 +38,10 @@ public enum RuleResult {
 	 *
 	 * @param ruleresult another rule result to aggregate with
 	 * @return aggregated result
+	 */
+	/**
+	 * Executes the RuleResult aggregate operation.
+	 * @param ruleresult the parameter value
 	 */
 	public RuleResult aggregate(RuleResult ruleresult) {
 		if (ruleresult == null) {

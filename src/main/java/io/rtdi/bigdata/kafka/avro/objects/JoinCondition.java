@@ -1,4 +1,6 @@
-package io.rtdi.bigdata.kafka.avro.recordbuilders;
+package io.rtdi.bigdata.kafka.avro.objects;
+
+import io.rtdi.bigdata.kafka.avro.AvroUtils;
 
 /**
  * Defines a join condition between two schemas.
@@ -10,6 +12,9 @@ public class JoinCondition {
 
 	/**
 	 * Create an empty join condition
+	 */
+	/**
+	 * Creates a new instance of this class.
 	 */
 	public JoinCondition() {
 		super();
@@ -23,6 +28,12 @@ public class JoinCondition {
 	 * @param right the expression related to the target schema
 	 * @param condition is a SQL operator like =, &lt;, &gt;, &lt;=, &gt;=, &lt;&gt;
 	 */
+	/**
+	 * Creates a new instance of this class.
+	 * @param left the parameter value
+	 * @param right the parameter value
+	 * @param condition the parameter value
+	 */
 	public JoinCondition(String left, String right, String condition) {
 		this();
 		this.left = left;
@@ -33,12 +44,18 @@ public class JoinCondition {
 	/**
 	 * @return left side expression
 	 */
+	/**
+	 * Executes the String getLeft operation.
+	 */
 	public String getLeft() {
 		return left;
 	}
 
 	/**
 	 * @return the expression related to the target schema
+	 */
+	/**
+	 * Executes the String getRight operation.
 	 */
 	public String getRight() {
 		return right;
@@ -47,11 +64,17 @@ public class JoinCondition {
 	/**
 	 * @return the condition string
 	 */
+	/**
+	 * Executes the String getCondition operation.
+	 */
 	public String getCondition() {
 		return condition;
 	}
 
 	@Override
+	/**
+	 * Executes the String toString operation.
+	 */
 	public String toString() {
 		return left + " " + condition + " " + right;
 	}
@@ -60,6 +83,10 @@ public class JoinCondition {
 	 * Set the left side expression
 	 *
 	 * @param left the left side expression
+	 */
+	/**
+	 * Executes the void setLeft operation.
+	 * @param left the parameter value
 	 */
 	public void setLeft(String left) {
 		this.left = left;
@@ -70,6 +97,10 @@ public class JoinCondition {
 	 *
 	 * @param right the right side expression
 	 */
+	/**
+	 * Executes the void setRight operation.
+	 * @param right the parameter value
+	 */
 	public void setRight(String right) {
 		this.right = right;
 	}
@@ -79,9 +110,45 @@ public class JoinCondition {
 	 *
 	 * @param condition the condition operator
 	 */
+	/**
+	 * Executes the void setCondition operation.
+	 * @param condition the parameter value
+	 */
 	public void setCondition(String condition) {
 		this.condition = condition;
 	}
 
+	@Override
+	/**
+	 * Executes the boolean equals operation.
+	 * @param o the parameter value
+	 */
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || !(o instanceof JoinCondition)) {
+			return false;
+		}
+		JoinCondition other = (JoinCondition) o;
+		if (!AvroUtils.isEqual(this.left, other.left)) {
+			return false;
+		}
+		if (!AvroUtils.isEqual(this.right, other.right)) {
+			return false;
+		}
+		if (!AvroUtils.isEqual(this.condition, other.condition)) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	/**
+	 * Executes the int hashCode operation.
+	 */
+	public int hashCode() {
+		return 1;
+	}
 
 }

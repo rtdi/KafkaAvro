@@ -1,4 +1,4 @@
-package io.rtdi.bigdata.kafka.avro;
+package io.rtdi.bigdata.kafka.avro.recordbuilders;
 
 import org.apache.avro.AvroRuntimeException;
 
@@ -77,6 +77,9 @@ public enum RowType {
 	/**
 	 * @return the single char code of the RowType
 	 */
+	/**
+	 * Executes the String getIdentifer operation.
+	 */
 	public String getIdentifer() {
 		return identifer;
 	}
@@ -87,6 +90,11 @@ public enum RowType {
 	 * @param identifier as I, U, D, ...
 	 * @return the corresponding RowType
 	 * @throws AvroRuntimeException if the identifiers is null or not a valid RwoType char
+	 */
+	/**
+	 * Executes the RowType getByIdentifier operation and returns the resulting value.
+	 * @param identifier the parameter value
+	 * @return the resulting value
 	 */
 	public static RowType getByIdentifier(String identifier) throws AvroRuntimeException {
 		if (identifier != null && identifier.length() > 0) {
@@ -102,6 +110,11 @@ public enum RowType {
 	 * @param identifier as I, U, D, ...
 	 * @return the corresponding RowType
 	 * @throws AvroRuntimeException if the identifiers is null or not a valid RwoType char
+	 */
+	/**
+	 * Executes the RowType getByIdentifier operation and returns the resulting value.
+	 * @param identifier the parameter value
+	 * @return the resulting value
 	 */
 	public static RowType getByIdentifier(char identifier) throws AvroRuntimeException {
 		switch (identifier) {

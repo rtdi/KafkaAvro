@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import io.rtdi.bigdata.kafka.avro.datatypes.*;
+import io.rtdi.bigdata.kafka.avro.recordbuilders.RowType;
 
 /**
  * some tests to verify the conversion options of the data types
@@ -34,6 +35,10 @@ public class ConversionOptionsTest {
 	 * @throws Exception something went wrong
 	 */
 	@BeforeAll
+	/**
+	 * Executes the void setUp operation and returns the resulting value.
+	 * @return the resulting value
+	 */
 	public static void setUp() throws Exception {
 	}
 
@@ -41,6 +46,10 @@ public class ConversionOptionsTest {
 	 * @throws Exception something went wrong
 	 */
 	@AfterAll
+	/**
+	 * Executes the void tearDown operation and returns the resulting value.
+	 * @return the resulting value
+	 */
 	public static void tearDown() throws Exception {
 	}
 
@@ -48,6 +57,9 @@ public class ConversionOptionsTest {
 	 * Test method
 	 */
 	@Test
+	/**
+	 * Executes the void test operation.
+	 */
 	public void test() {
 		try {
 			/*

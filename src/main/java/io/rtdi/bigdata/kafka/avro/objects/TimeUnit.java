@@ -1,4 +1,4 @@
-package io.rtdi.bigdata.kafka.avro.recordbuilders;
+package io.rtdi.bigdata.kafka.avro.objects;
 
 /**
  * Times units for retention periods and similar
@@ -35,6 +35,9 @@ public enum TimeUnit {
 	 * Get the index of the time unit
 	 *
 	 * @return the index of the time unit
+	 */
+	/**
+	 * Executes the int getIndex operation.
 	 */
 	public int getIndex() {
 		return index;

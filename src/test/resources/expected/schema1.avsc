@@ -1,0 +1,250 @@
+{
+  "type" : "record",
+  "name" : "Schema1",
+  "fields" : [ {
+    "name" : "__change_type",
+    "type" : {
+      "type" : "string",
+      "logicalType" : "VARCHAR",
+      "length" : 1
+    },
+    "doc" : "Indicates how the row is to be processed: Insert, Update, Delete, upsert/Autocorrect, eXterminate, Truncate,...",
+    "default" : "UPSERT",
+    "__originalname" : "__change_type",
+    "__internal" : true,
+    "__technical" : true
+  }, {
+    "name" : "__truncate",
+    "type" : {
+      "type" : "map",
+      "values" : {
+        "type" : "string",
+        "logicalType" : "STRING"
+      },
+      "logicalType" : "MAP"
+    },
+    "doc" : "In case of a change type of TRUNCATE, this map contains the fields to identify the set of rows to be deleted",
+    "__originalname" : "__truncate"
+  }, {
+    "name" : "__change_time",
+    "type" : {
+      "type" : "long",
+      "logicalType" : "timestamp-millis"
+    },
+    "doc" : "Timestamp of the transaction. All rows of the transaction have the same value.",
+    "default" : 0,
+    "__originalname" : "__change_time",
+    "__internal" : true,
+    "__technical" : true
+  }, {
+    "name" : "__source_rowid",
+    "type" : [ "null", {
+      "type" : "string",
+      "logicalType" : "VARCHAR",
+      "length" : 30
+    } ],
+    "doc" : "Optional unqiue and static pointer to the row, e.g. Oracle rowid",
+    "default" : null,
+    "__originalname" : "__source_rowid",
+    "__internal" : true,
+    "__technical" : true
+  }, {
+    "name" : "__source_transaction",
+    "type" : [ "null", {
+      "type" : "string",
+      "logicalType" : "VARCHAR",
+      "length" : 30
+    } ],
+    "doc" : "Optional source transaction information for auditing",
+    "default" : null,
+    "__originalname" : "__source_transaction",
+    "__internal" : true,
+    "__technical" : true
+  }, {
+    "name" : "__source_system",
+    "type" : [ "null", {
+      "type" : "string",
+      "logicalType" : "VARCHAR",
+      "length" : 30
+    } ],
+    "doc" : "Optional source system information for auditing",
+    "default" : null,
+    "__originalname" : "__source_system",
+    "__internal" : true,
+    "__technical" : true
+  }, {
+    "name" : "__extension",
+    "type" : [ "null", {
+      "type" : "array",
+      "items" : {
+        "type" : "record",
+        "name" : "__extension",
+        "doc" : "Extension point to add custom values to each record",
+        "fields" : [ {
+          "name" : "__path",
+          "type" : {
+            "type" : "string",
+            "logicalType" : "STRING"
+          },
+          "doc" : "An unique identifier, e.g. \"street\".\"house number component\"",
+          "__originalname" : "__path"
+        }, {
+          "name" : "__value",
+          "type" : {
+            "type" : "string",
+            "logicalType" : "STRING"
+          },
+          "doc" : "The value of any primitive datatype of Avro",
+          "__originalname" : "__value"
+        } ],
+        "__originalname" : "__extension"
+      },
+      "logicalType" : "ARRAY"
+    } ],
+    "doc" : "Add more columns beyond the official logical data model",
+    "default" : null,
+    "__originalname" : "__extension",
+    "__internal" : true
+  }, {
+    "name" : "__audit",
+    "type" : [ "null", {
+      "type" : "record",
+      "name" : "__audit",
+      "doc" : "If data is transformed this information is recorded here",
+      "fields" : [ {
+        "name" : "__transformresult",
+        "type" : {
+          "type" : "string",
+          "logicalType" : "VARCHAR",
+          "length" : 4
+        },
+        "doc" : "Is the record PASS, FAILED or WARN?",
+        "__originalname" : "__transformresult"
+      }, {
+        "name" : "__details",
+        "type" : [ "null", {
+          "type" : "array",
+          "items" : {
+            "type" : "record",
+            "name" : "__audit_details",
+            "doc" : "Details of all transformations",
+            "fields" : [ {
+              "name" : "__transformationname",
+              "type" : {
+                "type" : "string",
+                "logicalType" : "NVARCHAR",
+                "length" : 1024
+              },
+              "doc" : "A name identifying the applied transformation",
+              "__originalname" : "__transformationname"
+            }, {
+              "name" : "__transformresult",
+              "type" : {
+                "type" : "string",
+                "logicalType" : "VARCHAR",
+                "length" : 4
+              },
+              "doc" : "Is the record PASS, FAIL or WARN?",
+              "__originalname" : "__transformresult"
+            }, {
+              "name" : "__transformresult_text",
+              "type" : [ "null", {
+                "type" : "string",
+                "logicalType" : "NVARCHAR",
+                "length" : 1024
+              } ],
+              "doc" : "Transforms can optionally describe what they did",
+              "default" : null,
+              "__originalname" : "__transformresult_text"
+            }, {
+              "name" : "__transformresult_quality",
+              "type" : [ "null", {
+                "type" : "int",
+                "logicalType" : "BYTE"
+              } ],
+              "doc" : "Transforms can optionally return a percent value from 0 (FAIL) to 100 (PASS)",
+              "default" : null,
+              "__originalname" : "__transformresult_quality"
+            } ],
+            "__originalname" : "__audit_details"
+          },
+          "logicalType" : "ARRAY"
+        } ],
+        "doc" : "Details of all transformations",
+        "default" : null,
+        "__originalname" : "__details"
+      } ],
+      "__originalname" : "__audit"
+    } ],
+    "doc" : "If data is transformed this information is recorded here",
+    "default" : null,
+    "__originalname" : "__audit",
+    "__internal" : true
+  }, {
+    "name" : "PKCOL1",
+    "type" : {
+      "type" : "string",
+      "logicalType" : "NVARCHAR",
+      "length" : 10
+    },
+    "__originalname" : "PKCOL1"
+  }, {
+    "name" : "An_x002fAvron_x0026unsupported_x0024Columnname",
+    "type" : [ "null", {
+      "type" : "int",
+      "logicalType" : "INT"
+    } ],
+    "default" : null,
+    "__originalname" : "An/Avron&unsupported$Columnname"
+  }, {
+    "name" : "ARRAY1",
+    "type" : [ "null", {
+      "type" : "array",
+      "items" : {
+        "type" : "int",
+        "logicalType" : "date"
+      },
+      "logicalType" : "ARRAY"
+    } ],
+    "doc" : "Array of dates",
+    "default" : null,
+    "__originalname" : "ARRAY1"
+  }, {
+    "name" : "nested_record",
+    "type" : [ "null", {
+      "type" : "record",
+      "name" : "nested_schema1",
+      "fields" : [ {
+        "name" : "N1",
+        "type" : [ "null", {
+          "type" : "double",
+          "logicalType" : "DOUBLE"
+        } ],
+        "default" : null,
+        "__originalname" : "N1"
+      }, {
+        "name" : "N2",
+        "type" : [ "null", {
+          "type" : "double",
+          "logicalType" : "DOUBLE"
+        } ],
+        "default" : null,
+        "__originalname" : "N2"
+      } ],
+      "__originalname" : "nested_schema1"
+    } ],
+    "default" : null,
+    "__originalname" : "nested_record"
+  }, {
+    "name" : "children",
+    "type" : [ "null", {
+      "type" : "array",
+      "items" : "nested_schema1",
+      "logicalType" : "ARRAY"
+    } ],
+    "default" : null,
+    "__originalname" : "children"
+  } ],
+  "__originalname" : "Schema1",
+  "pks" : [ "PKCOL1" ]
+}

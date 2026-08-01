@@ -1,23 +1,44 @@
 package io.rtdi.bigdata.kafka.avro.datatypes;
 
-import org.apache.avro.LogicalType;
 import org.apache.avro.Schema;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Some data types have a length attribute like CHAR(10) or VARCHAR(255).
  */
-public abstract class LogicalTypeWithLength extends LogicalType implements IAvroPrimitive {
+public abstract class LogicalTypeWithLength extends AvroLogicalType implements IAvroPrimitive {
 	static final String LENGTH_PROP = "length";
 
 	private int length;
+
+	/**
+	 * Creates a new instance of this class.
+	 * @param name the parameter value
+	 */
+	public LogicalTypeWithLength(String name) {
+		super(name);
+	}
 
 	protected LogicalTypeWithLength(String name, int length) {
 		super(name);
 		this.length = length;
 	}
 
+	
+	/**
+	 * Executes the void setLength operation.
+	 * @param length the parameter value
+	 */
+	public void setLength(int length) {
+		this.length = length;
+	}
+
 	/**
 	 * @return length of the data type
+	 */
+	/**
+	 * Executes the int getLength operation.
 	 */
 	public int getLength() {
 		return length;
@@ -26,6 +47,12 @@ public abstract class LogicalTypeWithLength extends LogicalType implements IAvro
 	/**
 	 * @param schema of the logical type
 	 * @return the extracted length information from the schema
+	 */
+	@JsonIgnore
+	/**
+	 * Executes the Integer getLengthProperty operation and returns the resulting value.
+	 * @param schema the parameter value
+	 * @return the resulting value
 	 */
 	public static Integer getLengthProperty(Schema schema) {
 		Object p = schema.getObjectProp(LENGTH_PROP);
@@ -44,6 +71,10 @@ public abstract class LogicalTypeWithLength extends LogicalType implements IAvro
 	}
 
 	@Override
+	/**
+	 * Executes the void validate operation.
+	 * @param schema the parameter value
+	 */
 	public void validate(Schema schema) {
 		super.validate(schema);
 		// validate the type
@@ -53,6 +84,10 @@ public abstract class LogicalTypeWithLength extends LogicalType implements IAvro
 	}
 
 	@Override
+	/**
+	 * Executes the boolean equals operation.
+	 * @param o the parameter value
+	 */
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -71,11 +106,18 @@ public abstract class LogicalTypeWithLength extends LogicalType implements IAvro
 	}
 
 	@Override
+	/**
+	 * Executes the int hashCode operation.
+	 */
 	public int hashCode() {
 		return Integer.hashCode(length);
 	}
 
 	@Override
+	/**
+	 * Executes the Schema addToSchema operation.
+	 * @param schema the parameter value
+	 */
 	public Schema addToSchema(Schema schema) {
 		super.addToSchema(schema);
 		schema.addProp(LENGTH_PROP, length);
@@ -83,6 +125,9 @@ public abstract class LogicalTypeWithLength extends LogicalType implements IAvro
 	}
 
 	@Override
+	/**
+	 * Executes the String toString operation.
+	 */
 	public String toString() {
 		return getName() + "(" + length + ")";
 	}
@@ -90,6 +135,12 @@ public abstract class LogicalTypeWithLength extends LogicalType implements IAvro
 	/**
 	 * @param text of the data type like VARCHAR(10)
 	 * @return the length attribute inside above text or -1 if none provided
+	 */
+	@JsonIgnore
+	/**
+	 * Executes the int getLengthPortion operation and returns the resulting value.
+	 * @param text the parameter value
+	 * @return the resulting value
 	 */
 	public static int getLengthPortion(String text) {
 		int i = text.indexOf('(');
