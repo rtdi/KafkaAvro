@@ -12,6 +12,12 @@ public class SchemaNameEncoder {
 	static Pattern encoderpattern = Pattern.compile("[^A-Za-z0-9_\\.]"); // dots are allowed also
 	static Pattern decoderpattern = Pattern.compile("_x[0-9a-f][0-9a-f][0-9a-f][0-9a-f]");
 
+	/**
+	 * Constructor for this class
+	 */
+	public SchemaNameEncoder() {
+		super();
+	}
 
 	/**
 	 * Encode a string into a-z chars, escaping all other chars.

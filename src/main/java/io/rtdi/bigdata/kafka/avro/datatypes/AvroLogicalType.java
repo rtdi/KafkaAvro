@@ -2,6 +2,10 @@ package io.rtdi.bigdata.kafka.avro.datatypes;
 
 import org.apache.avro.LogicalType;
 
+/**
+ * 
+ * AvroLogicalType is the base class of all data types
+ */
 public class AvroLogicalType extends LogicalType {
     /**
      * Creates a new instance of this class.

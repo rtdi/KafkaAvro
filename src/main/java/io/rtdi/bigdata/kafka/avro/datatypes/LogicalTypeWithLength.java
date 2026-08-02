@@ -20,12 +20,16 @@ public abstract class LogicalTypeWithLength extends AvroLogicalType implements I
 		super(name);
 	}
 
+	/**
+	 * Creates a new instance of this class.
+	 * @param name the parameter value
+	 * @param length the length of the data type
+	 */
 	protected LogicalTypeWithLength(String name, int length) {
 		super(name);
 		this.length = length;
 	}
 
-	
 	/**
 	 * set the length portion of the field
 	 * @param length length of the data type
@@ -108,13 +112,13 @@ public abstract class LogicalTypeWithLength extends AvroLogicalType implements I
 		return getName() + "(" + length + ")";
 	}
 
-	@JsonIgnore
 	/**
 	 * Get the length portion of the field from a string representation of the type
 	 * The string representation is the toString() of this class
 	 * @param text as the string representation of the type
 	 * @return the length portion of the field
 	 */
+	@JsonIgnore
 	public static int getLengthPortion(String text) {
 		int i = text.indexOf('(');
 		int j = text.indexOf(')');

@@ -57,4 +57,11 @@ public class SchemaConstants {
      * Transform result column name
      */
     public static final String TRANSFORMRESULT = "__transformresult";
+
+	/**
+	 * Constructor for this class
+	 */
+	public SchemaConstants() {
+		super();
+	}
 }

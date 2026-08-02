@@ -2,11 +2,21 @@ package io.rtdi.bigdata.kafka.avro.datatypes;
 
 import org.apache.avro.LogicalTypes;
 
+import io.rtdi.bigdata.kafka.avro.AvroDeserializer;
+import io.rtdi.bigdata.kafka.avro.AvroSerializer;
+
 /**
  * Avro needs to know about the logical data types. This class registers them
  */
 public class LogicalDataTypesRegistry {
 	private static boolean registered = false;
+
+	/**
+	 * Constructor for this class
+	 */
+	public LogicalDataTypesRegistry() {
+		super();
+	}
 
 	/**
 	 * Register all data types as logical data types in the Avro type system.

@@ -41,6 +41,9 @@ import io.rtdi.bigdata.kafka.avro.objects.TableSemantics;
  *
  */
 public class ValueSchema extends RecordSchema {
+	/**
+	 * Schema property name of this class
+	 */
 	public static final String NAME = "VALUESCHEMA";
 
 	/**
@@ -68,9 +71,21 @@ public class ValueSchema extends RecordSchema {
 	 */
 	public static final String SCHEMA_INFO_REPO_URL = "repo_url";
 
+	/**
+	 * Schema property name for the object level security field
+	 */
 	public static final String SCHEMA_INFO_OBJECT_LEVEL_SECURITY = "object_level_security";
+	/**
+	 * Schema property name for the row level security field
+	 */
 	public static final String SCHEMA_INFO_ROW_LEVEL_SECURITY = "row_level_security";
+	/**
+	 * Schema property name for the additional partition-by fields
+	 */
 	public static final String SCHEMA_INFO_PARTITION_BY = "partition_by";
+	/**
+	 * Schema property name for the semantics
+	 */
 	public static final String SCHEMA_INFO_SEMANTICS = "semantics";
 	/**
 	 * Schema property name for the primary key column names (list of strings)

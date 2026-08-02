@@ -30,6 +30,7 @@ public class AvroArray extends AvroLogicalType implements IAvroPrimitive {
 	private IAvroDatatype datatype;
 
 	/**
+	 * Creates the Avro schema backing this logical array type.
 	 * @param valueschema complete schema definition for this data type
 	 * @return the schema of this type
 	 */

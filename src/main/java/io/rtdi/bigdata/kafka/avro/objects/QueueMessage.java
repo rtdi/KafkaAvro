@@ -1,5 +1,8 @@
 package io.rtdi.bigdata.kafka.avro.objects;
 
+/**
+ * Represents a message in the processing queue, used to invoke dataflows.
+ */
 public class QueueMessage {
     private String id;
     private String loadType;

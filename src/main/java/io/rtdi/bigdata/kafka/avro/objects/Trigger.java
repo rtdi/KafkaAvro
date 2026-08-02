@@ -4,6 +4,8 @@ import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroArray;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroBoolean;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroInt;
@@ -11,8 +13,14 @@ import io.rtdi.bigdata.kafka.avro.datatypes.AvroString;
 import io.rtdi.bigdata.kafka.avro.datatypes.RecordSchema;
 import io.rtdi.bigdata.kafka.avro.recordbuilders.ValueSchema;
 
+/**
+ * Stores the information when to call a function.
+ */
 public class Trigger {
 
+    /**
+     * The Avro schema for the trigger definition.
+     */
     public static ValueSchema trigger_schema = new ValueSchema("trigger", "Trigger for a function to be called when certain events occur");
     static {
         RecordSchema schedule = new RecordSchema("schedule", "all conditions within the fields must be met to run, they are AND conditions");
@@ -46,7 +54,15 @@ public class Trigger {
         trigger_schema.setPrimaryKeys("function_name");
     }
 
-    
+    /**
+     * Constructor for triggers
+     */
+    public Trigger() {
+    }
+
+    /**
+     * A trigger consists of 0..n event sets, which are different reasons to call the function.
+     */
     public static class EventSet {
         private List<Schedule> onSchedule;
         private CommitEvent onCommit;
@@ -54,21 +70,71 @@ public class Trigger {
         private List<Dataflow> dataflows;
         private Triggers _triggers;
 
+        /**
+         * Gets the list of schedules that should trigger the function.
+         * @return the list of schedules, or {@code null} if none are set
+         */
+        @JsonProperty("on_schedule")
         public List<Schedule> getOnSchedule() { return onSchedule; }
+
         /**
          * Gets the commit event that should trigger the function.
-         *
          * @return the commit event configuration, or {@code null} if none is set
          */
+        @JsonProperty("on_commit")
         public CommitEvent getOnCommit() { return onCommit; }
+
+        /**
+         * Gets the list of dataflow names that should trigger the function.
+         * @return the list of dataflow names, or {@code null} if none are set
+         */
+        @JsonProperty("on_dataflow")
         public List<String> getOnDataflow() { return onDataflow; }
+
+        /**
+         * Gets the list of dataflow trigger configurations.
+         * @return the list of dataflow configurations, or {@code null} if none are set
+         */
         public List<Dataflow> getDataflows() { return dataflows; }
+        
         /**
          * Gets the trigger container that owns this event set.
          *
          * @return the parent trigger definition
          */
         public Triggers getTriggers() { return _triggers; }
+
+        /**
+         * Sets the list of schedules that should trigger the function.
+         * @param onSchedule the list of schedules, or {@code null} if none are set
+         */
+        public void setOnSchedule(List<Schedule> onSchedule) {
+            this.onSchedule = onSchedule;
+        }
+
+        /**
+         * Sets the commit event that should trigger the function.
+         * @param onCommit the commit event configuration, or {@code null} if none is set
+         */
+        public void setOnCommit(CommitEvent onCommit) {
+            this.onCommit = onCommit;
+        }
+
+        /**
+         * Sets the list of dataflow names that should trigger the function.
+         * @param onDataflow the list of dataflow names, or {@code null} if none are set
+         */
+        public void setOnDataflow(List<String> onDataflow) {
+            this.onDataflow = onDataflow;
+        }
+
+        /**
+         * Sets the list of dataflow trigger configurations.
+         * @param dataflows the list of dataflow configurations, or {@code null} if none are set
+         */
+        public void setDataflows(List<Dataflow> dataflows) {
+            this.dataflows = dataflows;
+        }
 
         /**
          * Creates an empty event set.
@@ -84,6 +150,15 @@ public class Trigger {
          */
         public void setTriggers(Triggers t) { this._triggers = t; }
 
+        /**
+         * Adds a schedule to the event set with the specified parameters.
+         * @param weekdays on which weekdays the dataflow should run
+         * @param hours the hours to run
+         * @param minutes the minutes to run
+         * @param days the calendar days to run
+         * @param months the months to run
+         * @param lastDayOfMonth true if it should run on the last day of a month
+         */
         public void addSchedule(List<DayOfWeek> weekdays, List<Integer> hours, List<Integer> minutes,
                                 List<Integer> days, List<Integer> months, Boolean lastDayOfMonth) {
             Schedule s = new Schedule();
@@ -142,6 +217,9 @@ public class Trigger {
         public int hashCode() { return _triggers != null && _triggers.getFunctionName() != null ? _triggers.getFunctionName().hashCode() : 0; }
     }
 
+    /**
+     * Main document for triggers
+     */
     public static class Triggers {
         private String functionName;
         private String queuename;
@@ -151,7 +229,6 @@ public class Trigger {
          * Creates an empty trigger definition.
          */
         public Triggers() {
-
         }
 
         /**
@@ -189,6 +266,11 @@ public class Trigger {
          * @param queuename the queue name
          */
         public void setQueuename(String queuename) { this.queuename = queuename; }
+
+        /**
+         * get all event sets
+         * @return all event sets
+         */
         public List<EventSet> getEvents() { return events; }
 
         /**
@@ -201,6 +283,19 @@ public class Trigger {
             e.setTriggers(this);
             this.events.add(e);
             return e;
+        }
+
+        /**
+         * Add this list as event set and update the parent trigger for each
+         * @param eventsets list of all eventsets
+         */
+        public void setEvents(List<EventSet> eventsets) {
+            this.events = eventsets;
+            if (eventsets != null) {
+                for (EventSet e : eventsets) {
+                    e.setTriggers(this);
+                }
+            }
         }
 
         /**
@@ -218,8 +313,12 @@ public class Trigger {
          */
         @Override
         public int hashCode() { return functionName != null ? functionName.hashCode() : 0; }
+
     }
 
+    /**
+     * Schedule based triggers
+     */
     public static class Schedule {
         private List<String> weekdays;
         private List<Integer> hours;
@@ -235,28 +334,51 @@ public class Trigger {
             
         }
 
+        /**
+         * get all weeksdays for triger
+         * @return list of weekdays
+         */
         public List<String> getWeekdays() { return weekdays; }
+
         /**
          * Sets the weekdays included in the schedule.
          *
          * @param weekdays the weekday names
          */
         public void setWeekdays(List<String> weekdays) { this.weekdays = weekdays; }
+
+        /**
+         * get all hours of the schedule
+         * @return list of hours
+         */
         public List<Integer> getHours() { return hours; }
+
         /**
          * Sets the hours included in the schedule.
          *
          * @param hours the hour values
          */
         public void setHours(List<Integer> hours) { this.hours = hours; }
+
+        /**
+         * get minutes of the schedule
+         * @return list of minutes
+         */
         public List<Integer> getMinutes() { return minutes; }
+
         /**
          * Sets the minutes included in the schedule.
          *
          * @param minutes the minute values
          */
         public void setMinutes(List<Integer> minutes) { this.minutes = minutes; }
+
+        /**
+         * get lsit of days of the schedule
+         * @return list of calender days
+         */
         public List<Integer> getDays() { return days; }
+
         /**
          * Sets the day-of-month values included in the schedule.
          *
@@ -268,14 +390,22 @@ public class Trigger {
          *
          * @return the last-day-of-month flag
          */
+        @JsonProperty("last_day_of_month")
         public Boolean getLastDayOfMonth() { return lastDayOfMonth; }
+
         /**
          * Sets whether the schedule should include the last day of the month.
          *
          * @param lastDayOfMonth the last-day-of-month flag
          */
         public void setLastDayOfMonth(Boolean lastDayOfMonth) { this.lastDayOfMonth = lastDayOfMonth; }
+
+        /**
+         * get the list of months of the schedule
+         * @return list of months
+         */
         public List<Integer> getMonths() { return months; }
+
         /**
          * Sets the months included in the schedule.
          *
@@ -294,6 +424,9 @@ public class Trigger {
         public String toString() { return "Schedule"; }
     }
 
+    /**
+     * Commit event
+     */
     public static class CommitEvent {
         private List<String> schemaNames;
         private List<String> topicPartitions;
@@ -322,20 +455,67 @@ public class Trigger {
             this.idleSeconds = idleSeconds;
         }
 
+        /**
+         * get the list of loaded schemas
+         * @return list of schemas
+         */
+        @JsonProperty("schema_names")
         public List<String> getSchemaNames() { return schemaNames; }
+
+        /**
+         * get the topic partitions loaded
+         * @return list of topics
+         */
+        @JsonProperty("topic_partitions")
         public List<String> getTopicPartitions() { return topicPartitions; }
+
         /**
          * Gets the delay in seconds before collecting additional trigger events.
          *
          * @return the delay in seconds
          */
+        @JsonProperty("delay_seconds")
         public Integer getDelaySeconds() { return delaySeconds; }
+        
         /**
          * Gets the idle time in seconds before starting the trigger.
          *
          * @return the idle time in seconds
          */
+        @JsonProperty("idle_seconds")
         public Integer getIdleSeconds() { return idleSeconds; }
+
+        /**
+         * set schema names
+         * @param schemaNames list of schema names
+         */
+        public void setSchemaNames(List<String> schemaNames) {
+            this.schemaNames = schemaNames;
+        }
+
+        /**
+         * set the list of topic partitions
+         * @param topicPartitions list of topic partitions
+         */
+        public void setTopicPartitions(List<String> topicPartitions) {
+            this.topicPartitions = topicPartitions;
+        }
+
+        /**
+         * set the delay of seconds
+         * @param delaySeconds wait this many seconds
+         */
+        public void setDelaySeconds(Integer delaySeconds) {
+            this.delaySeconds = delaySeconds;
+        }
+
+        /**
+         * set the delay of seconds for which multiple commits are collected
+         * @param idleSeconds collect for n seconds
+         */
+        public void setIdleSeconds(Integer idleSeconds) {
+            this.idleSeconds = idleSeconds;
+        }
 
         /**
          * Returns a readable description of the commit event.
@@ -346,6 +526,9 @@ public class Trigger {
         public String toString() { return "CommitEvent: " + schemaNames; }
     }
 
+    /**
+     * Dataflow event
+     */
     public static class Dataflow {
         private String dataflowName;
         private Boolean deltaSingleTrigger;
@@ -377,24 +560,33 @@ public class Trigger {
          * @return the dataflow name
          */
         public String getDataflowName() { return dataflowName; }
+
         /**
          * Sets the dataflow name passed to the function.
          *
          * @param dataflowName the dataflow name
          */
         public void setDataflowName(String dataflowName) { this.dataflowName = dataflowName; }
+
         /**
          * Gets whether delta loads should ignore the partition list and only use partitions for initial loads.
          *
          * @return the delta-single-trigger flag
          */
+        @JsonProperty("delta_single_trigger")
         public Boolean getDeltaSingleTrigger() { return deltaSingleTrigger; }
+
         /**
          * Sets whether delta loads should ignore the partition list and only use partitions for initial loads.
          *
          * @param deltaSingleTrigger the delta-single-trigger flag
          */
         public void setDeltaSingleTrigger(Boolean deltaSingleTrigger) { this.deltaSingleTrigger = deltaSingleTrigger; }
+
+        /**
+         * Get the list of partitions to generate trigger messages for
+         * @return list of partitions
+         */
         public List<Integer> getPartitions() { return partitions; }
         /**
          * Sets the partition list used for the dataflow trigger.

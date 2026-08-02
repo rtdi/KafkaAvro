@@ -87,12 +87,12 @@ public class AvroDecimal extends AvroLogicalType implements IAvroPrimitive {
 		this.scale = scale;
 	}
 
-	@JsonIgnore
 	/**
 	 * Convert the schema into the actual object.
 	 * @param text in the form of DECIMAL(p, s)
 	 * @return the corresponding AvroDecimal
 	 */
+	@JsonIgnore
 	public static Schema getSchema(String text) {
 		String[] parts = text.split("[\\(\\)\\,]");
 		int precision = 28;

@@ -3,6 +3,9 @@ package io.rtdi.bigdata.kafka.avro.datatypes;
 import io.rtdi.bigdata.kafka.avro.AvroUtils;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroField.ColumnType;
 
+/**
+ * ColumnSemantics provide input to what the column is used for, e.g. a measure, a hierarchy, etc.
+ */
 public class ColumnSemantics {
 	private ColumnType type;
 	/**

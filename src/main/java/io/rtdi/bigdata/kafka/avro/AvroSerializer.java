@@ -24,6 +24,13 @@ public class AvroSerializer {
 		LogicalDataTypesRegistry.registerAll();
 	}
 
+	/**
+	 * Creates a new instance of this class.
+	 */
+	public AvroSerializer() {
+		super();
+	}
+
 
 	/**
 	 * Convert an AvroRecord into a Kafka payload to be sent as binary payload, still compatible with all other Kafka Avro serdes.
