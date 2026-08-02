@@ -32,12 +32,9 @@ public enum TimeUnit {
 	}
 
 	/**
-	 * Get the index of the time unit
+	 * Gets the numeric index associated with this time unit.
 	 *
 	 * @return the index of the time unit
-	 */
-	/**
-	 * Executes the int getIndex operation.
 	 */
 	public int getIndex() {
 		return index;

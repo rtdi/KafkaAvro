@@ -29,16 +29,17 @@ public class RLS {
 	public String field;
 
 	/**
-	 * Creates a new instance of this class.
+	 * Creates an empty row-level security definition.
 	 */
 	public RLS() {
 		super();
 	}
 
 	/**
-	 * Creates a new instance of this class.
-	 * @param dimension the parameter value
-	 * @param field the parameter value
+	 * Creates a row-level security definition for a specific dimension and field.
+	 *
+	 * @param dimension the permission-table dimension name
+	 * @param field the schema field that carries the dimension value
 	 */
 	public RLS(String dimension, String field) {
 		super();
@@ -46,41 +47,49 @@ public class RLS {
 		this.field = field;
 	}
 
-			/**
-			 * Executes the String getDimension operation.
-			 */
-			public String getDimension() {
+	/**
+	 * Gets the permission-table dimension name.
+	 *
+	 * @return the dimension name
+	 */
+	public String getDimension() {
 		return dimension;
 	}
 
 	/**
-	 * Executes the void setDimension operation.
-	 * @param dimension the parameter value
+	 * Sets the permission-table dimension name.
+	 *
+	 * @param dimension the dimension name
 	 */
 	public void setDimension(String dimension) {
 		this.dimension = dimension;
 	}
 
 	/**
-	 * Executes the String getField operation.
+	 * Gets the schema field that carries the dimension value.
+	 *
+	 * @return the field name
 	 */
 	public String getField() {
 		return field;
 	}
 
 	/**
-	 * Executes the void setField operation.
-	 * @param field the parameter value
+	 * Sets the schema field that carries the dimension value.
+	 *
+	 * @param field the field name
 	 */
 	public void setField(String field) {
 		this.field = field;
 	}
 
-	@Override
 	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
+	 * Compares this row-level security entry to another object for equality.
+	 *
+	 * @param o the object to compare against
+	 * @return {@code true} when the two entries are equivalent
 	 */
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -98,10 +107,12 @@ public class RLS {
 		return true;
 	}
 
-	@Override
 	/**
-	 * Executes the int hashCode operation.
+	 * Returns a stable hash code for the row-level security entry.
+	 *
+	 * @return the hash code for this instance
 	 */
+	@Override
 	public int hashCode() {
 		return 1;
 	}

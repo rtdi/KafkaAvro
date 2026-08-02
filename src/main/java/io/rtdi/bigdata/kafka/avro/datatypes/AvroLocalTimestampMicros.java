@@ -137,6 +137,14 @@ public class AvroLocalTimestampMicros extends AvroLogicalType implements IAvroPr
 		} else if (value instanceof Instant) {
 			Instant i = (Instant) value;
 			return i.getEpochSecond() * 1000000L + i.getNano()/1000;
+		} else if (value instanceof CharSequence) {
+			String s = value.toString();
+			try {
+				LocalDateTime d = LocalDateTime.parse(s);
+				return convertToInternal(d.toInstant(ZoneOffset.UTC));
+			} catch (Exception e) {
+				throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a LocalTimestampMicros, must be a string like 2007-12-03T10:15:30");
+			}
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a LocalTimestampMicros");
 	}

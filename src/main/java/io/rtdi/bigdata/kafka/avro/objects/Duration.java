@@ -10,21 +10,16 @@ public class Duration {
 	private TimeUnit unit;
 
 	/**
-	 * Creates a new instance of this class.
+	 * Creates an empty duration instance.
 	 */
 	public Duration() {
 	}
 
 	/**
-	 * Constructor
+	 * Creates a duration with the given numeric value and time unit.
 	 *
-	 * @param value the value
-	 * @param unit the time unit
-	 */
-	/**
-	 * Creates a new instance of this class.
-	 * @param value the parameter value
-	 * @param unit the parameter value
+	 * @param value the duration value
+	 * @param unit the time unit for the duration
 	 */
 	public Duration(int value, TimeUnit unit) {
 		super();
@@ -33,33 +28,30 @@ public class Duration {
 	}
 
 	/**
-	 * Get the value
-	 * @return the value
-	 */
-	/**
-	 * Executes the int getValue operation.
+	 * Gets the numeric duration value.
+	 *
+	 * @return the duration value
 	 */
 	public int getValue() {
 		return value;
 	}
 
 	/**
-	 * Get the time unit
+	 * Gets the time unit associated with the duration.
 	 *
 	 * @return the time unit
-	 */
-	/**
-	 * Executes the TimeUnit getUnit operation.
 	 */
 	public TimeUnit getUnit() {
 		return unit;
 	}
 
-	@Override
 	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
+	 * Compares this duration to another object for equality.
+	 *
+	 * @param o the object to compare against
+	 * @return {@code true} when the two durations are equivalent
 	 */
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -77,10 +69,12 @@ public class Duration {
 		return true;
 	}
 
-	@Override
 	/**
-	 * Executes the int hashCode operation.
+	 * Returns a stable hash code for the duration.
+	 *
+	 * @return the hash code for this instance
 	 */
+	@Override
 	public int hashCode() {
 		return 1;
 	}

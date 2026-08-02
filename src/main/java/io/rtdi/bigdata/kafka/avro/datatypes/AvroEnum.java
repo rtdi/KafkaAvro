@@ -9,6 +9,7 @@ import org.apache.avro.Schema.Type;
 import org.apache.avro.generic.GenericData.EnumSymbol;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
+import io.rtdi.bigdata.kafka.avro.AvroNameEncoder;
 
 /**
  * Wrapper around the Avro Type.ENUM data type
@@ -25,48 +26,97 @@ public class AvroEnum extends AvroLogicalType implements IAvroPrimitive {
 	public static final String NAME = "ENUM";
 	private Schema schema;
 	private String[] symbols;
+	private String name;
+	private String namespace;
 
 	/**
-	 * @return the schema of the logical type
-	 */
-	/**
-	 * Executes the Schema createSchema operation.
+	 * Creates the Avro schema backing this logical enum type.
+	 *
+	 * @return the enum schema
 	 */
 	public Schema createSchema() {
 		return schema;
 	}
 
 	/**
-	 * Executes the String[] getSymbols operation.
+	 * Gets the allowed symbols for the enum.
+	 *
+	 * @return the enum symbols
 	 */
 	public String[] getSymbols() {
 		return symbols;
 	}
 
 	/**
-	 * Executes the void setSymbols operation.
-	 * @param symbols the parameter value
+	 * Sets the allowed symbols for the enum.
+	 *
+	 * @param symbols the enum symbols
 	 */
 	public void setSymbols(String[] symbols) {
 		this.symbols = symbols;
 	}
 
 	/**
-	 * @param <T> Enum type
-	 * @param symbols class of the Enum
-	 * @return enum schema with this logical type
+	 * Gets the logical enum name.
+	 *
+	 * @return the enum name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * Sets the logical enum name.
+	 *
+	 * @param name the enum name
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * Gets the namespace associated with the enum schema.
+	 *
+	 * @return the namespace
+	 */
+	public String getNamespace() {
+		return namespace;
+	}
+
+	/**
+	 * Sets the namespace associated with the enum schema.
+	 *
+	 * @param namespace the namespace
+	 */
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
+	}
+
+	/**
+	 * Creates an Avro enum schema from a Java enum class.
+	 *
+	 * @param <T> the enum type
+	 * @param symbols the enum class
+	 * @return the enum schema with this logical type
 	 */
 	public static <T extends Enum<T>> Schema getSchema(Class<T> symbols) {
 		return create(symbols).createSchema();
 	}
 
 	/**
-	 * Constructor for this static instance
+	 * Constructs a logical enum type backed by an Avro enum schema.
+	 *
+	 * @param name the enum name
+	 * @param namespace the enum namespace
+	 * @param symbols the allowed enum symbols
+	 * @param doc the schema documentation text
 	 */
 	private AvroEnum(String name, String namespace, String[] symbols, String doc) {
 		super(NAME);
+		this.name = name;
+		this.namespace = namespace;
 		this.symbols = symbols;
-		this.schema = this.addToSchema(Schema.createEnum(name, doc, namespace, Arrays.asList(symbols)));
+		this.schema = this.addToSchema(Schema.createEnum(AvroNameEncoder.encodeName(name), doc, namespace, Arrays.asList(symbols)));
 	}
 
 	private AvroEnum() {
@@ -94,9 +144,11 @@ public class AvroEnum extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	/**
-	 * @param <T> Enum type
-	 * @param symbols class of the Enum
-	 * @return logical type of this Enum
+	 * Creates a logical enum type from a Java enum class.
+	 *
+	 * @param <T> the enum type
+	 * @param symbols the enum class
+	 * @return the logical enum type
 	 */
 	public static <T extends Enum<T>> AvroEnum create(Class<T> symbols) {
 		String[] names = new String[symbols.getEnumConstants().length];
@@ -138,9 +190,7 @@ public class AvroEnum extends AvroLogicalType implements IAvroPrimitive {
 	 * @return the resulting value
 	 */
 	public static AvroEnum create(Schema schema) {
-		AvroEnum element = new AvroEnum();
-		element.schema = element.addToSchema(schema);
-		element.symbols = schema.getEnumSymbols().toArray(new String[0]);
+		AvroEnum element = new AvroEnum(schema.getName(), schema.getNamespace(), schema.getEnumSymbols().toArray(new String[0]), schema.getDoc());
 		return element;
 	}
 
@@ -227,15 +277,12 @@ public class AvroEnum extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	/**
-	 * Factory to create this logical type
+	 * Factory to create this logical type.
 	 */
 	public static class Factory implements LogicalTypeFactory {
 
 		/**
-		 * Constructor to register with Avro
-		 */
-		/**
-		 * Executes the Factory operation.
+		 * Creates a factory that registers the logical enum type with Avro.
 		 */
 		public Factory() {
 		}

@@ -132,6 +132,14 @@ public class AvroTimestampMicros extends AvroLogicalType implements IAvroPrimiti
 		} else if (value instanceof Instant) {
 			Instant i = (Instant) value;
 			return i.getEpochSecond() * 1000000L + i.getNano()/1000;
+		} else if (value instanceof CharSequence) {
+			String s = value.toString();
+			try {
+				Instant d = Instant.parse(s);
+				return d.getEpochSecond() * 1000000L + d.getNano()/1000;
+			} catch (Exception e) {
+				throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a TimestampMicros, must be an iso timestamp string");
+			}
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a TimestampMicros");
 	}

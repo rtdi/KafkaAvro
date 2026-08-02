@@ -147,6 +147,14 @@ public class AvroTime extends AvroLogicalType implements IAvroPrimitive {
 		} else if (value instanceof Instant) {
 			Instant d = (Instant) value;
 			return (int) LocalDateTime.ofInstant(d, ZoneOffset.UTC).getLong(ChronoField.MILLI_OF_DAY);
+		} else if (value instanceof CharSequence) {
+			String s = value.toString();
+			try {
+				LocalTime t = LocalTime.parse(s);
+				return (int) t.getLong(ChronoField.MILLI_OF_DAY);
+			} catch (Exception e) {
+				throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Time");
+			}
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Time");
 	}

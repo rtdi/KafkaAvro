@@ -33,13 +33,13 @@ The native way doing that in Avro is either by setting the expected value manual
 
 | AvroType            | Supported Java types         |      |
 |---------------------|------------------------------|------|
-| AvroDate            | **LocalDate**, Integer, Number, LocalDateTime, Date, ZonedDateTime, Instant | Extracts the UTC epochDays |
-| AvroTime            | **LocalTime**, Integer, Number, LocalDateTime, Date, ZonedDateTime, Instant | Extracts the UTC MilliSecondsOfDay |
-| AvroTimeMicros      | **LocalTime**, Integer, Number, LocalDateTime, Date, ZonedDateTime, Instant | Extracts the UTC MicroSecondsOfDay |
-| AvroTimstamp        | **Instant**, Long, Date, ZonedDateTime         | Extracts the UTC epoch milliseconds |
-| AvroTimestampMicros | **Instant**, Long, Date, ZonedDateTime         | Extracts the UTC epoch microseconds |
-| AvroLocalTimstamp        | **LocalDateTime**, Long, Instant, Date, ZonedDateTime         | Extracts the UTC epoch milliseconds |
-| AvroLocalTimestampMicros | **LocalDateTime**, Long, Instant, Date, ZonedDateTime         | Extracts the UTC epoch microseconds |
+| AvroDate            | **LocalDate**, Integer, Number, LocalDateTime, Date, ZonedDateTime, Instant, String | Extracts the UTC epochDays |
+| AvroTime            | **LocalTime**, Integer, Number, LocalDateTime, Date, ZonedDateTime, Instant, String | Extracts the UTC MilliSecondsOfDay |
+| AvroTimeMicros      | **LocalTime**, Integer, Number, LocalDateTime, Date, ZonedDateTime, Instant, String | Extracts the UTC MicroSecondsOfDay |
+| AvroTimstamp        | **Instant**, Long, Date, ZonedDateTime, String         | Extracts the UTC epoch milliseconds |
+| AvroTimestampMicros | **Instant**, Long, Date, ZonedDateTime, String         | Extracts the UTC epoch microseconds |
+| AvroLocalTimstamp        | **LocalDateTime**, Long, Instant, Date, ZonedDateTime, String         | Extracts the UTC epoch milliseconds |
+| AvroLocalTimestampMicros | **LocalDateTime**, Long, Instant, Date, ZonedDateTime, String         | Extracts the UTC epoch microseconds |
 
 
 ### Spatial

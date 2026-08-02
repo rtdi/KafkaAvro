@@ -11,8 +11,8 @@
                 "type": "VARCHAR"
             },
             "__internal": true,
-            "__originalname": "__change_type",
-            "__technical": true
+            "__technical": true,
+            "__originalname": "__change_type"
         },
         {
             "name": "__truncate",
@@ -38,8 +38,8 @@
                 "type": "TIMESTAMP"
             },
             "__internal": true,
-            "__originalname": "__change_time",
-            "__technical": true
+            "__technical": true,
+            "__originalname": "__change_time"
         },
         {
             "name": "__source_rowid",
@@ -51,8 +51,8 @@
                 "type": "VARCHAR"
             },
             "__internal": true,
-            "__originalname": "__source_rowid",
-            "__technical": true
+            "__technical": true,
+            "__originalname": "__source_rowid"
         },
         {
             "name": "__source_transaction",
@@ -64,8 +64,8 @@
                 "type": "VARCHAR"
             },
             "__internal": true,
-            "__originalname": "__source_transaction",
-            "__technical": true
+            "__technical": true,
+            "__originalname": "__source_transaction"
         },
         {
             "name": "__source_system",
@@ -77,8 +77,8 @@
                 "type": "VARCHAR"
             },
             "__internal": true,
-            "__originalname": "__source_system",
-            "__technical": true
+            "__technical": true,
+            "__originalname": "__source_system"
         },
         {
             "name": "__extension",
@@ -118,6 +118,21 @@
             },
             "__internal": true,
             "__originalname": "__extension"
+        },
+        {
+            "name": "__extension_map",
+            "doc": "Add more values as a map beyond the official logical data model",
+            "nullable": true,
+            "datatype": {
+                "name": "MAP",
+                "datatype": {
+                    "name": "STRING",
+                    "type": "STRING"
+                },
+                "type": "MAP"
+            },
+            "__internal": true,
+            "__originalname": "__extension_map"
         },
         {
             "name": "__audit",
@@ -278,18 +293,24 @@
     "semantics": {
         "type": "FACT"
     },
-    "pks": [
-        "CUSTOMER_ID"
-    ],
-    "data_product_owner_email": "owner@company.com",
     "object_level_security": [
         "group1",
         "group2"
     ],
+    "pks": [
+        "CUSTOMER_ID"
+    ],
+    "data_product_owner_email": "owner@company.com",
     "retention_period": {
         "value": 6,
         "unit": "YEARS"
     },
+    "row_level_security": [
+        {
+            "dimension": "GBU",
+            "field": "GBU"
+        }
+    ],
     "fks": [
         {
             "name": "Customer to Address",
@@ -301,12 +322,6 @@
                 }
             ],
             "schemaFQN": "ADDRESS"
-        }
-    ],
-    "row_level_security": [
-        {
-            "dimension": "GBU",
-            "field": "GBU"
         }
     ]
 }

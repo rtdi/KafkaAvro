@@ -20,4 +20,8 @@ public class AvroDataTypeException extends AvroRuntimeException {
 		super(message);
 	}
 
+	public AvroDataTypeException(String message, Exception e) {
+		super(message, e);
+	}
+
 }

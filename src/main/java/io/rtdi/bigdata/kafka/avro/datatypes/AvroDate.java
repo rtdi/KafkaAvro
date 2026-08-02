@@ -143,6 +143,14 @@ public class AvroDate extends AvroLogicalType implements IAvroPrimitive {
 		} else if (value instanceof Instant) {
 			Instant d = (Instant) value;
 			return (int) LocalDateTime.ofEpochSecond(d.getEpochSecond(), 0, ZoneOffset.UTC).getLong(ChronoField.EPOCH_DAY);
+		} else if (value instanceof CharSequence) {
+			String s = value.toString();
+			try {
+				LocalDate d = LocalDate.parse(s);
+				return (int) d.toEpochDay();
+			} catch (Exception e) {
+				throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Date");
+			}
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Date");
 	}

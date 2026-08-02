@@ -10,8 +10,8 @@
                 "length": 1,
                 "type": "VARCHAR"
             },
-            "__technical": true,
             "__originalname": "__change_type",
+            "__technical": true,
             "__internal": true
         },
         {
@@ -37,8 +37,8 @@
                 "name": "TIMESTAMP",
                 "type": "TIMESTAMP"
             },
-            "__technical": true,
             "__originalname": "__change_time",
+            "__technical": true,
             "__internal": true
         },
         {
@@ -50,8 +50,8 @@
                 "length": 30,
                 "type": "VARCHAR"
             },
-            "__technical": true,
             "__originalname": "__source_rowid",
+            "__technical": true,
             "__internal": true
         },
         {
@@ -63,8 +63,8 @@
                 "length": 30,
                 "type": "VARCHAR"
             },
-            "__technical": true,
             "__originalname": "__source_transaction",
+            "__technical": true,
             "__internal": true
         },
         {
@@ -76,8 +76,8 @@
                 "length": 30,
                 "type": "VARCHAR"
             },
-            "__technical": true,
             "__originalname": "__source_system",
+            "__technical": true,
             "__internal": true
         },
         {
@@ -117,6 +117,21 @@
                 "type": "ARRAY"
             },
             "__originalname": "__extension",
+            "__internal": true
+        },
+        {
+            "name": "__extension_map",
+            "doc": "Add more values as a map beyond the official logical data model",
+            "nullable": true,
+            "datatype": {
+                "name": "MAP",
+                "datatype": {
+                    "name": "STRING",
+                    "type": "STRING"
+                },
+                "type": "MAP"
+            },
+            "__originalname": "__extension_map",
             "__internal": true
         },
         {

@@ -31,24 +31,18 @@ public class ConversionOptionsTest {
 	private static LocalDate nowlocaldate = LocalDate.ofInstant(nowinstant, ZoneId.of("UTC"));
 	private static LocalTime nowlocaltime = LocalTime.ofInstant(nowinstant, ZoneId.of("UTC"));
 
-	/**
-	 * @throws Exception something went wrong
-	 */
 	@BeforeAll
 	/**
 	 * Executes the void setUp operation and returns the resulting value.
-	 * @return the resulting value
+	 * @throws Exception something went wrong
 	 */
 	public static void setUp() throws Exception {
 	}
 
-	/**
-	 * @throws Exception something went wrong
-	 */
 	@AfterAll
 	/**
 	 * Executes the void tearDown operation and returns the resulting value.
-	 * @return the resulting value
+	 * @throws Exception something went wrong
 	 */
 	public static void tearDown() throws Exception {
 	}

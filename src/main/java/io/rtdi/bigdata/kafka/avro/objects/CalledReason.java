@@ -4,9 +4,10 @@ public enum CalledReason {
     MANUAL, DATAFLOW, COMMIT, SCHEDULE;
 
     /**
-     * Executes the CalledReason fromString operation and returns the resulting value.
-     * @param s the parameter value
-     * @return the resulting value
+     * Parses a string into the matching enum value.
+     *
+     * @param s the string representation of the enum value
+     * @return the matching {@link CalledReason}, or {@code null} when the input is {@code null}
      */
     public static CalledReason fromString(String s) {
         if (s == null) return null;

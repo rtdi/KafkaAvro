@@ -131,6 +131,14 @@ public class AvroTimestamp extends AvroLogicalType implements IAvroPrimitive {
 			return convertToInternal(v.toInstant());
 		} else if (value instanceof Instant) {
 			return ((Instant) value).toEpochMilli();
+		} else if (value instanceof CharSequence) {
+			String s = value.toString();
+			try {
+				Instant d = Instant.parse(s);
+				return d.toEpochMilli();
+			} catch (Exception e) {
+				throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Timestamp, must be an iso timestamp string");
+			}
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a Timestamp");
 	}

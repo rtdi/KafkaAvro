@@ -106,6 +106,20 @@
     "__originalname" : "__extension",
     "__internal" : true
   }, {
+    "name" : "__extension_map",
+    "type" : [ "null", {
+      "type" : "map",
+      "values" : {
+        "type" : "string",
+        "logicalType" : "STRING"
+      },
+      "logicalType" : "MAP"
+    } ],
+    "doc" : "Add more values as a map beyond the official logical data model",
+    "default" : null,
+    "__originalname" : "__extension_map",
+    "__internal" : true
+  }, {
     "name" : "__audit",
     "type" : [ "null", {
       "type" : "record",

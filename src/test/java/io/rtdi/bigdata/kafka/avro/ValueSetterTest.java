@@ -123,31 +123,22 @@ public class ValueSetterTest {
 	private static LocalDate nowlocaldate = LocalDate.ofInstant(nowinstant, ZoneId.of("UTC"));
 	private static LocalTime nowlocaltime = LocalTime.ofInstant(nowinstant, ZoneId.of("UTC"));
 
-	/**
-	 * @throws Exception if something goes wrong
-	 */
 	@BeforeAll
 	/**
 	 * Executes the void setUp operation and returns the resulting value.
-	 * @return the resulting value
+	 * @throws Exception if something goes wrong
 	 */
 	public static void setUp() throws Exception {
 	}
 
-	/**
-	 * @throws Exception if something goes wrong
-	 */
 	@AfterAll
 	/**
 	 * Executes the void tearDown operation and returns the resulting value.
-	 * @return the resulting value
+	 * @throws Exception if something goes wrong
 	 */
 	public static void tearDown() throws Exception {
 	}
 
-	/**
-	 * Tests
-	 */
 	@Test
 	/**
 	 * Executes the void test operation.

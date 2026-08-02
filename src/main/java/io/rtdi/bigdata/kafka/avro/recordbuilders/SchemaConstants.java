@@ -26,10 +26,6 @@ public class SchemaConstants {
 	 */
 	public static final String SCHEMA_COLUMN_SOURCE_SYSTEM = "__source_system";
 	/**
-	 * The extension placeholder.
-	 */
-	public static final String SCHEMA_COLUMN_EXTENSION = "__extension";
-	/**
 	 * Truncate information in case the change type is truncate.
 	 */
 	public static final String SCHEMA_COLUMN_TRUNCATE = "__truncate";
@@ -37,4 +33,28 @@ public class SchemaConstants {
 	 * A place for adding key/value pairs to a message.
 	 */
 	public static final String SCHEMA_COLUMN_EXTENSION_MAP = "__extension_map";
+    /**
+     * Audit column name
+     */
+    public static final String AUDIT = "__audit";
+    /**
+     * Transform result quality column name
+     */
+    public static final String AUDIT_TRANSFORMRESULT_QUALITY = "__transformresult_quality";
+    /**
+     * Transform result text column name
+     */
+    public static final String AUDITTRANSFORMRESULTTEXT = "__transformresult_text";
+    /**
+     * Transformation name column name
+     */
+    public static final String AUDITTRANSFORMATIONNAME = "__transformationname";
+    /**
+     * Audit details column name
+     */
+    public static final String AUDITDETAILS = "__details";
+    /**
+     * Transform result column name
+     */
+    public static final String TRANSFORMRESULT = "__transformresult";
 }

@@ -147,6 +147,14 @@ public class AvroTimeMicros extends AvroLogicalType implements IAvroPrimitive {
 		} else if (value instanceof Instant) {
 			Instant d = (Instant) value;
 			return (long) LocalDateTime.ofInstant(d, ZoneOffset.UTC).getLong(ChronoField.MICRO_OF_DAY);
+		} else if (value instanceof CharSequence) {
+			String s = value.toString();
+			try {
+				LocalTime t = LocalTime.parse(s);
+				return t.getLong(ChronoField.MICRO_OF_DAY);
+			} catch (Exception e) {
+				throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a TimeMicros, must be a string like 10:15:30");
+			}
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a TimeMicros");
 	}

@@ -9,26 +9,29 @@ public class TableSemantics {
 	public TableType type;
 
 	/**
-	 * Creates a new instance of this class.
+	 * Creates an empty table semantics instance.
 	 */
 	public TableSemantics() {
 		super();
 	}
 
 	/**
-	 * Creates a new instance of this class.
-	 * @param type the parameter value
+	 * Creates table semantics with the given table type.
+	 *
+	 * @param type the table classification
 	 */
 	public TableSemantics(TableType type) {
 		super();
 		this.type = type;
 	}
 
-	@Override
 	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
+	 * Compares this table semantics instance to another object for equality.
+	 *
+	 * @param o the object to compare against
+	 * @return {@code true} when the two instances are equivalent
 	 */
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -43,24 +46,29 @@ public class TableSemantics {
 		return true;
 	}
 
-	@Override
 	/**
-	 * Executes the int hashCode operation.
+	 * Returns a stable hash code for the table semantics instance.
+	 *
+	 * @return the hash code for this instance
 	 */
+	@Override
 	public int hashCode() {
 		return 1;
 	}
 
 	/**
-	 * Executes the TableType getType operation.
+	 * Gets the table type classification.
+	 *
+	 * @return the table type
 	 */
 	public TableType getType() {
 		return type;
 	}
 
 	/**
-	 * Executes the void setType operation.
-	 * @param type the parameter value
+	 * Sets the table type classification.
+	 *
+	 * @param type the table type
 	 */
 	public void setType(TableType type) {
 		this.type = type;

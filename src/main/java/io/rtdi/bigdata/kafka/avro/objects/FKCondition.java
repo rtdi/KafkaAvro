@@ -15,24 +15,16 @@ public class FKCondition {
 	private List<JoinCondition> conditions;
 
 	/**
-	 * Default constructor
-	 */
-	/**
-	 * Creates a new instance of this class.
+	 * Creates an empty foreign-key condition.
 	 */
 	public FKCondition() {
 	}
 
 	/**
-	 * A FK relationship has a name and the schema it points to.
+	 * Creates a foreign-key condition with a relationship name and target schema.
 	 *
-	 * @param name arbitrary name of the relationship
-	 * @param schema_fqn fully qualified name of the schema this FK points to
-	 */
-	/**
-	 * Creates a new instance of this class.
-	 * @param name the parameter value
-	 * @param schema_fqn the parameter value
+	 * @param name the arbitrary name of the relationship
+	 * @param schema_fqn the fully qualified name of the target schema
 	 */
 	public FKCondition(String name, String schema_fqn) {
 		this();
@@ -42,21 +34,13 @@ public class FKCondition {
 	}
 
 	/**
-	 * Short hand for creating a FK relationship with one condition.
+	 * Creates a foreign-key condition with a single join condition.
 	 *
-	 * @param name arbitrary name of the relationship
-	 * @param schema_fqn fully qualified name of the schema this FK points to
+	 * @param name the arbitrary name of the relationship
+	 * @param schema_fqn the fully qualified name of the target schema
 	 * @param left the left side of the condition
 	 * @param right the right side of the condition
-	 * @param condition the condition operator, e.g. "="
-	 */
-	/**
-	 * Creates a new instance of this class.
-	 * @param name the parameter value
-	 * @param schema_fqn the parameter value
-	 * @param left the parameter value
-	 * @param right the parameter value
-	 * @param condition the parameter value
+	 * @param condition the condition operator, for example "="
 	 */
 	public FKCondition(String name, String schema_fqn, String left, String right, String condition) {
 		this(name, schema_fqn);
@@ -64,13 +48,9 @@ public class FKCondition {
 	}
 
 	/**
-	 * Add a created condition to the list of conditions.
+	 * Adds a join condition to the foreign-key relationship.
 	 *
-	 * @param condition the condition to add
-	 */
-	/**
-	 * Executes the void addCondition operation.
-	 * @param condition the parameter value
+	 * @param condition the join condition to add
 	 */
 	public void addCondition(JoinCondition condition) {
 		if (conditions == null) {
@@ -80,14 +60,10 @@ public class FKCondition {
 	}
 
 	/**
-	 * Add a created condition to the list of conditions.
+	 * Adds a join condition and returns this instance for chaining.
 	 *
-	 * @param condition the condition to add
-	 * @return this for chaining
-	 */
-	/**
-	 * Executes the FKCondition withCondition operation.
-	 * @param condition the parameter value
+	 * @param condition the join condition to add
+	 * @return this foreign-key condition instance
 	 */
 	public FKCondition withCondition(JoinCondition condition) {
 		addCondition(condition);
@@ -95,35 +71,23 @@ public class FKCondition {
 	}
 
 	/**
-	 * Shortcut for creating a join condition and adding it to the list of conditions.
+	 * Creates a join condition from the provided expressions and adds it to the relationship.
 	 *
 	 * @param left the left side of the condition
 	 * @param right the right side of the condition
-	 * @param condition the condition operator, e.g. "="
-	 */
-	/**
-	 * Executes the void addCondition operation.
-	 * @param left the parameter value
-	 * @param right the parameter value
-	 * @param condition the parameter value
+	 * @param condition the condition operator, for example "="
 	 */
 	public void addCondition(String left, String right, String condition) {
 		addCondition(new JoinCondition(left, right, condition));
 	}
 
 	/**
-	 * Shortcut for creating a join condition and adding it to the list of conditions.
+	 * Creates a join condition from the provided expressions, adds it to the relationship, and returns this instance.
 	 *
-	 * @param left left side of the condition
-	 * @param right right side of the condition
-	 * @param condition the condition operator, e.g. "="
-	 * @return this for chaining
-	 */
-	/**
-	 * Executes the FKCondition withCondition operation.
-	 * @param left the parameter value
-	 * @param right the parameter value
-	 * @param condition the parameter value
+	 * @param left the left side of the condition
+	 * @param right the right side of the condition
+	 * @param condition the condition operator, for example "="
+	 * @return this foreign-key condition instance
 	 */
 	public FKCondition withCondition(String left, String right, String condition) {
 		addCondition(left, right, condition);
@@ -131,53 +95,45 @@ public class FKCondition {
 	}
 
 	/**
-	 * Set the list of conditions, overwriting any existing ones.
+	 * Replaces the current list of join conditions.
 	 *
-	 * @param conditions the list of conditions to set
-	 */
-	/**
-	 * Executes the void setConditions operation.
-	 * @param conditions the parameter value
+	 * @param conditions the new list of conditions
 	 */
 	public void setConditions(List<JoinCondition> conditions) {
 		this.conditions = conditions;
 	}
 
 	/**
-	 * @return the name of the fk condition
-	 */
-	/**
-	 * Executes the String getName operation.
+	 * Gets the name of the foreign-key condition.
+	 *
+	 * @return the foreign-key condition name
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * @return the fully qualified name of the schema this FK points to
-	 */
-	/**
-	 * Executes the String getSchemaFQN operation.
+	 * Gets the fully qualified name of the target schema.
+	 *
+	 * @return the target schema name
 	 */
 	public String getSchemaFQN() {
 		return schema_fqn;
 	}
 
 	/**
-	 * Set the fully qualified name of the schema this FK points to
+	 * Sets the fully qualified name of the target schema.
 	 *
-	 * @param schema_fqn the fully qualified name of the schema this FK points to
-	 */
-	/**
-	 * Executes the void setSchemaFQN operation.
-	 * @param schema_fqn the parameter value
+	 * @param schema_fqn the target schema name
 	 */
 	public void setSchemaFQN(String schema_fqn) {
 		this.schema_fqn = schema_fqn;
 	}
 
 	/**
-	 * @return all conditions that make up this FK relationship
+	 * Gets all join conditions that make up the foreign-key relationship.
+	 *
+	 * @return the join conditions
 	 */
 	public List<JoinCondition> getConditions() {
 		return conditions;
@@ -185,22 +141,20 @@ public class FKCondition {
 
 
 	/**
-	 * Set the name of this fk condition
+	 * Sets the name of this foreign-key condition.
 	 *
-	 * @param name the name of this fk condition
-	 */
-	/**
-	 * Executes the void setName operation.
-	 * @param name the parameter value
+	 * @param name the foreign-key condition name
 	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	@Override
 	/**
-	 * Executes the String toString operation.
+	 * Returns a readable description of the foreign-key condition.
+	 *
+	 * @return the foreign-key condition text
 	 */
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("FKCondition: ").append(name).append(" -> ").append(schema_fqn).append(" {");
@@ -219,11 +173,13 @@ public class FKCondition {
 		return sb.toString();
 	}
 
-	@Override
 	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
+	 * Compares this foreign-key condition to another object for equality.
+	 *
+	 * @param o the object to compare against
+	 * @return {@code true} when the two objects are equivalent
 	 */
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -244,10 +200,12 @@ public class FKCondition {
 		return true;
 	}
 
-	@Override
 	/**
-	 * Executes the int hashCode operation.
+	 * Returns a stable hash code for this foreign-key condition.
+	 *
+	 * @return the hash code for this instance
 	 */
+	@Override
 	public int hashCode() {
 		if (this.schema_fqn != null) {
 			return this.schema_fqn.hashCode();

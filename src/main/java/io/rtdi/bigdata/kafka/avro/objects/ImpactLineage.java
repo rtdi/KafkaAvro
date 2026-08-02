@@ -70,15 +70,16 @@ public class ImpactLineage {
     private String dataflowName;
 
     /**
-     * Creates a new instance of this class.
+     * Creates an empty impact-lineage instance.
      */
     public ImpactLineage() {
     }
 
     /**
-     * Creates a new instance of this class.
-     * @param producerName the parameter value
-     * @param dataflowName the parameter value
+     * Creates an impact-lineage entry for a producer and dataflow.
+     *
+     * @param producerName the producer process name
+     * @param dataflowName the dataflow name
      */
     public ImpactLineage(String producerName, String dataflowName) {
         this.producerName = producerName;
@@ -90,57 +91,65 @@ public class ImpactLineage {
     }
 
     /**
-     * Executes the String getProducerName operation.
+     * Gets the producer name associated with the lineage entry.
+     *
+     * @return the producer name
      */
     public String getProducerName() {
         return producerName;
     }
 
     /**
-     * Executes the void setProducerName operation.
-     * @param producerName the parameter value
+     * Sets the producer name associated with the lineage entry.
+     *
+     * @param producerName the producer name
      */
     public void setProducerName(String producerName) {
         this.producerName = producerName;
     }
 
     /**
-     * Executes the String getDataflowName operation.
+     * Gets the dataflow name associated with the lineage entry.
+     *
+     * @return the dataflow name
      */
     public String getDataflowName() {
         return dataflowName;
     }
 
     /**
-     * Executes the void setDataflowName operation.
-     * @param dataflowName the parameter value
+     * Sets the dataflow name associated with the lineage entry.
+     *
+     * @param dataflowName the dataflow name
      */
     public void setDataflowName(String dataflowName) {
         this.dataflowName = dataflowName;
     }
 
     /**
-     * Executes the void setImpact_lineage_value_schema operation and returns the resulting value.
-     * @param impact_lineage_value_schema the parameter value
-     * @return the resulting value
+     * Replaces the schema used to describe impact-lineage records.
+     *
+     * @param impact_lineage_value_schema the schema object to use
      */
     public static void setImpact_lineage_value_schema(ValueSchema impact_lineage_value_schema) {
         ImpactLineage.impact_lineage_value_schema = impact_lineage_value_schema;
     }
 
     /**
-     * Executes the void setTargetTables operation.
-     * @param String the parameter value
-     * @param targetTables the parameter value
+     * Replaces the target-table mapping collection.
+     *
+     * @param targetTables the target-table map
      */
     public void setTargetTables(Map<String, TargetTable> targetTables) {
         this.targetTables = targetTables;
     }
 
     /**
-     * Executes the TargetTable addTargetTable operation.
-     * @param targetTableName the parameter value
-     * @param targetConnection the parameter value
+     * Adds a target table to the lineage model.
+     *
+     * @param targetTableName the fully qualified target table name
+     * @param targetConnection the target connection name
+     * @return the created target-table mapping
      */
     public TargetTable addTargetTable(String targetTableName, String targetConnection) {
         TargetTable targetTable = new TargetTable(targetTableName, targetConnection);
@@ -160,17 +169,18 @@ public class ImpactLineage {
         private String key = UUID.randomUUID().toString();
 
         /**
-         * Executes the SourceTable operation.
+         * Creates an empty source-table mapping.
          */
         public SourceTable() {
         }
 
         /**
-         * Executes the SourceTable operation.
-         * @param sourceTableName the parameter value
-         * @param sourceConnection the parameter value
-         * @param mappingFormula the parameter value
-         * @param mappingDescription the parameter value
+         * Creates a source-table mapping with its connection and mapping metadata.
+         *
+         * @param sourceTableName the fully qualified source table name
+         * @param sourceConnection the connection metadata for the source system
+         * @param mappingFormula the mapping formula used for the source table
+         * @param mappingDescription the descriptive text for the mapping
          */
         public SourceTable(String sourceTableName, String sourceConnection, String mappingFormula, String mappingDescription) {
             this.sourceTableName = sourceTableName;
@@ -180,85 +190,103 @@ public class ImpactLineage {
         }
 
         /**
-         * Executes the String getSourceTableName operation.
+         * Gets the fully qualified source table name.
+         *
+         * @return the source table name
          */
         public String getSourceTableName() {
             return sourceTableName;
         }
 
         /**
-         * Executes the void setSourceTableName operation.
-         * @param sourceTableName the parameter value
+         * Sets the fully qualified source table name.
+         *
+         * @param sourceTableName the source table name
          */
         public void setSourceTableName(String sourceTableName) {
             this.sourceTableName = sourceTableName;
         }
 
         /**
-         * Executes the String getSourceConnection operation.
+         * Gets the connection metadata for the source system.
+         *
+         * @return the source connection information
          */
         public String getSourceConnection() {
             return sourceConnection;
         }
 
         /**
-         * Executes the void setSourceConnection operation.
-         * @param sourceConnection the parameter value
+         * Sets the connection metadata for the source system.
+         *
+         * @param sourceConnection the source connection information
          */
         public void setSourceConnection(String sourceConnection) {
             this.sourceConnection = sourceConnection;
         }
 
         /**
-         * Executes the String getMappingFormula operation.
+         * Gets the mapping formula for the source table.
+         *
+         * @return the mapping formula
          */
         public String getMappingFormula() {
             return mappingFormula;
         }
 
         /**
-         * Executes the void setMappingFormula operation.
-         * @param mappingFormula the parameter value
+         * Sets the mapping formula for the source table.
+         *
+         * @param mappingFormula the mapping formula
          */
         public void setMappingFormula(String mappingFormula) {
             this.mappingFormula = mappingFormula;
         }
 
         /**
-         * Executes the String getMappingDescription operation.
+         * Gets the descriptive text for the source-table mapping.
+         *
+         * @return the mapping description
          */
         public String getMappingDescription() {
             return mappingDescription;
         }
 
         /**
-         * Executes the void setMappingDescription operation.
-         * @param mappingDescription the parameter value
+         * Sets the descriptive text for the source-table mapping.
+         *
+         * @param mappingDescription the mapping description
          */
         public void setMappingDescription(String mappingDescription) {
             this.mappingDescription = mappingDescription;
         }
 
         /**
-         * Executes the String getKey operation.
+         * Gets the unique key identifying the source-table mapping.
+         *
+         * @return the mapping key
          */
         public String getKey() {
             return key;
         }
 
-        @Override
         /**
-         * Executes the int hashCode operation.
+         * Returns a hash code based on the source table name.
+         *
+         * @return the hash code for this mapping
          */
+        @Override
         public int hashCode() {
             return Objects.hash(sourceTableName);
         }
 
-        @Override
         /**
-         * Executes the boolean equals operation.
-         * @param obj the parameter value
+         * Compares this source-table mapping to another object for equality.
+         *
+         * @param obj the object to compare against
+         * @return {@code true} when the two mappings are equivalent
          */
+        @Override
         public boolean equals(Object obj) {
             if (this == obj) return true;
             if (obj == null || getClass() != obj.getClass()) return false;
@@ -270,8 +298,9 @@ public class ImpactLineage {
         }
 
         /**
-         * Executes the void setKey operation.
-         * @param key the parameter value
+         * Sets the unique key for the source-table mapping.
+         *
+         * @param key the mapping key
          */
         public void setKey(String key) {
             this.key = key;
@@ -282,47 +311,55 @@ public class ImpactLineage {
         private String sourceColumnName;
 
         /**
-         * Executes the ColumnSource operation.
+         * Creates an empty source-column mapping.
          */
         public ColumnSource() {
         }
 
         /**
-         * Executes the ColumnSource operation.
-         * @param sourceColumnName the parameter value
+         * Creates a source-column mapping with the source column name.
+         *
+         * @param sourceColumnName the source column name
          */
         public ColumnSource(String sourceColumnName) {
             this.sourceColumnName = sourceColumnName;
         }
 
         /**
-         * Executes the String getSourceColumnName operation.
+         * Gets the source column name used in the mapping.
+         *
+         * @return the source column name
          */
         public String getSourceColumnName() {
             return sourceColumnName;
         }
 
         /**
-         * Executes the void setSourceColumnName operation.
-         * @param sourceColumnName the parameter value
+         * Sets the source column name used in the mapping.
+         *
+         * @param sourceColumnName the source column name
          */
         public void setSourceColumnName(String sourceColumnName) {
             this.sourceColumnName = sourceColumnName;
         }
 
-        @Override
         /**
-         * Executes the int hashCode operation.
+         * Returns a hash code based on the source column name.
+         *
+         * @return the hash code for this mapping
          */
+        @Override
         public int hashCode() {
             return Objects.hash(sourceColumnName);
         }
 
-        @Override
         /**
-         * Executes the boolean equals operation.
-         * @param obj the parameter value
+         * Compares this source-column mapping to another object for equality.
+         *
+         * @param obj the object to compare against
+         * @return {@code true} when the two mappings are equivalent
          */
+        @Override
         public boolean equals(Object obj) {
             if (this == obj) return true;
             if (obj == null || getClass() != obj.getClass()) return false;
@@ -339,16 +376,17 @@ public class ImpactLineage {
         private Map<String, List<ColumnSource>> columnSources = new HashMap<>();
 
         /**
-         * Executes the TargetTableColumn operation.
+         * Creates an empty target-table column mapping.
          */
         public TargetTableColumn() {
         }
 
         /**
-         * Executes the TargetTableColumn operation.
-         * @param columnName the parameter value
-         * @param mappingFormula the parameter value
-         * @param mappingDescription the parameter value
+         * Creates a target-table column mapping with the column name and mapping metadata.
+         *
+         * @param columnName the target column name
+         * @param mappingFormula the mapping formula for the column
+         * @param mappingDescription the descriptive text for the mapping
          */
         public TargetTableColumn(String columnName, String mappingFormula, String mappingDescription) {
             this.columnName = columnName;
@@ -357,45 +395,54 @@ public class ImpactLineage {
         }
 
         /**
-         * Executes the String getColumnName operation.
+         * Gets the target column name.
+         *
+         * @return the target column name
          */
         public String getColumnName() {
             return columnName;
         }
 
         /**
-         * Executes the void setColumnName operation.
-         * @param columnName the parameter value
+         * Sets the target column name.
+         *
+         * @param columnName the target column name
          */
         public void setColumnName(String columnName) {
             this.columnName = columnName;
         }
 
         /**
-         * Executes the String getMappingFormula operation.
+         * Gets the mapping formula for the target column.
+         *
+         * @return the mapping formula
          */
         public String getMappingFormula() {
             return mappingFormula;
         }
 
         /**
-         * Executes the void setMappingFormula operation.
-         * @param mappingFormula the parameter value
+         * Sets the mapping formula for the target column.
+         *
+         * @param mappingFormula the mapping formula
          */
         public void setMappingFormula(String mappingFormula) {
             this.mappingFormula = mappingFormula;
         }
 
         /**
-         * Executes the String getMappingDescription operation.
+         * Gets the descriptive text for the target column mapping.
+         *
+         * @return the mapping description
          */
         public String getMappingDescription() {
             return mappingDescription;
         }
 
         /**
-         * Executes the void setMappingDescription operation.
-         * @param mappingDescription the parameter value
+         * Sets the descriptive text for the target column mapping.
+         *
+         * @param mappingDescription the mapping description
          */
         public void setMappingDescription(String mappingDescription) {
             this.mappingDescription = mappingDescription;
@@ -406,9 +453,10 @@ public class ImpactLineage {
         }
 
         /**
-         * Executes the void addColumnSource operation.
-         * @param sourceTable the parameter value
-         * @param sourceColumnName the parameter value
+         * Adds a source-column dependency to the target column mapping.
+         *
+         * @param sourceTable the source table that contributes the column
+         * @param sourceColumnName the source column name
          */
         public void addColumnSource(SourceTable sourceTable, String sourceColumnName) {
             List<ColumnSource> list = columnSources.get(sourceTable.getKey());
@@ -419,19 +467,23 @@ public class ImpactLineage {
             list.add(new ColumnSource(sourceColumnName));
         }
 
-        @Override
         /**
-         * Executes the int hashCode operation.
+         * Returns a hash code based on the target column name.
+         *
+         * @return the hash code for this mapping
          */
+        @Override
         public int hashCode() {
             return Objects.hash(columnName);
         }
 
-        @Override
         /**
-         * Executes the boolean equals operation.
-         * @param obj the parameter value
+         * Compares this target-column mapping to another object for equality.
+         *
+         * @param obj the object to compare against
+         * @return {@code true} when the two mappings are equivalent
          */
+        @Override
         public boolean equals(Object obj) {
             if (this == obj) return true;
             if (obj == null || getClass() != obj.getClass()) return false;
@@ -443,9 +495,9 @@ public class ImpactLineage {
         }
 
         /**
-         * Executes the void setColumnSources operation.
-         * @param String the parameter value
-         * @param columnSources the parameter value
+         * Replaces the source-column mapping collection for the target column.
+         *
+         * @param columnSources the source-column map
          */
         public void setColumnSources(Map<String, List<ColumnSource>> columnSources) {
             this.columnSources = columnSources;
@@ -460,15 +512,16 @@ public class ImpactLineage {
         private Map<String, TargetTableColumn> targetColumns = new HashMap<>();
 
         /**
-         * Executes the TargetTable operation.
+         * Creates an empty target-table mapping.
          */
         public TargetTable() {
         }
 
         /**
-         * Executes the TargetTable operation.
-         * @param targetTableName the parameter value
-         * @param targetConnection the parameter value
+         * Creates a target-table mapping with a table name and connection.
+         *
+         * @param targetTableName the fully qualified target table name
+         * @param targetConnection the target connection information
          */
         public TargetTable(String targetTableName, String targetConnection) {
             this.targetTableName = targetTableName;
@@ -480,30 +533,36 @@ public class ImpactLineage {
         }
 
         /**
-         * Executes the String getTargetTableName operation.
+         * Gets the fully qualified target table name.
+         *
+         * @return the target table name
          */
         public String getTargetTableName() {
             return targetTableName;
         }
 
         /**
-         * Executes the void setTargetTableName operation.
-         * @param targetTableName the parameter value
+         * Sets the fully qualified target table name.
+         *
+         * @param targetTableName the target table name
          */
         public void setTargetTableName(String targetTableName) {
             this.targetTableName = targetTableName;
         }
 
         /**
-         * Executes the String getTargetConnection operation.
+         * Gets the target connection information.
+         *
+         * @return the target connection information
          */
         public String getTargetConnection() {
             return targetConnection;
         }
 
         /**
-         * Executes the void setTargetConnection operation.
-         * @param targetConnection the parameter value
+         * Sets the target connection information.
+         *
+         * @param targetConnection the target connection information
          */
         public void setTargetConnection(String targetConnection) {
             this.targetConnection = targetConnection;
@@ -514,33 +573,37 @@ public class ImpactLineage {
         }
 
         /**
-         * Executes the String getKey operation.
+         * Gets the unique key used to identify the target table mapping.
+         *
+         * @return the target table key
          */
         public String getKey() {
             return targetTableName + "_" + targetConnection;
         }
 
         /**
-         * Executes the void setSourceTables operation.
-         * @param String the parameter value
-         * @param sourceTables the parameter value
+         * Replaces the source-table mapping collection.
+         *
+         * @param sourceTables the source-table map
          */
         public void setSourceTables(Map<String, SourceTable> sourceTables) {
             this.sourceTables = sourceTables;
         }
 
         /**
-         * Executes the void setTargetColumns operation.
-         * @param String the parameter value
-         * @param targetColumns the parameter value
+         * Replaces the target-column mapping collection.
+         *
+         * @param targetColumns the target-column map
          */
         public void setTargetColumns(Map<String, TargetTableColumn> targetColumns) {
             this.targetColumns = targetColumns;
         }
 
         /**
-         * Executes the SourceTable addSourceTable operation.
-         * @param table the parameter value
+         * Adds a source-table mapping to the target table.
+         *
+         * @param table the source table mapping
+         * @return the added source-table mapping
          */
         public SourceTable addSourceTable(SourceTable table) {
             if (!sourceTables.containsKey(table.getKey())) {
@@ -552,11 +615,12 @@ public class ImpactLineage {
         }
 
         /**
-         * Executes the void addOneToOneMapping operation.
-         * @param source the parameter value
-         * @param sourceColumnName the parameter value
-         * @param targetColumnName the parameter value
-         * @param mappingDescription the parameter value
+         * Adds a one-to-one source-to-target column mapping.
+         *
+         * @param source the source table mapping
+         * @param sourceColumnName the source column name
+         * @param targetColumnName the target column name
+         * @param mappingDescription the descriptive text for the mapping
          */
         public void addOneToOneMapping(SourceTable source, String sourceColumnName, String targetColumnName, String mappingDescription) {
             TargetTableColumn column = new TargetTableColumn(targetColumnName,
@@ -567,12 +631,13 @@ public class ImpactLineage {
         }
 
         /**
-         * Executes the void addSingleSourceColumnMapping operation.
-         * @param source the parameter value
-         * @param sourceColumnName the parameter value
-         * @param targetColumnName the parameter value
-         * @param formula the parameter value
-         * @param mappingDescription the parameter value
+         * Adds a mapping that derives a target column from a single source column.
+         *
+         * @param source the source table mapping
+         * @param sourceColumnName the source column name
+         * @param targetColumnName the target column name
+         * @param formula the mapping formula
+         * @param mappingDescription the descriptive text for the mapping
          */
         public void addSingleSourceColumnMapping(SourceTable source, String sourceColumnName, String targetColumnName, String formula, String mappingDescription) {
             TargetTableColumn column = new TargetTableColumn(targetColumnName, formula, mappingDescription);
@@ -581,29 +646,34 @@ public class ImpactLineage {
         }
 
         /**
-         * Executes the void addConstantMapping operation.
-         * @param targetColumnName the parameter value
-         * @param formula the parameter value
-         * @param mappingDescription the parameter value
+         * Adds a constant-valued mapping for a target column.
+         *
+         * @param targetColumnName the target column name
+         * @param formula the constant expression or formula
+         * @param mappingDescription the descriptive text for the mapping
          */
         public void addConstantMapping(String targetColumnName, String formula, String mappingDescription) {
             TargetTableColumn column = new TargetTableColumn(targetColumnName, formula, mappingDescription);
             targetColumns.put(targetColumnName, column);
         }
 
-        @Override
         /**
-         * Executes the int hashCode operation.
+         * Returns a hash code based on the target table name.
+         *
+         * @return the hash code for this target-table mapping
          */
+        @Override
         public int hashCode() {
             return Objects.hash(targetTableName);
         }
 
-        @Override
         /**
-         * Executes the boolean equals operation.
-         * @param obj the parameter value
+         * Compares this target-table mapping to another object for equality.
+         *
+         * @param obj the object to compare against
+         * @return {@code true} when the two mappings are equivalent
          */
+        @Override
         public boolean equals(Object obj) {
             if (this == obj) return true;
             if (obj == null || getClass() != obj.getClass()) return false;

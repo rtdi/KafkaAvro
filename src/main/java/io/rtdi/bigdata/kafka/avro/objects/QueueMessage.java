@@ -11,85 +11,111 @@ public class QueueMessage {
     private String callerReason;
 
     /**
-     * Creates a new instance of this class.
+     * Creates an empty queue message instance.
      */
     public QueueMessage() {}
 
     /**
-     * Executes the String getId operation.
+     * Gets the message identifier.
+     *
+     * @return the message id
      */
     public String getId() { return id; }
     /**
-     * Executes the void setId operation.
-     * @param id the parameter value
+     * Sets the message identifier.
+     *
+     * @param id the message id
      */
     public void setId(String id) { this.id = id; }
     /**
-     * Executes the String getLoadType operation.
+     * Gets the load type for the queue message.
+     *
+     * @return the load type
      */
     public String getLoadType() { return loadType; }
     /**
-     * Executes the void setLoadType operation.
-     * @param loadType the parameter value
+     * Sets the load type for the queue message.
+     *
+     * @param loadType the load type
      */
     public void setLoadType(String loadType) { this.loadType = loadType; }
     /**
-     * Executes the String getDataflowName operation.
+     * Gets the dataflow name associated with the queue message.
+     *
+     * @return the dataflow name
      */
     public String getDataflowName() { return dataflowName; }
     /**
-     * Executes the void setDataflowName operation.
-     * @param dataflowName the parameter value
+     * Sets the dataflow name associated with the queue message.
+     *
+     * @param dataflowName the dataflow name
      */
     public void setDataflowName(String dataflowName) { this.dataflowName = dataflowName; }
     /**
-     * Executes the Integer getPartition operation.
+     * Gets the partition number for the queue message.
+     *
+     * @return the partition number
      */
     public Integer getPartition() { return partition; }
     /**
-     * Executes the void setPartition operation.
-     * @param partition the parameter value
+     * Sets the partition number for the queue message.
+     *
+     * @param partition the partition number
      */
     public void setPartition(Integer partition) { this.partition = partition; }
     /**
-     * Executes the String getCommitId operation.
+     * Gets the commit identifier associated with the queue message.
+     *
+     * @return the commit id
      */
     public String getCommitId() { return commitId; }
     /**
-     * Executes the void setCommitId operation.
-     * @param commitId the parameter value
+     * Sets the commit identifier associated with the queue message.
+     *
+     * @param commitId the commit id
      */
     public void setCommitId(String commitId) { this.commitId = commitId; }
     /**
-     * Executes the String getDeltaPointer operation.
+     * Gets the delta pointer for the queue message.
+     *
+     * @return the delta pointer
      */
     public String getDeltaPointer() { return deltaPointer; }
     /**
-     * Executes the void setDeltaPointer operation.
-     * @param deltaPointer the parameter value
+     * Sets the delta pointer for the queue message.
+     *
+     * @param deltaPointer the delta pointer
      */
     public void setDeltaPointer(String deltaPointer) { this.deltaPointer = deltaPointer; }
     /**
-     * Executes the String getCalledBy operation.
+     * Gets the name of the component that called the queue message.
+     *
+     * @return the caller name
      */
     public String getCalledBy() { return calledBy; }
     /**
-     * Executes the void setCalledBy operation.
-     * @param calledBy the parameter value
+     * Sets the name of the component that called the queue message.
+     *
+     * @param calledBy the caller name
      */
     public void setCalledBy(String calledBy) { this.calledBy = calledBy; }
     /**
-     * Executes the String getCallerReason operation.
+     * Gets the caller reason associated with the queue message.
+     *
+     * @return the caller reason
      */
     public String getCallerReason() { return callerReason; }
     /**
-     * Executes the void setCallerReason operation.
-     * @param callerReason the parameter value
+     * Sets the caller reason associated with the queue message.
+     *
+     * @param callerReason the caller reason
      */
     public void setCallerReason(String callerReason) { this.callerReason = callerReason; }
 
     /**
-     * Executes the CalledReason getCallerReasonEnum operation.
+     * Gets the caller reason as the corresponding enum value.
+     *
+     * @return the parsed caller reason enum, or {@code null} if no reason is set
      */
     public CalledReason getCallerReasonEnum() { return CalledReason.fromString(this.callerReason); }
 }

@@ -44,30 +44,6 @@ public class ValueSchema extends RecordSchema {
 	public static final String NAME = "VALUESCHEMA";
 
 	/**
-	 * Transform result quality column name
-	 */
-	public static final String AUDIT_TRANSFORMRESULT_QUALITY = "__transformresult_quality";
-	/**
-	 * Transform result text column name
-	 */
-	public static final String AUDITTRANSFORMRESULTTEXT = "__transformresult_text";
-	/**
-	 * Transformation name column name
-	 */
-	public static final String AUDITTRANSFORMATIONNAME = "__transformationname";
-	/**
-	 * Audit details column name
-	 */
-	public static final String AUDITDETAILS = "__details";
-	/**
-	 * Transform result column name
-	 */
-	public static final String TRANSFORMRESULT = "__transformresult";
-	/**
-	 * Audit column name
-	 */
-	public static final String AUDIT = "__audit";
-	/**
 	 * Schema property name for regulations that apply to this schema
 	 */
 	public static final String SCHEMA_INFO_REGULATIONS = "data_classifications";
@@ -129,10 +105,12 @@ public class ValueSchema extends RecordSchema {
 	 * @throws SchemaBuilderException if the schema is invalid
 	 */
 	/**
-	 * Creates a new instance of this class.
-	 * @param name the parameter value
-	 * @param namespace the parameter value
-	 * @param description the parameter value
+	 * Creates a new value schema builder with the given schema name, namespace, and description.
+	 *
+	 * @param name the schema name
+	 * @param namespace the optional namespace used to disambiguate the schema
+	 * @param description the optional schema description
+	 * @throws SchemaBuilderException if the schema cannot be constructed
 	 */
 	public ValueSchema(String name, String namespace, String description) throws SchemaBuilderException {
 		super(name, namespace, description);
@@ -160,49 +138,43 @@ public class ValueSchema extends RecordSchema {
 				AvroVarchar.create(30),
 				"Optional source system information for auditing",
 				true).setInternal(true).setTechnical(true);
-		RecordSchema extension = new RecordSchema("__extension", "Extension point to add custom values to each record");
-		extension.add("__path", AvroString.create(), "An unique identifier, e.g. \"street\".\"house number component\"", false);
-		extension.add("__value", AvroString.create(), "The value of any primitive datatype of Avro", false);
-		add(SchemaConstants.SCHEMA_COLUMN_EXTENSION, new AvroArray(extension), "Add more columns beyond the official logical data model", true).setInternal(true);
         add(SchemaConstants.SCHEMA_COLUMN_EXTENSION_MAP, new AvroMap(AvroString.create()), "Add more values as a map beyond the official logical data model", true).setInternal(true);
 
-		RecordSchema audit = new RecordSchema(AUDIT, "If data is transformed this information is recorded here");
-		audit.add(TRANSFORMRESULT, AvroVarchar.create(4), "Is the record PASS, FAILED or WARN?", false);
+		RecordSchema audit = new RecordSchema(SchemaConstants.AUDIT, "If data is transformed this information is recorded here");
+		audit.add(SchemaConstants.TRANSFORMRESULT, AvroVarchar.create(4), "Is the record PASS, FAILED or WARN?", false);
 		RecordSchema audit_details = new RecordSchema("__audit_details", "Details of all transformations");
-		audit_details.add(AUDITTRANSFORMATIONNAME, AvroNVarchar.create(1024), "A name identifying the applied transformation", false);
-		audit_details.add(TRANSFORMRESULT, AvroVarchar.create(4), "Is the record PASS, FAIL or WARN?", false);
-		audit_details.add(AUDITTRANSFORMRESULTTEXT, AvroNVarchar.create(1024), "Transforms can optionally describe what they did", true);
-		audit_details.add(AUDIT_TRANSFORMRESULT_QUALITY, AvroByte.create(), "Transforms can optionally return a percent value from 0 (FAIL) to 100 (PASS)", true);
-		audit.add(AUDITDETAILS, new AvroArray(audit_details), "Details of all transformations", true);
+		audit_details.add(SchemaConstants.AUDITTRANSFORMATIONNAME, AvroNVarchar.create(1024), "A name identifying the applied transformation", false);
+		audit_details.add(SchemaConstants.TRANSFORMRESULT, AvroVarchar.create(4), "Is the record PASS, FAIL or WARN?", false);
+		audit_details.add(SchemaConstants.AUDITTRANSFORMRESULTTEXT, AvroNVarchar.create(1024), "Transforms can optionally describe what they did", true);
+		audit_details.add(SchemaConstants.AUDIT_TRANSFORMRESULT_QUALITY, AvroByte.create(), "Transforms can optionally return a percent value from 0 (FAIL) to 100 (PASS)", true);
+		audit.add(SchemaConstants.AUDITDETAILS, new AvroArray(audit_details), "Details of all transformations", true);
 
-		add(AUDIT, audit, "If data is transformed this information is recorded here", true).setInternal(true);
+		add(SchemaConstants.AUDIT, audit, "If data is transformed, this information is recorded here", true).setInternal(true);
 	}
 
-		/**
-	 * @param name of the value schema
-	 * @param description free for text
-	 * @throws SchemaBuilderException if the schema is invalid
-	 * @see #ValueSchema(String, String, String)
-	 */
 	/**
-	 * Creates a new instance of this class.
-	 * @param name the parameter value
-	 * @param description the parameter value
+	 * Creates a new value schema builder with the given schema name and description.
+	 *
+	 * @param name the schema name
+	 * @param description the optional schema description
+	 * @throws SchemaBuilderException if the schema cannot be constructed
+	 * @see #ValueSchema(String, String, String)
 	 */
 	public ValueSchema(String name, String description) throws SchemaBuilderException {
 		this(name, null, description);
 	}
 
 	/**
-	 * Creates a new instance of this class.
+	 * Creates an empty value schema builder instance.
 	 */
 	public ValueSchema() {
 		super();
 	}
 
 	/**
-	 * Creates a new instance of this class.
-	 * @param schema the parameter value
+	 * Creates a value schema builder from an existing Avro schema definition.
+	 *
+	 * @param schema the source Avro schema
 	 */
 	public ValueSchema(Schema schema) {
 		super(schema);
@@ -220,42 +192,38 @@ public class ValueSchema extends RecordSchema {
 		setSemantics(AvroType.getProp(schema, SCHEMA_INFO_SEMANTICS, TableSemantics.class));
 	}
 
-	    /**
-	     * Executes the String getType operation.
-	     */
-	    public String getType() {
+	/**
+	 * Returns the fixed schema type identifier for value schemas.
+	 *
+	 * @return the schema type name
+	 */
+	public String getType() {
         return NAME;
     }
 
 	/**
-	 * Add regulations that apply to this schema, e.g. GDPR, HIPAA, CCPA, ...
+	 * Sets the list of regulations that apply to the schema.
 	 *
-	 * @param regulations list of regulations
-	 */
-	/**
-	 * Executes the void setRegulations operation.
-	 * @param regulations the parameter value
+	 * @param regulations the applicable regulation codes
 	 */
 	public void setRegulations(Collection<String> regulations) {
 		this.regulations = regulations;
 	}
 
 	/**
-	 * Add regulations that apply to this schema, e.g. GDPR, HIPAA, CCPA, ...
+	 * Sets the list of regulations that apply to the schema using a varargs list.
 	 *
-	 * @param regulations list of regulations
+	 * @param regulations the applicable regulation codes
 	 */
 	@JsonIgnore
-	/**
-	 * Executes the void setRegulations operation.
-	 * @param regulations the parameter value
-	 */
 	public void setRegulations(String... regulations) {
 		this.regulations = Arrays.asList(regulations);
 	}
 
 	/**
-	 * @return the regulations that apply to this schema, e.g. GDPR, HIPAA, CCPA, ...
+	 * Gets the schema-level regulation list.
+	 *
+	 * @return the regulation codes that apply to the schema
 	 */
 	@JsonGetter(SCHEMA_INFO_REGULATIONS)
 	public Collection<String> getRegulations() {
@@ -263,89 +231,78 @@ public class ValueSchema extends RecordSchema {
 	}
 
 	/**
-	 * Set the url of the ticket system where issues can be reported
+	 * Sets the ticket-tracking URL for the schema.
 	 *
-	 * @param url as string - not validated
-	 */
-	/**
-	 * Executes the void setTicketUrl operation.
-	 * @param url the parameter value
+	 * @param url the ticket system URL
 	 */
 	public void setTicketUrl(String url) {
 		this.ticketurl = url;
 	}
 
 	/**
-	 * Get the url of the ticket system where issues can be reported
+	 * Gets the ticket-tracking URL for the schema.
 	 *
-	 * @return url as string - not validated
+	 * @return the ticket system URL
 	 */
 	@JsonGetter(SCHEMA_INFO_TICKETS_URL)
-	/**
-	 * Executes the String getTicketUrl operation.
-	 */
 	public String getTicketUrl() {
 		return ticketurl;
 	}
 
 	/**
-	 * Set the repository url where the code for this data product is located
+	 * Sets the repository URL for the schema’s data product.
 	 *
-	 * @param url as string - not validated
-	 */
-	/**
-	 * Executes the void setRepoUrl operation.
-	 * @param url the parameter value
+	 * @param url the repository URL
 	 */
 	public void setRepoUrl(String url) {
 		this.repourl = url;
 	}
 
 	/**
-	 * Get the repository url where the code for this data product is located
+	 * Gets the repository URL for the schema’s data product.
 	 *
-	 * @return url as string - not validated
+	 * @return the repository URL
 	 */
 	@JsonGetter(SCHEMA_INFO_REPO_URL)
-	/**
-	 * Executes the String getRepoUrl operation.
-	 */
 	public String getRepoUrl() {
 		return repourl;
 	}
 
 
 	/**
-	 * Executes the void setObjectLevelSecurity operation.
-	 * @param object_level_security the parameter value
+	 * Sets the object-level security entries for the schema.
+	 *
+	 * @param object_level_security the object-level security entries
 	 */
 	public void setObjectLevelSecurity(List<String> object_level_security) {
 		this.objectlevelsecurity = object_level_security;
 	}
 
-	@JsonIgnore
 	/**
-	 * Executes the void setObjectLevelSecurity operation.
-	 * @param object_level_security the parameter value
+	 * Sets the object-level security entries for the schema using a varargs list.
+	 *
+	 * @param object_level_security the object-level security entries
 	 */
+	@JsonIgnore
 	public void setObjectLevelSecurity(String... object_level_security) {
 		this.objectlevelsecurity = Arrays.asList(object_level_security);
 	}
 
+	/**
+	 * Gets the object-level security entries for the schema.
+	 *
+	 * @return the object-level security entries
+	 */
 	@JsonGetter(SCHEMA_INFO_OBJECT_LEVEL_SECURITY)
 	public List<String> getObjectLevelSecurity() {
 		return this.objectlevelsecurity;
 	}
 
 	/**
-	 * Add one RowLevelSecurity entry to the list of existing entries.
-	 * @param dimension the dimension name to be used in the permission table
-	 * @param field the field name in this schema that holds the dimension's value, e.g. data_table's SALES_REGION column
-	 */
-	/**
-	 * Executes the void addRowLevelSecurity operation.
-	 * @param dimension the parameter value
-	 * @param field the parameter value
+	 * Adds a row-level security rule for a dimension and field.
+	 *
+	 * @param dimension the dimension name used in the permission table
+	 * @param field the field in the schema that carries the dimension value
 	 */
 	public void addRowLevelSecurity(String dimension, String field) {
 		if (row_level_security == null) {
@@ -355,109 +312,115 @@ public class ValueSchema extends RecordSchema {
 	}
 
 	/**
-	 * Executes the void setRowLevelSecurity operation.
-	 * @param row_level_security the parameter value
+	 * Sets the row-level security rules for the schema.
+	 *
+	 * @param row_level_security the row-level security rules
 	 */
 	public void setRowLevelSecurity(List<RLS> row_level_security) {
 		this.row_level_security = row_level_security;
 	}
 
+	/**
+	 * Gets the row-level security rules for the schema.
+	 *
+	 * @return the row-level security rules
+	 */
 	@JsonGetter(SCHEMA_INFO_ROW_LEVEL_SECURITY)
 	public List<RLS> getRowLevelSecurity() {
 		return this.row_level_security;
 	}
 
 	/**
-	 * Executes the void setPartitionBy operation.
-	 * @param partition_by the parameter value
+	 * Sets the partitioning columns for the schema.
+	 *
+	 * @param partition_by the partition-by column names
 	 */
 	public void setPartitionBy(List<String> partition_by) {
 		this.partition_by = partition_by;
 	}
 
+	/**
+	 * Gets the partitioning columns for the schema.
+	 *
+	 * @return the partition-by column names
+	 */
 	@JsonGetter(SCHEMA_INFO_PARTITION_BY)
 	public List<String> getPartitionBy() {
 		return partition_by;
 	}
 
 	/**
-	 * Executes the void setSemantics operation.
-	 * @param semantics the parameter value
+	 * Sets the schema semantics metadata.
+	 *
+	 * @param semantics the semantic definition for the schema
 	 */
 	public void setSemantics(TableSemantics semantics) {
 		this.semantics = semantics;
 	}
 	
-	@JsonGetter(SCHEMA_INFO_SEMANTICS)
 	/**
-	 * Executes the TableSemantics getSemantics operation.
+	 * Gets the schema semantics metadata.
+	 *
+	 * @return the semantic definition for the schema
 	 */
+	@JsonGetter(SCHEMA_INFO_SEMANTICS)
 	public TableSemantics getSemantics() {
 		return this.semantics;
 	}
 
 	/**
-	 * Set the email address of the data product owner
+	 * Sets the email address of the data product owner.
 	 *
-	 * @param email as string - not validated
-	 */
-	/**
-	 * Executes the void setDataProductOwner operation.
-	 * @param email the parameter value
+	 * @param email the owner email address
 	 */
 	public void setDataProductOwner(String email) {
 		this.dataproductowner = email;
 	}
 
 	/**
-	 * Get the email address of the data product owner
+	 * Gets the email address of the data product owner.
 	 *
-	 * @return email as string - not validated
+	 * @return the owner email address
 	 */
 	@JsonGetter(SCHEMA_INFO_DATAPRODUCT_OWNER)
-	/**
-	 * Executes the String getDataProductOwner operation.
-	 */
 	public String getDataProductOwner() {
 		return this.dataproductowner;
 	}
 
 
 	/**
-	 * Set the primary key columns of this schema.
+	 * Sets the primary key columns for the schema using a varargs list.
 	 *
-	 * @param columnnames to be used in the root schema as primary key
+	 * @param columnnames the primary key column names
 	 */
 	@JsonIgnore
-	/**
-	 * Executes the void setPrimaryKeys operation.
-	 * @param columnnames the parameter value
-	 */
 	public void setPrimaryKeys(String... columnnames) {
 		this.pks = Arrays.asList(columnnames);
 	}
 
 	/**
-	 * Executes the void setPrimaryKeys operation.
-	 * @param columnnames the parameter value
+	 * Sets the primary key columns for the schema using a list.
+	 *
+	 * @param columnnames the primary key column names
 	 */
 	public void setPrimaryKeys(List<String> columnnames) {
 		this.pks = columnnames;
 	}
 
+	/**
+	 * Gets the primary key columns for the schema.
+	 *
+	 * @return the primary key column names
+	 */
 	@JsonGetter(PRIMARY_KEYS)
 	public List<String> getPrimaryKeys() {
 		return this.pks;
 	}
 
 	/**
-	 * Add a foreign key relationship to another schema.
+	 * Adds a foreign key relationship to the schema.
 	 *
-	 * @param condition the FKCondition to add
-	 */
-	/**
-	 * Executes the void addForeignKey operation.
-	 * @param condition the parameter value
+	 * @param condition the foreign key condition to add
 	 */
 	public void addForeignKey(FKCondition condition) {
 		if (fks == null) {
@@ -467,34 +430,32 @@ public class ValueSchema extends RecordSchema {
 	}
 
 	/**
-	 * Executes the void setForeignKeys operation.
-	 * @param fks the parameter value
+	 * Replaces the foreign key relationship list for the schema.
+	 *
+	 * @param fks the foreign key conditions
 	 */
 	public void setForeignKeys(List<FKCondition> fks) {
 		this.fks = fks;
 	}
 
+	/**
+	 * Gets the foreign key relationships defined for the schema.
+	 *
+	 * @return the foreign key conditions
+	 */
 	@JsonGetter(FOREIGN_KEYS)
 	public List<FKCondition> getForeignKeys() {
 		return this.fks;
 	}
 
 	/**
-	 * Add a simple foreign key relationship to another schema.
+	 * Adds a foreign key relationship using the explicit relationship fields.
 	 *
-	 * @param name name of the FK
-	 * @param schema_fqn target schema fully qualified name
-	 * @param left left side column name
-	 * @param right right side column name
-	 * @param condition optional condition, e.g. "AND enddate IS NULL"
-	 */
-	/**
-	 * Executes the void addForeignKey operation.
-	 * @param name the parameter value
-	 * @param schema_fqn the parameter value
-	 * @param left the parameter value
-	 * @param right the parameter value
-	 * @param condition the parameter value
+	 * @param name the foreign-key name
+	 * @param schema_fqn the fully qualified target schema name
+	 * @param left the left-side column name
+	 * @param right the right-side column name
+	 * @param condition an optional join condition
 	 */
 	public void addForeignKey(String name, String schema_fqn, String left, String right, String condition) {
 		FKCondition fk = new FKCondition(name, schema_fqn, left, right, condition);
@@ -502,57 +463,49 @@ public class ValueSchema extends RecordSchema {
 	}
 
 	/**
-	 * Hint the retention period for this data
+	 * Sets the retention period hint for the schema.
 	 *
-	 * @param period as Duration
-	 */
-	/**
-	 * Executes the void setRetentionPeriod operation.
-	 * @param period the parameter value
+	 * @param period the retention duration
 	 */
 	public void setRetentionPeriod(Duration period) {
 		this.retentionperiod = period;
 	}
 
 	/**
-	 * @return the retention period for this data or null if not set
+	 * Gets the retention period hint for the schema.
+	 *
+	 * @return the retention duration, or {@code null} if not set
 	 */
 	@JsonGetter(SCHEMA_INFO_RETENTION_PERIOD)
-	/**
-	 * Executes the Duration getRetentionPeriod operation.
-	 */
 	public Duration getRetentionPeriod() {
 		return this.retentionperiod;
 	}
 
 	/**
-	 * Hint the deletion policy for this data
+	 * Sets the deletion policy hint for the schema.
 	 *
 	 * @param policy the deletion policy
-	 */
-	/**
-	 * Executes the void setDeletionPolicy operation.
-	 * @param policy the parameter value
 	 */
 	public void setDeletionPolicy(DeletionPolicy policy) {
 		this.deletionpolicy = policy;
 	}
 
 	/**
-	 * @return the deletion policy for this data or null if not set
+	 * Gets the deletion policy hint for the schema.
+	 *
+	 * @return the deletion policy, or {@code null} if not set
 	 */
 	@JsonGetter(SCHEMA_INFO_DELETION_POLICY)
-	/**
-	 * Executes the DeletionPolicy getDeletionPolicy operation.
-	 */
 	public DeletionPolicy getDeletionPolicy() {
 		return this.deletionpolicy;
 	}
 
-	@Override
 	/**
-	 * Executes the Schema createSchema operation.
+	 * Creates an Avro schema definition from the current builder state.
+	 *
+	 * @return the generated schema
 	 */
+	@Override
 	public Schema createSchema() {
 		Schema s = super.createSchema();
 		addProp(s, PRIMARY_KEYS, this.pks);
@@ -603,34 +556,44 @@ public class ValueSchema extends RecordSchema {
 	}
 
 	/**
-	 * Executes the String toAvroJson operation.
+	 * Formats the current schema as pretty-printed Avro JSON.
+	 *
+	 * @return the schema formatted as Avro JSON
 	 */
 	public String toAvroJson() {
 		return SchemaFormatter.format("json/pretty", this.createSchema());
 	}
 
 	/**
-	 * Executes the String toObjectJson operation.
+	 * Serializes the current object as JSON.
+	 *
+	 * @return the JSON serialization of the schema builder
+	 * @throws JsonProcessingException if the serialization fails
 	 */
 	public String toObjectJson() throws JsonProcessingException {
 		return om.writeValueAsString(this);
 	}
 
 	/**
-	 * Executes the ValueSchema fromObjectJson operation and returns the resulting value.
-	 * @param json the parameter value
-	 * @return the resulting value
+	 * Deserializes a JSON payload into a {@link ValueSchema} instance.
+	 *
+	 * @param json the JSON payload
+	 * @return the parsed value schema
+	 * @throws JsonMappingException if the JSON structure cannot be mapped
+	 * @throws JsonProcessingException if the JSON payload cannot be read
 	 */
 	public static ValueSchema fromObjectJson(String json) throws JsonMappingException, JsonProcessingException {
 		ObjectMapper om = AvroUtils.createJacksonOM();
 		return om.readValue(json, ValueSchema.class);
 	}
 
-	@Override
 	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
+	 * Compares this value schema with another object for equality.
+	 *
+	 * @param o the object to compare against
+	 * @return {@code true} when the two objects represent the same schema state
 	 */
+	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;

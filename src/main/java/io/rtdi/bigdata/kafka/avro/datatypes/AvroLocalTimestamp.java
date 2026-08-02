@@ -136,6 +136,14 @@ public class AvroLocalTimestamp extends AvroLogicalType implements IAvroPrimitiv
 			return convertToInternal(v.toInstant());
 		} else if (value instanceof Instant) {
 			return ((Instant) value).toEpochMilli();
+		} else if (value instanceof CharSequence) {
+			String s = value.toString();
+			try {
+				LocalDateTime d = LocalDateTime.parse(s);
+				return convertToInternal(d.toInstant(ZoneOffset.UTC));
+			} catch (Exception e) {
+				throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a LocalDateTime, must be a string like 2007-12-03T10:15:30");
+			}
 		}
 		throw new AvroDataTypeException("Cannot convert a value of type \"" + value.getClass().getSimpleName() + "\" into a LocalDateTime");
 	}

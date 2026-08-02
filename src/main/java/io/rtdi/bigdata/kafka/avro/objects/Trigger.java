@@ -56,26 +56,31 @@ public class Trigger {
 
         public List<Schedule> getOnSchedule() { return onSchedule; }
         /**
-         * Executes the CommitEvent getOnCommit operation.
+         * Gets the commit event that should trigger the function.
+         *
+         * @return the commit event configuration, or {@code null} if none is set
          */
         public CommitEvent getOnCommit() { return onCommit; }
         public List<String> getOnDataflow() { return onDataflow; }
         public List<Dataflow> getDataflows() { return dataflows; }
         /**
-         * Executes the Triggers getTriggers operation.
+         * Gets the trigger container that owns this event set.
+         *
+         * @return the parent trigger definition
          */
         public Triggers getTriggers() { return _triggers; }
 
         /**
-         * Executes the EventSet operation.
+         * Creates an empty event set.
          */
         public EventSet() {
             
         }
 
         /**
-         * Executes the void setTriggers operation.
-         * @param t the parameter value
+         * Associates this event set with its parent trigger definition.
+         *
+         * @param t the trigger definition
          */
         public void setTriggers(Triggers t) { this._triggers = t; }
 
@@ -96,8 +101,9 @@ public class Trigger {
         }
 
         /**
-         * Executes the void addDataflowEvent operation.
-         * @param dataflowName the parameter value
+         * Adds a dataflow name that should trigger the function when that dataflow completes.
+         *
+         * @param dataflowName the dataflow name
          */
         public void addDataflowEvent(String dataflowName) {
             if (this.onDataflow == null) this.onDataflow = new ArrayList<>();
@@ -105,30 +111,34 @@ public class Trigger {
         }
 
         /**
-         * Executes the void setCommitEvent operation.
-         * @param schemaNames the parameter value
-         * @param topicPartitions the parameter value
-         * @param delaySeconds the parameter value
-         * @param idleSeconds the parameter value
+         * Sets the commit-based trigger event.
+         *
+         * @param schemaNames the schema names that should trigger the event
+         * @param topicPartitions the topic partitions to monitor
+         * @param delaySeconds the number of seconds to wait before evaluating a trigger event
+         * @param idleSeconds the number of idle seconds before starting the trigger
          */
         public void setCommitEvent(List<String> schemaNames, List<String> topicPartitions, Integer delaySeconds, Integer idleSeconds) {
             this.onCommit = new CommitEvent(schemaNames, topicPartitions, delaySeconds, idleSeconds);
         }
 
         /**
-         * Executes the void addDataflow operation.
-         * @param dataflowName the parameter value
-         * @param partitions the parameter value
+         * Adds a dataflow trigger configuration for a given dataflow and partition list.
+         *
+         * @param dataflowName the dataflow name
+         * @param partitions the partition numbers to use with the dataflow
          */
         public void addDataflow(String dataflowName, List<Integer> partitions) {
             if (this.dataflows == null) this.dataflows = new ArrayList<>();
             this.dataflows.add(new Dataflow(dataflowName, null, partitions));
         }
 
-        @Override
         /**
-         * Executes the int hashCode operation.
+         * Returns a hash code based on the parent function name.
+         *
+         * @return the hash code for this event set
          */
+        @Override
         public int hashCode() { return _triggers != null && _triggers.getFunctionName() != null ? _triggers.getFunctionName().hashCode() : 0; }
     }
 
@@ -138,16 +148,17 @@ public class Trigger {
         private List<EventSet> events = new ArrayList<>();
 
         /**
-         * Executes the Triggers operation.
+         * Creates an empty trigger definition.
          */
         public Triggers() {
 
         }
 
         /**
-         * Executes the Triggers operation.
-         * @param functionName the parameter value
-         * @param queuename the parameter value
+         * Creates a trigger definition for a function name and queue name.
+         *
+         * @param functionName the function name
+         * @param queuename the queue name
          */
         public Triggers(String functionName, String queuename) {
             this.functionName = functionName;
@@ -155,27 +166,35 @@ public class Trigger {
         }
 
         /**
-         * Executes the String getFunctionName operation.
+         * Gets the function name for this trigger definition.
+         *
+         * @return the function name
          */
         public String getFunctionName() { return functionName; }
         /**
-         * Executes the void setFunctionName operation.
-         * @param functionName the parameter value
+         * Sets the function name for this trigger definition.
+         *
+         * @param functionName the function name
          */
         public void setFunctionName(String functionName) { this.functionName = functionName; }
         /**
-         * Executes the String getQueuename operation.
+         * Gets the queue name associated with this trigger definition.
+         *
+         * @return the queue name
          */
         public String getQueuename() { return queuename; }
         /**
-         * Executes the void setQueuename operation.
-         * @param queuename the parameter value
+         * Sets the queue name associated with this trigger definition.
+         *
+         * @param queuename the queue name
          */
         public void setQueuename(String queuename) { this.queuename = queuename; }
         public List<EventSet> getEvents() { return events; }
 
         /**
-         * Executes the EventSet addEventSet operation.
+         * Creates and registers a new event set for this trigger definition.
+         *
+         * @return the newly created event set
          */
         public EventSet addEventSet() {
             EventSet e = new EventSet();
@@ -184,16 +203,20 @@ public class Trigger {
             return e;
         }
 
-        @Override
         /**
-         * Executes the String toString operation.
+         * Returns a readable description of the trigger definition.
+         *
+         * @return the trigger description
          */
+        @Override
         public String toString() { return "Triggers for function " + functionName; }
 
-        @Override
         /**
-         * Executes the int hashCode operation.
+         * Returns a hash code based on the function name.
+         *
+         * @return the hash code for this trigger definition
          */
+        @Override
         public int hashCode() { return functionName != null ? functionName.hashCode() : 0; }
     }
 
@@ -206,7 +229,7 @@ public class Trigger {
         private List<Integer> months;
 
         /**
-         * Executes the Schedule operation.
+         * Creates an empty schedule.
          */
         public Schedule() {
             
@@ -214,50 +237,60 @@ public class Trigger {
 
         public List<String> getWeekdays() { return weekdays; }
         /**
-         * Executes the void setWeekdays operation.
-         * @param weekdays the parameter value
+         * Sets the weekdays included in the schedule.
+         *
+         * @param weekdays the weekday names
          */
         public void setWeekdays(List<String> weekdays) { this.weekdays = weekdays; }
         public List<Integer> getHours() { return hours; }
         /**
-         * Executes the void setHours operation.
-         * @param hours the parameter value
+         * Sets the hours included in the schedule.
+         *
+         * @param hours the hour values
          */
         public void setHours(List<Integer> hours) { this.hours = hours; }
         public List<Integer> getMinutes() { return minutes; }
         /**
-         * Executes the void setMinutes operation.
-         * @param minutes the parameter value
+         * Sets the minutes included in the schedule.
+         *
+         * @param minutes the minute values
          */
         public void setMinutes(List<Integer> minutes) { this.minutes = minutes; }
         public List<Integer> getDays() { return days; }
         /**
-         * Executes the void setDays operation.
-         * @param days the parameter value
+         * Sets the day-of-month values included in the schedule.
+         *
+         * @param days the day values
          */
         public void setDays(List<Integer> days) { this.days = days; }
         /**
-         * Executes the Boolean getLastDayOfMonth operation.
+         * Gets whether the schedule should include the last day of the month.
+         *
+         * @return the last-day-of-month flag
          */
         public Boolean getLastDayOfMonth() { return lastDayOfMonth; }
         /**
-         * Executes the void setLastDayOfMonth operation.
-         * @param lastDayOfMonth the parameter value
+         * Sets whether the schedule should include the last day of the month.
+         *
+         * @param lastDayOfMonth the last-day-of-month flag
          */
         public void setLastDayOfMonth(Boolean lastDayOfMonth) { this.lastDayOfMonth = lastDayOfMonth; }
         public List<Integer> getMonths() { return months; }
         /**
-         * Executes the void setMonths operation.
-         * @param months the parameter value
+         * Sets the months included in the schedule.
+         *
+         * @param months the month values
          */
         public void setMonths(List<Integer> months) { this.months = months; }
 
 
 
-        @Override
         /**
-         * Executes the String toString operation.
+         * Returns a readable description of the schedule.
+         *
+         * @return the schedule description
          */
+        @Override
         public String toString() { return "Schedule"; }
     }
 
@@ -268,18 +301,19 @@ public class Trigger {
         private Integer idleSeconds;
 
         /**
-         * Executes the CommitEvent operation.
+         * Creates an empty commit event.
          */
         public CommitEvent() {
 
         }
 
         /**
-         * Executes the CommitEvent operation.
-         * @param schemaNames the parameter value
-         * @param topicPartitions the parameter value
-         * @param delaySeconds the parameter value
-         * @param idleSeconds the parameter value
+         * Creates a commit event definition with schema names, topic partitions, and delay settings.
+         *
+         * @param schemaNames the schema names to watch for commits
+         * @param topicPartitions the topic partitions to watch for commits
+         * @param delaySeconds the delay before evaluating a first trigger for a burst of events
+         * @param idleSeconds the idle time before starting the trigger after a pause
          */
         public CommitEvent(List<String> schemaNames, List<String> topicPartitions, Integer delaySeconds, Integer idleSeconds) {
             this.schemaNames = schemaNames;
@@ -291,18 +325,24 @@ public class Trigger {
         public List<String> getSchemaNames() { return schemaNames; }
         public List<String> getTopicPartitions() { return topicPartitions; }
         /**
-         * Executes the Integer getDelaySeconds operation.
+         * Gets the delay in seconds before collecting additional trigger events.
+         *
+         * @return the delay in seconds
          */
         public Integer getDelaySeconds() { return delaySeconds; }
         /**
-         * Executes the Integer getIdleSeconds operation.
+         * Gets the idle time in seconds before starting the trigger.
+         *
+         * @return the idle time in seconds
          */
         public Integer getIdleSeconds() { return idleSeconds; }
 
-        @Override
         /**
-         * Executes the String toString operation.
+         * Returns a readable description of the commit event.
+         *
+         * @return the commit event description
          */
+        @Override
         public String toString() { return "CommitEvent: " + schemaNames; }
     }
 
@@ -312,17 +352,18 @@ public class Trigger {
         private List<Integer> partitions;
 
         /**
-         * Executes the Dataflow operation.
+         * Creates an empty dataflow trigger configuration.
          */
         public Dataflow() {
 
         }
 
         /**
-         * Executes the Dataflow operation.
-         * @param dataflowName the parameter value
-         * @param deltaSingleTrigger the parameter value
-         * @param partitions the parameter value
+         * Creates a dataflow trigger configuration.
+         *
+         * @param dataflowName the dataflow name
+         * @param deltaSingleTrigger whether delta loads should ignore the partition list
+         * @param partitions the partition values to use for the dataflow
          */
         public Dataflow(String dataflowName, Boolean deltaSingleTrigger, List<Integer> partitions) {
             this.dataflowName = dataflowName;
@@ -331,34 +372,43 @@ public class Trigger {
         }
 
         /**
-         * Executes the String getDataflowName operation.
+         * Gets the dataflow name passed to the function.
+         *
+         * @return the dataflow name
          */
         public String getDataflowName() { return dataflowName; }
         /**
-         * Executes the void setDataflowName operation.
-         * @param dataflowName the parameter value
+         * Sets the dataflow name passed to the function.
+         *
+         * @param dataflowName the dataflow name
          */
         public void setDataflowName(String dataflowName) { this.dataflowName = dataflowName; }
         /**
-         * Executes the Boolean getDeltaSingleTrigger operation.
+         * Gets whether delta loads should ignore the partition list and only use partitions for initial loads.
+         *
+         * @return the delta-single-trigger flag
          */
         public Boolean getDeltaSingleTrigger() { return deltaSingleTrigger; }
         /**
-         * Executes the void setDeltaSingleTrigger operation.
-         * @param deltaSingleTrigger the parameter value
+         * Sets whether delta loads should ignore the partition list and only use partitions for initial loads.
+         *
+         * @param deltaSingleTrigger the delta-single-trigger flag
          */
         public void setDeltaSingleTrigger(Boolean deltaSingleTrigger) { this.deltaSingleTrigger = deltaSingleTrigger; }
         public List<Integer> getPartitions() { return partitions; }
         /**
-         * Executes the void setPartitions operation.
-         * @param partitions the parameter value
+         * Sets the partition list used for the dataflow trigger.
+         *
+         * @param partitions the partition numbers
          */
         public void setPartitions(List<Integer> partitions) { this.partitions = partitions; }
 
-        @Override
         /**
-         * Executes the String toString operation.
+         * Returns a readable description of the dataflow trigger.
+         *
+         * @return the dataflow description
          */
+        @Override
         public String toString() { return "Dataflow: " + dataflowName; }
     }
 }
