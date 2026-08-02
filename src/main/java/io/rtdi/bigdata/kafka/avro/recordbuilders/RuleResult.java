@@ -22,9 +22,6 @@ public enum RuleResult {
 	 *
 	 * @return quality score
 	 */
-	/**
-	 * Executes the float getDefaultQuality operation.
-	 */
 	public float getDefaultQuality() {
 		switch (this) {
 		case PASS: return 1.0f;
@@ -34,14 +31,12 @@ public enum RuleResult {
 	}
 
 	/**
+	 * Aggregate rule results into a complete result.
+	 * 
 	 * PASS+PASS=PASS, PASS+WARN=WARN, PASS+FAIL=FAIL, WARN+WARN=WARN, WARN+FAIL=FAIL, FAIL+FAIL=FAIL
 	 *
 	 * @param ruleresult another rule result to aggregate with
 	 * @return aggregated result
-	 */
-	/**
-	 * Executes the RuleResult aggregate operation.
-	 * @param ruleresult the parameter value
 	 */
 	public RuleResult aggregate(RuleResult ruleresult) {
 		if (ruleresult == null) {

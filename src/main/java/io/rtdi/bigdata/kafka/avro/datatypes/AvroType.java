@@ -174,11 +174,6 @@ public enum AvroType {
 	 * @param schema the Avro schema for this data type, with or without logical type information
 	 * @return the best suited AvroType or null
 	 */
-	/**
-	 * Executes the AvroType getType operation and returns the resulting value.
-	 * @param schema the parameter value
-	 * @return the resulting value
-	 */
 	public static AvroType getType(Schema schema) {
 		LogicalType l = schema.getLogicalType();
 		if (l != null) {
@@ -229,13 +224,9 @@ public enum AvroType {
 	}
 
 	/**
+	 * Get the IAvroDatatype for the provided Avro schema.
 	 * @param schema the Avro schema for this data type, with or without logical type information
 	 * @return the best suited AvroDataType or null
-	 */
-	/**
-	 * Executes the IAvroDatatype getAvroDataType operation and returns the resulting value.
-	 * @param schema the parameter value
-	 * @return the resulting value
 	 */
 	public static IAvroDatatype getAvroDataType(Schema schema) {
 		Schema baseschema = AvroUtils.getBaseSchema(schema);
@@ -284,13 +275,6 @@ public enum AvroType {
 	 * @param value a compatible value for this data type
 	 * @throws AvroDataTypeException in case the field cannot be found, it has an unsupported data type or the provided value is not compatible
 	 */
-	/**
-	 * Executes the void putRecordValue operation and returns the resulting value.
-	 * @param record the parameter value
-	 * @param fieldname the parameter value
-	 * @param value the parameter value
-	 * @return the resulting value
-	 */
 	public static void putRecordValue(GenericRecord record, String fieldname, Object value) throws AvroDataTypeException {
 		Field f = record.getSchema().getField(fieldname);
 		if (f == null) {
@@ -312,12 +296,6 @@ public enum AvroType {
 	 * @param fieldname the name of the field
 	 * @return GenericRecord to be used to
 	 * @throws AvroDataTypeException in case the field cannot be found or is not a record type
-	 */
-	/**
-	 * Executes the GenericRecord createChildRecordFor operation and returns the resulting value.
-	 * @param record the parameter value
-	 * @param fieldname the parameter value
-	 * @return the resulting value
 	 */
 	public static GenericRecord createChildRecordFor(GenericRecord record, String fieldname) throws AvroDataTypeException {
 		Field f = record.getSchema().getField(fieldname);
@@ -342,12 +320,6 @@ public enum AvroType {
 	 * @param fieldname the name of the field
 	 * @return GenericRecord to be used to
 	 * @throws AvroDataTypeException in case the field cannot be found or is not a record type
-	 */
-	/**
-	 * Executes the GenericRecord addChildToArrayOfRecords operation and returns the resulting value.
-	 * @param record the parameter value
-	 * @param fieldname the parameter value
-	 * @return the resulting value
 	 */
 	public static GenericRecord addChildToArrayOfRecords(GenericRecord record, String fieldname) throws AvroDataTypeException {
 		Field f = record.getSchema().getField(fieldname);
@@ -384,12 +356,6 @@ public enum AvroType {
 	 * @return best suited Java object
 	 * @throws AvroDataTypeException in case the field does not exist, has no supported logical data type or the conversion failed
 	 */
-	/**
-	 * Executes the Object getRecordFieldValue operation and returns the resulting value.
-	 * @param record the parameter value
-	 * @param fieldname the parameter value
-	 * @return the resulting value
-	 */
 	public static Object getRecordFieldValue(GenericRecord record, String fieldname) throws AvroDataTypeException {
 		Field f = record.getSchema().getField(fieldname);
 		if (f == null) {
@@ -412,12 +378,6 @@ public enum AvroType {
 	 * @param fieldname to read the record from
 	 * @return a GenericRecord with the data
 	 * @throws AvroDataTypeException in case the field does not exist, has no supported logical data type or the conversion failed
-	 */
-	/**
-	 * Executes the GenericRecord getSubRecord operation and returns the resulting value.
-	 * @param record the parameter value
-	 * @param fieldname the parameter value
-	 * @return the resulting value
 	 */
 	public static GenericRecord getSubRecord(GenericRecord record, String fieldname) throws AvroDataTypeException {
 		Field f = record.getSchema().getField(fieldname);
@@ -469,11 +429,6 @@ public enum AvroType {
 	 * @param schema the Avro schema for this data type, with or without logical type information
 	 * @return text representation of the best suited data type, e.g. VARCHAR(10)
 	 */
-	/**
-	 * Executes the String getAvroDatatype operation and returns the resulting value.
-	 * @param schema the parameter value
-	 * @return the resulting value
-	 */
 	public static String getAvroDatatype(Schema schema) {
 		if (schema.getType() == Type.UNION) {
 			if (schema.getTypes().size() > 2) {
@@ -495,13 +450,9 @@ public enum AvroType {
 	}
 
 	/**
+	 * Take the textual representation of a data type and return the best suited Avro schema.
 	 * @param text the textual representation of a data type like VARCHAR(10)
 	 * @return the Avro schema for this data type
-	 */
-	/**
-	 * Executes the Schema getSchemaFromDataTypeRepresentation operation and returns the resulting value.
-	 * @param text the parameter value
-	 * @return the resulting value
 	 */
 	public static Schema getSchemaFromDataTypeRepresentation(String text) {
 		switch (text) {
@@ -545,13 +496,9 @@ public enum AvroType {
 	}
 
 	/**
+	 * Take the textual representation of a data type and return the best suited IAvroDatatype.
 	 * @param text the textual representation of a data type like VARCHAR(10)
 	 * @return the Avro data type for this data type
-	 */
-	/**
-	 * Executes the IAvroDatatype getDataTypeFromString operation and returns the resulting value.
-	 * @param text the parameter value
-	 * @return the resulting value
 	 */
 	public static IAvroDatatype getDataTypeFromString(String text) {
 		if (text == null) {
@@ -602,20 +549,16 @@ public enum AvroType {
 	}
 
 	/**
+	 * Get the prefference level of this data type.
 	 * @return the level attribute for this data type
-	 */
-	/**
-	 * Executes the int getLevel operation.
 	 */
 	public int getLevel() {
 		return level;
 	}
 
 	/**
+	 * The group of data types this data type belongs to.
 	 * @return the group attribute for this data type
-	 */
-	/**
-	 * Executes the AvroDatatypeClass getGroup operation.
 	 */
 	public AvroDatatypeClass getGroup() {
 		return group;
@@ -626,10 +569,6 @@ public enum AvroType {
 	 * Example: The VARCHAR(10) can store ASCII chars only, but now Unicode is needed as well
 	 * @param t extended type
 	 * @return best suited AvroType
-	 */
-	/**
-	 * Executes the AvroType aggregate operation.
-	 * @param t the parameter value
 	 */
 	public AvroType aggregate(AvroType t) {
 		if (this == t) {
@@ -656,10 +595,24 @@ public enum AvroType {
 		}
 	}
 
+	/**
+	 * Get a list of strings from the schema property.
+	 * @param schema schema to read the property from
+	 * @param name property name
+	 * @return the values
+	 */
 	public static List<String> getStringListProp(Schema schema, String name) {
     	return getTypedListProp(schema, name, String.class);
     }
 
+	/**
+	 * Get a list of objects from the schema property and convert them to the provided type.
+	 * @param <T> list's element type
+	 * @param schema schema to read the property from
+	 * @param name property name
+	 * @param elementType list's element type
+	 * @return the values
+	 */
 	public static <T> List<T> getTypedListProp(Schema schema, String name, Class<T> elementType) {
 		ObjectMapper om = AvroUtils.createJacksonOM();
 		List<?> l = getProp(schema, name, List.class);
@@ -684,13 +637,6 @@ public enum AvroType {
 	 * @return the value of the property or null
 	 */
 	@SuppressWarnings("unchecked")
-	/**
-	 * Executes the T getProp operation and returns the resulting value.
-	 * @param schema the parameter value
-	 * @param propertyName the parameter value
-	 * @param clazz the parameter value
-	 * @return the resulting value
-	 */
 	public static <T> T getProp(Schema schema, String propertyName, Class<T> clazz) {
 		Object value = schema.getObjectProp(propertyName);
 		if (value == null) {
@@ -712,13 +658,6 @@ public enum AvroType {
 	 * @return the value of the property or null
 	 */
 	@SuppressWarnings("unchecked")
-	/**
-	 * Executes the T getProp operation and returns the resulting value.
-	 * @param field the parameter value
-	 * @param propertyName the parameter value
-	 * @param clazz the parameter value
-	 * @return the resulting value
-	 */
 	public static <T> T getProp(Field field, String propertyName, Class<T> clazz) {
 		Object value = field.getObjectProp(propertyName);
 		if (value == null) {
@@ -746,13 +685,6 @@ public enum AvroType {
 	 * @param length maximum length of the data type, ignored if it does not apply
 	 * @param scale in case of a decimal, not used for all others
 	 * @return the Avro data type
-	 */
-	/**
-	 * Executes the IAvroDatatype getDataType operation and returns the resulting value.
-	 * @param type the parameter value
-	 * @param length the parameter value
-	 * @param scale the parameter value
-	 * @return the resulting value
 	 */
 	public static IAvroDatatype getDataType(AvroType type, int length, int scale) {
 		if (type == null) {

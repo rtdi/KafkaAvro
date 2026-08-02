@@ -37,40 +37,26 @@ public class AvroUnion implements IAvroDatatype {
 		super();
 	}
 
-	/**
-	 * Executes the String getName operation.
-	 */
-	public String getName() {
-		return NAME;
-	}
-
     /**
-     * Executes the String getType operation.
+     * get the name of the type as used in the Avro schema
+	 * @return the name of the type
      */
     public String getType() {
-        return getName();
+        return NAME;
     }
 
 	/**
 	 * Create an instance of that type.
 	 * @return the instance
 	 */
-	/**
-	 * Executes the AvroUnion create operation and returns the resulting value.
-	 * @return the resulting value
-	 */
 	public static AvroUnion create() {
 		return new AvroUnion();
 	}
 
-		/**
-	 * Create an instance of that type.
-	 * @return the instance
-	 */
 	/**
-	 * Executes the AvroUnion create operation and returns the resulting value.
-	 * @param schema the parameter value
-	 * @return the resulting value
+	 * Create an instance of that type.
+	 * @param schema the schema to create the union from
+	 * @return the instance
 	 */
 	public static AvroUnion create(Schema schema) {
 		AvroUnion element = new AvroUnion();
@@ -80,28 +66,19 @@ public class AvroUnion implements IAvroDatatype {
 
 
 	/**
+	 * creates the schema for this logical type.
 	 * @return the static schema of this type
-	 */
-	/**
-	 * Executes the Schema createSchema operation.
 	 */
 	public Schema createSchema() {
 		return Schema.createUnion(types.stream().map(t -> t.createSchema()).toList());
 	}
 
 	@Override
-	/**
-	 * Executes the String toString operation.
-	 */
 	public String toString() {
 		return NAME;
 	}
 
 	@Override
-	/**
-	 * Executes the Object convertToInternal operation.
-	 * @param value the parameter value
-	 */
 	public Object convertToInternal(Object value) throws AvroDataTypeException {
 		if (value instanceof GenericRecord) {
 			return value;
@@ -113,10 +90,6 @@ public class AvroUnion implements IAvroDatatype {
 	}
 
 	@Override
-	/**
-	 * Executes the Object convertToJava operation.
-	 * @param value the parameter value
-	 */
 	public Object convertToJava(Object value) throws AvroDataTypeException {
 		if (value instanceof GenericRecord) {
 			return value;
@@ -130,11 +103,6 @@ public class AvroUnion implements IAvroDatatype {
 	}
 
 	@Override
-	/**
-	 * Executes the void toString operation.
-	 * @param b the parameter value
-	 * @param value the parameter value
-	 */
 	public void toString(StringBuffer b, Object value) {
 		if (value != null) {
 			b.append(value);
@@ -142,25 +110,16 @@ public class AvroUnion implements IAvroDatatype {
 	}
 
 	@Override
-	/**
-	 * Executes the Type getBackingType operation.
-	 */
 	public Type getBackingType() {
 		return Type.UNION;
 	}
 
 	@Override
-	/**
-	 * Executes the Schema getDatatypeSchema operation.
-	 */
 	public Schema getDatatypeSchema() {
 		return null;
 	}
 
 	@Override
-	/**
-	 * Executes the AvroType getAvroType operation.
-	 */
 	public AvroType getAvroType() {
 		return AvroType.AVROUNION;
 	}
@@ -179,19 +138,11 @@ public class AvroUnion implements IAvroDatatype {
 	 *
 	 * @param types the list of types
 	 */
-	/**
-	 * Executes the void setTypes operation.
-	 * @param types the parameter value
-	 */
 	public void setTypes(List<IAvroDatatype> types) {
 		this.types = types;
 	}
 
 	@Override
-	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
-	 */
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -208,10 +159,6 @@ public class AvroUnion implements IAvroDatatype {
 	 *
 	 * @param value the value to find the schema for
 	 * @return the schema or null if not found
-	 */
-	/**
-	 * Executes the Schema getDatatypeSchemaFor operation.
-	 * @param value the parameter value
 	 */
 	public Schema getDatatypeSchemaFor(Object value) {
 		if (value == null) {
@@ -250,10 +197,6 @@ public class AvroUnion implements IAvroDatatype {
 
 
 	@Override
-	/**
-	 * Executes the String convertToJson operation.
-	 * @param value the parameter value
-	 */
 	public String convertToJson(Object value) throws AvroDataTypeException, JsonProcessingException {
 		if (value == null) {
 			return "null";

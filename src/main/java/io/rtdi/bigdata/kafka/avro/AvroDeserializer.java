@@ -31,16 +31,18 @@ public class AvroDeserializer {
 	}
 
 	/**
+	 * Creates a new instance of this class.
+	 */
+	public AvroDeserializer() {
+		super();
+	}
+
+	/**
 	 * Takes the Kafka message payload and extract the schemaid from it. Based on that the schema can be read from the schema registry.
 	 *
 	 * @param data Kafka message payload in binary form
 	 * @return schemaid associated with that message
 	 * @throws IOException in case this is not a valid Avro Kafka message
-	 */
-	/**
-	 * Executes the int getSchemaId operation and returns the resulting value.
-	 * @param data the parameter value
-	 * @return the resulting value
 	 */
 	public static int getSchemaId(byte[] data) throws IOException {
 		if (data != null) {
@@ -65,11 +67,6 @@ public class AvroDeserializer {
 	 * @param schema used for the deserialization
 	 * @return AvroRecord in Jexl abstraction
 	 * @throws IOException in case this is not a valid Avro Kafka message
-	 */
-	/**
-	 * Executes the GenericRecord deserialize operation.
-	 * @param data the parameter value
-	 * @param schema the parameter value
 	 */
 	public GenericRecord deserialize(byte[] data, Schema schema) throws IOException {
 		if (data != null) {

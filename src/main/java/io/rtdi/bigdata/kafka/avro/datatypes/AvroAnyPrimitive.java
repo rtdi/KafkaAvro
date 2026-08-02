@@ -3,6 +3,8 @@ package io.rtdi.bigdata.kafka.avro.datatypes;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 
 /**
@@ -31,47 +33,35 @@ public class AvroAnyPrimitive implements IAvroPrimitive {
 	}
 
 	/**
+	 * Gets the schema of this datatype.
 	 * @return the static schema of this type
-	 */
-	/**
-	 * Executes the Schema createSchema operation.
 	 */
 	public Schema createSchema() {
 		return schema;
 	}
 
 	/**
-	 * Executes the String getName operation.
+	 * Constructor for this static instance
 	 */
-	public String getName() {
-		return NAME;
+	private AvroAnyPrimitive() {
+		super();
 	}
-	
-    /**
-     * Executes the String getType operation.
-     */
+
+	@Override
     public String getType() {
-        return getName();
+        return NAME;
     }
 
 	/**
-	 * Create an instance of that type.
+	 * Create an AvroAnyPrimitive instance.
 	 * @return the instance
 	 */
-	/**
-	 * Executes the AvroAnyPrimitive create operation and returns the resulting value.
-	 * @return the resulting value
-	 */
+	@JsonCreator
 	public static AvroAnyPrimitive create() {
 		return element;
 	}
 
-
 	@Override
-	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
-	 */
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -83,45 +73,26 @@ public class AvroAnyPrimitive implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the int hashCode operation.
-	 */
 	public int hashCode() {
 		return 1;
 	}
 
 	@Override
-	/**
-	 * Executes the String toString operation.
-	 */
 	public String toString() {
 		return NAME;
 	}
 
 	@Override
-	/**
-	 * Executes the Object convertToInternal operation.
-	 * @param value the parameter value
-	 */
 	public Object convertToInternal(Object value) {
 		return value;
 	}
 
 	@Override
-	/**
-	 * Executes the Object convertToJava operation.
-	 * @param value the parameter value
-	 */
 	public Object convertToJava(Object value) throws AvroDataTypeException {
 		return value;
 	}
 
 	@Override
-	/**
-	 * Executes the void toString operation.
-	 * @param b the parameter value
-	 * @param value the parameter value
-	 */
 	public void toString(StringBuffer b, Object value) {
 		if (value != null) {
 			b.append(value.toString());
@@ -129,34 +100,21 @@ public class AvroAnyPrimitive implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the Type getBackingType operation.
-	 */
 	public Type getBackingType() {
 		return Type.UNION;
 	}
 
 	@Override
-	/**
-	 * Executes the Schema getDatatypeSchema operation.
-	 */
 	public Schema getDatatypeSchema() {
 		return schema;
 	}
 
 	@Override
-	/**
-	 * Executes the AvroType getAvroType operation.
-	 */
 	public AvroType getAvroType() {
 		return AvroType.AVROANYPRIMITIVE;
 	}
 
 	@Override
-	/**
-	 * Executes the String convertToJson operation.
-	 * @param value the parameter value
-	 */
 	public String convertToJson(Object value) {
 		if (value == null) {
 			return "null";

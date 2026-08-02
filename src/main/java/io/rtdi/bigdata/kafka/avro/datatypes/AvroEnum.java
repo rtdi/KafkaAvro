@@ -131,14 +131,6 @@ public class AvroEnum extends AvroLogicalType implements IAvroPrimitive {
 	 * @param doc of the enum
 	 * @return the instance
 	 */
-	/**
-	 * Executes the AvroEnum create operation and returns the resulting value.
-	 * @param name the parameter value
-	 * @param namespace the parameter value
-	 * @param symbols the parameter value
-	 * @param doc the parameter value
-	 * @return the resulting value
-	 */
 	public static AvroEnum create(String name, String namespace, String[] symbols, String doc) {
 		return new AvroEnum(name, namespace, symbols, doc);
 	}
@@ -167,13 +159,6 @@ public class AvroEnum extends AvroLogicalType implements IAvroPrimitive {
 	 * @param doc of the enum
 	 * @return the instance
 	 */
-	/**
-	 * Executes the AvroEnum create operation and returns the resulting value.
-	 * @param name the parameter value
-	 * @param symbols the parameter value
-	 * @param doc the parameter value
-	 * @return the resulting value
-	 */
 	public static AvroEnum create(String name, String[] symbols, String doc) {
 		return create(name, null, symbols, doc);
 	}
@@ -184,30 +169,17 @@ public class AvroEnum extends AvroLogicalType implements IAvroPrimitive {
 	 * @param schema of the enum
 	 * @return instance of the AvroEnum
 	 */
-	/**
-	 * Executes the AvroEnum create operation and returns the resulting value.
-	 * @param schema the parameter value
-	 * @return the resulting value
-	 */
 	public static AvroEnum create(Schema schema) {
 		AvroEnum element = new AvroEnum(schema.getName(), schema.getNamespace(), schema.getEnumSymbols().toArray(new String[0]), schema.getDoc());
 		return element;
 	}
 
 	@Override
-	/**
-	 * Executes the Schema addToSchema operation.
-	 * @param schema the parameter value
-	 */
 	public Schema addToSchema(Schema schema) {
 		return super.addToSchema(schema);
 	}
 
 	@Override
-	/**
-	 * Executes the void validate operation.
-	 * @param schema the parameter value
-	 */
 	public void validate(Schema schema) {
 		super.validate(schema);
 		// validate the type
@@ -217,10 +189,6 @@ public class AvroEnum extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
-	 */
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -232,26 +200,16 @@ public class AvroEnum extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the int hashCode operation.
-	 */
 	public int hashCode() {
 		return 1;
 	}
 
 	@Override
-	/**
-	 * Executes the String toString operation.
-	 */
 	public String toString() {
 		return NAME;
 	}
 
 	@Override
-	/**
-	 * Executes the EnumSymbol convertToInternal operation.
-	 * @param value the parameter value
-	 */
 	public EnumSymbol convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
@@ -263,10 +221,6 @@ public class AvroEnum extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the String convertToJava operation.
-	 * @param value the parameter value
-	 */
 	public String convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
@@ -289,7 +243,7 @@ public class AvroEnum extends AvroLogicalType implements IAvroPrimitive {
 
 		@Override
 		/**
-		 * Executes the LogicalType fromSchema operation.
+		 * creates the LogicalType fromSchema operation.
 		 * @param schema the parameter value
 		 */
 		public LogicalType fromSchema(Schema schema) {
@@ -299,11 +253,6 @@ public class AvroEnum extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the void toString operation.
-	 * @param b the parameter value
-	 * @param value the parameter value
-	 */
 	public void toString(StringBuffer b, Object value) {
 		if (value != null) {
 			b.append('\"');
@@ -313,34 +262,21 @@ public class AvroEnum extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the Type getBackingType operation.
-	 */
 	public Type getBackingType() {
 		return Type.ENUM;
 	}
 
 	@Override
-	/**
-	 * Executes the Schema getDatatypeSchema operation.
-	 */
 	public Schema getDatatypeSchema() {
 		return null;
 	}
 
 	@Override
-	/**
-	 * Executes the AvroType getAvroType operation.
-	 */
 	public AvroType getAvroType() {
 		return AvroType.AVROENUM;
 	}
 
 	@Override
-	/**
-	 * Executes the String convertToJson operation.
-	 * @param value the parameter value
-	 */
 	public String convertToJson(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return "null";

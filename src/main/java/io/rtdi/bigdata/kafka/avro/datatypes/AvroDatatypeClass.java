@@ -46,10 +46,8 @@ public enum AvroDatatypeClass {
 	}
 
 	/**
+	 * The hierarchy level of within a stream of compatible data types.
 	 * @return the level constant for each data type class
-	 */
-	/**
-	 * Executes the int getLevel operation.
 	 */
 	public int getLevel() {
 		return level;

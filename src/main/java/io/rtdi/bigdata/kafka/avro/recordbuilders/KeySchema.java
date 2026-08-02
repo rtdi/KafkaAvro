@@ -19,28 +19,19 @@ import org.apache.avro.SchemaBuilderException;
 public class KeySchema extends RecordSchema {
 
 	/**
+	 * Create a new instance of this class.
 	 * @param name of the key schema
 	 * @param namespace optional namespace identifier
 	 * @param description free form text
-	 */
-	/**
-	 * Creates a new instance of this class.
-	 * @param name the parameter value
-	 * @param namespace the parameter value
-	 * @param description the parameter value
 	 */
 	public KeySchema(String name, String namespace, String description) {
 		super(name, namespace, description);
 	}
 
 	/**
+	 * Create a new instance of this class.
 	 * @param name of the key schema
 	 * @param description free form text
-	 */
-	/**
-	 * Creates a new instance of this class.
-	 * @param name the parameter value
-	 * @param description the parameter value
 	 */
 	public KeySchema(String name, String description) {
 		super(name, description);
@@ -52,11 +43,6 @@ public class KeySchema extends RecordSchema {
 	 * @param valueschema the key schema is based on
 	 * @return KeySchema
 	 * @throws SchemaBuilderException if the value schema is invalid
-	 */
-	/**
-	 * Executes the Schema create operation and returns the resulting value.
-	 * @param valueschema the parameter value
-	 * @return the resulting value
 	 */
 	public static Schema create(ValueSchema valueschema) throws SchemaBuilderException {
 		KeySchema kbuilder = new KeySchema(valueschema.getName(), valueschema.getNamespace(), valueschema.getDoc());

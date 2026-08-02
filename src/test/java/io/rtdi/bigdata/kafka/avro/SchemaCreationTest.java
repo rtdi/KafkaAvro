@@ -29,24 +29,18 @@ public class SchemaCreationTest {
 	private ObjectMapper om = AvroUtils.createJacksonOM();
 
 	/**
+	 * Prepare the test environment
 	 * @throws Exception if something goes wrong
 	 */
 	@BeforeAll
-	/**
-	 * Executes the void setUp operation and returns the resulting value.
-	 * @return the resulting value
-	 */
 	public static void setUp() throws Exception {
 	}
 
 	/**
+	 * tears down the test environment after all tests are run.
 	 * @throws Exception if something goes wrong
 	 */
 	@AfterAll
-	/**
-	 * Executes the void tearDown operation and returns the resulting value.
-	 * @return the resulting value
-	 */
 	public static void tearDown() throws Exception {
 	}
 
@@ -54,9 +48,6 @@ public class SchemaCreationTest {
 	 * Tests
 	 */
 	@Test
-	/**
-	 * Executes the void test operation.
-	 */
 	public void test() {
 		try {
 			// Build a schema manually

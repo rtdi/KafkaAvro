@@ -131,7 +131,7 @@ public class AvroField {
 	}
 
 	/**
-	 * Executes the AvroField create operation and returns the resulting value.
+	 * create a field based on another field
 	 * @param avrofield the parameter value
 	 * @return the resulting value
 	 */
@@ -167,7 +167,8 @@ public class AvroField {
 
 	@JsonIgnore
 	/**
-	 * Executes the Field getAvroField operation.
+	 * Constructs the schema
+	 * @return the Avro field
 	 */
 	public Field getAvroField() {
 		Schema fieldSchema = datatype.createSchema();
@@ -219,14 +220,15 @@ public class AvroField {
 	}
 
 	/**
-	 * Executes the IAvroDatatype getDatatype operation.
+	 * get the datatype of the field
+	 * @return the the datatype of the field
 	 */
 	public IAvroDatatype getDatatype() {
 		return datatype;
 	}
 
 	/**
-	 * Executes the void setDatatype operation.
+	 * Sets the datatype of the field.
 	 * @param schema the parameter value
 	 */
 	public void setDatatype(IAvroDatatype schema) {
@@ -234,14 +236,15 @@ public class AvroField {
 	}
 
 	/**
-	 * Executes the String getName operation.
+	 * get the name of the field
+	 * @return the name of the field
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * Executes the void setName operation.
+	 * Sets the name of the field.
 	 * @param name the parameter value
 	 */
 	public void setName(String name) {
@@ -249,14 +252,15 @@ public class AvroField {
 	}
 
 	/**
-	 * Executes the String getDoc operation.
+	 * get the documentation of the field
+	 * @return the documentation of the field
 	 */
 	public String getDoc() {
 		return doc;
 	}
 
 	/**
-	 * Executes the void setDoc operation.
+	 * Sets the documentation of the field.
 	 * @param doc the parameter value
 	 */
 	public void setDoc(String doc) {
@@ -264,14 +268,15 @@ public class AvroField {
 	}
 
 	/**
-	 * Executes the Object getDefaultValue operation.
+	 * get the default value of the field
+	 * @return the default value of the field
 	 */
 	public Object getDefaultValue() {
 		return defaultValue;
 	}
 
 	/**
-	 * Executes the void setDefaultValue operation.
+	 * Sets the default value of the field.
 	 * @param defaultValue the parameter value
 	 */
 	public void setDefaultValue(Object defaultValue) {
@@ -279,14 +284,15 @@ public class AvroField {
 	}
 
 	/**
-	 * Executes the boolean isNullable operation.
+	 * get whether the field is nullable
+	 * @return true if the field is optional
 	 */
 	public boolean isNullable() {
 		return nullable;
 	}
 
 	/**
-	 * Executes the void setNullable operation.
+	 * Sets whether the field is nullable.
 	 * @param nullable the parameter value
 	 */
 	public void setNullable(boolean nullable) {
@@ -308,10 +314,6 @@ public class AvroField {
 	 * @param sourcedatatype any textual identifier for the source system data type
 	 * @return this
 	 */
-	/**
-	 * Executes the AvroField setSourceDataType operation.
-	 * @param sourcedatatype the parameter value
-	 */
 	public AvroField setSourceDataType(String sourcedatatype) {
 		this.sourcedatatype = sourcedatatype;
 		return this;
@@ -323,9 +325,6 @@ public class AvroField {
 	 * @return the source data type identifier as specified
 	 */
 	@JsonGetter(COLUMN_PROP_SOURCEDATATYPE)
-	/**
-	 * Executes the String getSourceDataType operation.
-	 */
 	public String getSourceDataType() {
 		return sourcedatatype;
 	}
@@ -336,22 +335,17 @@ public class AvroField {
 	 * @param sensitivity of the field content
 	 * @return this
 	 */
-	/**
-	 * Executes the AvroField setSensitivity operation.
-	 * @param sensitivity the parameter value
-	 */
 	public AvroField setSensitivity(ContentSensitivity sensitivity) {
 		this.sensitivity = sensitivity;
 		return this;
 	}
 
 	/**
+	 * get the field's content sensitivity
+	 * 
 	 * @return the field's content sensitivity
 	 */
 	@JsonGetter(COLUMN_PROP_CONTENT_SENSITIVITY)
-	/**
-	 * Executes the ContentSensitivity getSensitivity operation.
-	 */
 	public ContentSensitivity getSensitivity() {
 		return sensitivity;
 	}
@@ -361,17 +355,15 @@ public class AvroField {
 	 *
 	 * @param name of the source field
 	 */
-	/**
-	 * Executes the void setOriginalName operation.
-	 * @param name the parameter value
-	 */
 	public void setOriginalName(String name) {
 		this.originalname = name;
 	}
 	
 	@JsonGetter(COLUMN_PROP_ORIGINALNAME)
 	/**
-	 * Executes the String getOriginalName operation.
+	 * Get the original column name
+	 * 
+	 * @return the original column name
 	 */
 	public String getOriginalName() {
 		return originalname;
@@ -380,11 +372,8 @@ public class AvroField {
 	/**
 	 * Mark the field as an internal field, not one that is part of any official payload - source system id for example
 	 *
-	 * @return this
-	 */
-	/**
-	 * Executes the AvroField setInternal operation.
 	 * @param isinternal the parameter value
+	 * @return this
 	 */
 	public AvroField setInternal(Boolean isinternal) {
 		this.isinternal = isinternal;
@@ -397,9 +386,6 @@ public class AvroField {
 	 * @return true is the field is marked as internal
 	 */
 	@JsonGetter(COLUMN_PROP_INTERNAL)
-	/**
-	 * Executes the Boolean isInternal operation.
-	 */
 	public Boolean isInternal() {
 		return isinternal;
 	}
@@ -407,11 +393,8 @@ public class AvroField {
 	/**
 	 * Mark the field as technical field, a field that is not part of the actual payload but contains some more data needed for other reasons
 	 *
-	 * @return this
-	 */
-	/**
-	 * Executes the AvroField setTechnical operation.
 	 * @param istechnical the parameter value
+	 * @return this
 	 */
 	public AvroField setTechnical(Boolean istechnical) {
 		this.istechnical = istechnical;
@@ -424,21 +407,45 @@ public class AvroField {
 	 * @return true if the field was marked as technical field
 	 */
 	@JsonGetter(COLUMN_PROP_TECHNICAL)
-	/**
-	 * Executes the Boolean getTechnical operation.
-	 */
 	public Boolean getTechnical() {
 		return istechnical;
 	}
 
-
+	/**
+	 * 
+	 * ColumnType tells something about the semantic usage of the field
+	 */
 	public enum ColumnType {
-		MEASURE, ATTRIBUTE, CURRENCY, UOM, TEXT, HIERARCHY
+		/**
+		 * a field that can be aggregated, e.g. a sales amount
+		 */
+		MEASURE,
+		/**
+		 * a field that describes an attribute, e.g. a product name
+		 */
+		ATTRIBUTE,
+		/**
+		 * a field that represents a currency
+		 */
+		CURRENCY,
+		/**
+		 * a field that represents a unit of measure
+		 */
+		UOM,
+		/**
+		 * a field that contains text data
+		 */
+		TEXT,
+		/**
+		 * a field that represents a hierarchy
+		 */
+		HIERARCHY
 	}
 
 	/**
-	 * Executes the AvroField setSemantics operation.
+	 * Sets the semantics of the field.
 	 * @param semantics the parameter value
+	 * @return this
 	 */
 	public AvroField setSemantics(ColumnSemantics semantics) {
 		this.semantics = semantics;
@@ -447,17 +454,14 @@ public class AvroField {
 
 	@JsonGetter(COLUMN_PROP_SEMANTICS)
 	/**
-	 * Executes the ColumnSemantics getSemantics operation.
+	 * Gets the semantics of the field.
+	 * @return the column semantics
 	 */
 	public ColumnSemantics getSemantics() {
 		return this.semantics;
 	}
 
 	@Override
-	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
-	 */
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -503,9 +507,6 @@ public class AvroField {
 	}
 
 	@Override
-	/**
-	 * Executes the int hashCode operation.
-	 */
 	public int hashCode() {
 		return this.name.hashCode();
 	}

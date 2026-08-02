@@ -27,33 +27,27 @@ public abstract class LogicalTypeWithLength extends AvroLogicalType implements I
 
 	
 	/**
-	 * Executes the void setLength operation.
-	 * @param length the parameter value
+	 * set the length portion of the field
+	 * @param length length of the data type
 	 */
 	public void setLength(int length) {
 		this.length = length;
 	}
 
 	/**
+	 * Get the length portion of the field
 	 * @return length of the data type
-	 */
-	/**
-	 * Executes the int getLength operation.
 	 */
 	public int getLength() {
 		return length;
 	}
 
 	/**
+	 * Extract the length info from the schema
 	 * @param schema of the logical type
 	 * @return the extracted length information from the schema
 	 */
 	@JsonIgnore
-	/**
-	 * Executes the Integer getLengthProperty operation and returns the resulting value.
-	 * @param schema the parameter value
-	 * @return the resulting value
-	 */
 	public static Integer getLengthProperty(Schema schema) {
 		Object p = schema.getObjectProp(LENGTH_PROP);
 		if (p == null) {
@@ -71,10 +65,6 @@ public abstract class LogicalTypeWithLength extends AvroLogicalType implements I
 	}
 
 	@Override
-	/**
-	 * Executes the void validate operation.
-	 * @param schema the parameter value
-	 */
 	public void validate(Schema schema) {
 		super.validate(schema);
 		// validate the type
@@ -84,10 +74,6 @@ public abstract class LogicalTypeWithLength extends AvroLogicalType implements I
 	}
 
 	@Override
-	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
-	 */
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -106,18 +92,11 @@ public abstract class LogicalTypeWithLength extends AvroLogicalType implements I
 	}
 
 	@Override
-	/**
-	 * Executes the int hashCode operation.
-	 */
 	public int hashCode() {
 		return Integer.hashCode(length);
 	}
 
 	@Override
-	/**
-	 * Executes the Schema addToSchema operation.
-	 * @param schema the parameter value
-	 */
 	public Schema addToSchema(Schema schema) {
 		super.addToSchema(schema);
 		schema.addProp(LENGTH_PROP, length);
@@ -125,22 +104,16 @@ public abstract class LogicalTypeWithLength extends AvroLogicalType implements I
 	}
 
 	@Override
-	/**
-	 * Executes the String toString operation.
-	 */
 	public String toString() {
 		return getName() + "(" + length + ")";
 	}
 
-	/**
-	 * @param text of the data type like VARCHAR(10)
-	 * @return the length attribute inside above text or -1 if none provided
-	 */
 	@JsonIgnore
 	/**
-	 * Executes the int getLengthPortion operation and returns the resulting value.
-	 * @param text the parameter value
-	 * @return the resulting value
+	 * Get the length portion of the field from a string representation of the type
+	 * The string representation is the toString() of this class
+	 * @param text as the string representation of the type
+	 * @return the length portion of the field
 	 */
 	public static int getLengthPortion(String text) {
 		int i = text.indexOf('(');
