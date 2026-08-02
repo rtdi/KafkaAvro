@@ -10,9 +10,9 @@
                 "length": 1,
                 "type": "VARCHAR"
             },
-            "__originalname": "__change_type",
+            "__internal": true,
             "__technical": true,
-            "__internal": true
+            "__originalname": "__change_type"
         },
         {
             "name": "__truncate",
@@ -37,9 +37,9 @@
                 "name": "TIMESTAMP",
                 "type": "TIMESTAMP"
             },
-            "__originalname": "__change_time",
+            "__internal": true,
             "__technical": true,
-            "__internal": true
+            "__originalname": "__change_time"
         },
         {
             "name": "__source_rowid",
@@ -50,9 +50,9 @@
                 "length": 30,
                 "type": "VARCHAR"
             },
-            "__originalname": "__source_rowid",
+            "__internal": true,
             "__technical": true,
-            "__internal": true
+            "__originalname": "__source_rowid"
         },
         {
             "name": "__source_transaction",
@@ -63,9 +63,9 @@
                 "length": 30,
                 "type": "VARCHAR"
             },
-            "__originalname": "__source_transaction",
+            "__internal": true,
             "__technical": true,
-            "__internal": true
+            "__originalname": "__source_transaction"
         },
         {
             "name": "__source_system",
@@ -76,48 +76,9 @@
                 "length": 30,
                 "type": "VARCHAR"
             },
-            "__originalname": "__source_system",
+            "__internal": true,
             "__technical": true,
-            "__internal": true
-        },
-        {
-            "name": "__extension",
-            "doc": "Add more columns beyond the official logical data model",
-            "nullable": true,
-            "datatype": {
-                "name": "ARRAY",
-                "datatype": {
-                    "fields": [
-                        {
-                            "name": "__path",
-                            "doc": "An unique identifier, e.g. \"street\".\"house number component\"",
-                            "nullable": false,
-                            "datatype": {
-                                "name": "STRING",
-                                "type": "STRING"
-                            },
-                            "__originalname": "__path"
-                        },
-                        {
-                            "name": "__value",
-                            "doc": "The value of any primitive datatype of Avro",
-                            "nullable": false,
-                            "datatype": {
-                                "name": "STRING",
-                                "type": "STRING"
-                            },
-                            "__originalname": "__value"
-                        }
-                    ],
-                    "name": "__extension",
-                    "doc": "Extension point to add custom values to each record",
-                    "type": "RECORD",
-                    "__originalname": "__extension"
-                },
-                "type": "ARRAY"
-            },
-            "__originalname": "__extension",
-            "__internal": true
+            "__originalname": "__source_system"
         },
         {
             "name": "__extension_map",
@@ -131,12 +92,12 @@
                 },
                 "type": "MAP"
             },
-            "__originalname": "__extension_map",
-            "__internal": true
+            "__internal": true,
+            "__originalname": "__extension_map"
         },
         {
             "name": "__audit",
-            "doc": "If data is transformed this information is recorded here",
+            "doc": "If data is transformed, this information is recorded here",
             "nullable": true,
             "datatype": {
                 "fields": [
@@ -218,8 +179,8 @@
                 "type": "RECORD",
                 "__originalname": "__audit"
             },
-            "__originalname": "__audit",
-            "__internal": true
+            "__internal": true,
+            "__originalname": "__audit"
         },
         {
             "name": "PKCOL1",
