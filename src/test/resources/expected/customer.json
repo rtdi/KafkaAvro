@@ -81,45 +81,6 @@
             "__originalname": "__source_system"
         },
         {
-            "name": "__extension",
-            "doc": "Add more columns beyond the official logical data model",
-            "nullable": true,
-            "datatype": {
-                "name": "ARRAY",
-                "datatype": {
-                    "fields": [
-                        {
-                            "name": "__path",
-                            "doc": "An unique identifier, e.g. \"street\".\"house number component\"",
-                            "nullable": false,
-                            "datatype": {
-                                "name": "STRING",
-                                "type": "STRING"
-                            },
-                            "__originalname": "__path"
-                        },
-                        {
-                            "name": "__value",
-                            "doc": "The value of any primitive datatype of Avro",
-                            "nullable": false,
-                            "datatype": {
-                                "name": "STRING",
-                                "type": "STRING"
-                            },
-                            "__originalname": "__value"
-                        }
-                    ],
-                    "name": "__extension",
-                    "doc": "Extension point to add custom values to each record",
-                    "type": "RECORD",
-                    "__originalname": "__extension"
-                },
-                "type": "ARRAY"
-            },
-            "__internal": true,
-            "__originalname": "__extension"
-        },
-        {
             "name": "__extension_map",
             "doc": "Add more values as a map beyond the official logical data model",
             "nullable": true,
@@ -136,7 +97,7 @@
         },
         {
             "name": "__audit",
-            "doc": "If data is transformed this information is recorded here",
+            "doc": "If data is transformed, this information is recorded here",
             "nullable": true,
             "datatype": {
                 "fields": [
@@ -293,24 +254,18 @@
     "semantics": {
         "type": "FACT"
     },
-    "object_level_security": [
-        "group1",
-        "group2"
-    ],
-    "pks": [
-        "CUSTOMER_ID"
-    ],
-    "data_product_owner_email": "owner@company.com",
     "retention_period": {
         "value": 6,
         "unit": "YEARS"
     },
-    "row_level_security": [
-        {
-            "dimension": "GBU",
-            "field": "GBU"
-        }
+    "pks": [
+        "CUSTOMER_ID"
     ],
+    "object_level_security": [
+        "group1",
+        "group2"
+    ],
+    "data_product_owner_email": "owner@company.com",
     "fks": [
         {
             "name": "Customer to Address",
@@ -322,6 +277,12 @@
                 }
             ],
             "schemaFQN": "ADDRESS"
+        }
+    ],
+    "row_level_security": [
+        {
+            "dimension": "GBU",
+            "field": "GBU"
         }
     ]
 }

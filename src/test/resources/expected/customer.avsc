@@ -73,39 +73,6 @@
     "__internal" : true,
     "__technical" : true
   }, {
-    "name" : "__extension",
-    "type" : [ "null", {
-      "type" : "array",
-      "items" : {
-        "type" : "record",
-        "name" : "__extension",
-        "doc" : "Extension point to add custom values to each record",
-        "fields" : [ {
-          "name" : "__path",
-          "type" : {
-            "type" : "string",
-            "logicalType" : "STRING"
-          },
-          "doc" : "An unique identifier, e.g. \"street\".\"house number component\"",
-          "__originalname" : "__path"
-        }, {
-          "name" : "__value",
-          "type" : {
-            "type" : "string",
-            "logicalType" : "STRING"
-          },
-          "doc" : "The value of any primitive datatype of Avro",
-          "__originalname" : "__value"
-        } ],
-        "__originalname" : "__extension"
-      },
-      "logicalType" : "ARRAY"
-    } ],
-    "doc" : "Add more columns beyond the official logical data model",
-    "default" : null,
-    "__originalname" : "__extension",
-    "__internal" : true
-  }, {
     "name" : "__extension_map",
     "type" : [ "null", {
       "type" : "map",
@@ -190,7 +157,7 @@
       } ],
       "__originalname" : "__audit"
     } ],
-    "doc" : "If data is transformed this information is recorded here",
+    "doc" : "If data is transformed, this information is recorded here",
     "default" : null,
     "__originalname" : "__audit",
     "__internal" : true
