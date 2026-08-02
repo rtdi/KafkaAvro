@@ -45,7 +45,7 @@ public class AvroField {
 	 */
 	public static final String COLUMN_PROP_CONTENT_SENSITIVITY = "__sensitivity";
 	/**
-	 * Column semantic information, see {@link ColumnSemantic}
+	 * Column semantic information, see {@link ColumnSemantics}
 	 */
 	public static final String COLUMN_PROP_SEMANTICS = "semantics";
 
@@ -165,11 +165,11 @@ public class AvroField {
 		return f;
 	}
 
-	@JsonIgnore
 	/**
 	 * Constructs the schema
 	 * @return the Avro field
 	 */
+	@JsonIgnore
 	public Field getAvroField() {
 		Schema fieldSchema = datatype.createSchema();
 		Field f = null;
@@ -299,6 +299,12 @@ public class AvroField {
 		this.nullable = nullable;
 	}
 
+	/**
+	 * return the schema of the field
+	 * @param schema the child schema
+	 * @param nullable true if the field is optional
+	 * @return the schema of the field
+	 */
 	@JsonIgnore
 	protected static Schema getSchema(Schema schema, boolean nullable) {
 		if (nullable && schema.getType() != Type.UNION) { // a union of union is not supported
@@ -359,12 +365,12 @@ public class AvroField {
 		this.originalname = name;
 	}
 	
-	@JsonGetter(COLUMN_PROP_ORIGINALNAME)
 	/**
 	 * Get the original column name
 	 * 
 	 * @return the original column name
 	 */
+	@JsonGetter(COLUMN_PROP_ORIGINALNAME)
 	public String getOriginalName() {
 		return originalname;
 	}
@@ -452,11 +458,11 @@ public class AvroField {
 		return this;
 	}
 
-	@JsonGetter(COLUMN_PROP_SEMANTICS)
 	/**
 	 * Gets the semantics of the field.
 	 * @return the column semantics
 	 */
+	@JsonGetter(COLUMN_PROP_SEMANTICS)
 	public ColumnSemantics getSemantics() {
 		return this.semantics;
 	}

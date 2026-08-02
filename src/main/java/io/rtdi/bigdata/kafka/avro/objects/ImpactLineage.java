@@ -7,14 +7,21 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroMap;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroString;
 import io.rtdi.bigdata.kafka.avro.datatypes.RecordSchema;
 import io.rtdi.bigdata.kafka.avro.recordbuilders.ValueSchema;
 
-
+/**
+ * ImpactLineage
+ */
 public class ImpactLineage {
 
+    /**
+     * The schema used to describe impact-lineage records.
+     */
     public static ValueSchema impact_lineage_value_schema = new ValueSchema("impact_lineage", null);
     static {
         RecordSchema column_source_record = new RecordSchema("column_source", "Table/column information of the source");
@@ -86,6 +93,11 @@ public class ImpactLineage {
         this.dataflowName = dataflowName;
     }
 
+    /**
+     * Gets the target-table mapping collection.
+     * @return the target-table map
+     */
+    @JsonProperty("target_tables")
     public Map<String, TargetTable> getTargetTables() {
         return targetTables;
     }
@@ -95,6 +107,7 @@ public class ImpactLineage {
      *
      * @return the producer name
      */
+    @JsonProperty("producer_name")
     public String getProducerName() {
         return producerName;
     }
@@ -113,6 +126,7 @@ public class ImpactLineage {
      *
      * @return the dataflow name
      */
+    @JsonProperty("dataflow_name")
     public String getDataflowName() {
         return dataflowName;
     }
@@ -124,15 +138,6 @@ public class ImpactLineage {
      */
     public void setDataflowName(String dataflowName) {
         this.dataflowName = dataflowName;
-    }
-
-    /**
-     * Replaces the schema used to describe impact-lineage records.
-     *
-     * @param impact_lineage_value_schema the schema object to use
-     */
-    public static void setImpact_lineage_value_schema(ValueSchema impact_lineage_value_schema) {
-        ImpactLineage.impact_lineage_value_schema = impact_lineage_value_schema;
     }
 
     /**
@@ -161,6 +166,9 @@ public class ImpactLineage {
         }
     }
 
+    /**
+     * A SourceTable represents a source table and has a unique, random key.
+     */
     public static class SourceTable {
         private String sourceTableName;
         private String sourceConnection;
@@ -194,6 +202,7 @@ public class ImpactLineage {
          *
          * @return the source table name
          */
+        @JsonProperty("source_table_name")
         public String getSourceTableName() {
             return sourceTableName;
         }
@@ -212,6 +221,7 @@ public class ImpactLineage {
          *
          * @return the source connection information
          */
+        @JsonProperty("source_connection")
         public String getSourceConnection() {
             return sourceConnection;
         }
@@ -230,6 +240,7 @@ public class ImpactLineage {
          *
          * @return the mapping formula
          */
+        @JsonProperty("mapping_formula")
         public String getMappingFormula() {
             return mappingFormula;
         }
@@ -248,6 +259,7 @@ public class ImpactLineage {
          *
          * @return the mapping description
          */
+        @JsonProperty("mapping_description")
         public String getMappingDescription() {
             return mappingDescription;
         }
@@ -307,6 +319,9 @@ public class ImpactLineage {
         }
     }
 
+    /**
+     * A ColumnSource represents a source table column.
+     */
     public static class ColumnSource {
         private String sourceColumnName;
 
@@ -330,6 +345,7 @@ public class ImpactLineage {
          *
          * @return the source column name
          */
+        @JsonProperty("source_column_name")
         public String getSourceColumnName() {
             return sourceColumnName;
         }
@@ -369,6 +385,9 @@ public class ImpactLineage {
 
     }
 
+    /**
+     * A TargetTableColumn represents a target table column and contains the column level mapping.
+     */
     public static class TargetTableColumn {
         private String columnName;
         private String mappingFormula;
@@ -399,6 +418,7 @@ public class ImpactLineage {
          *
          * @return the target column name
          */
+        @JsonProperty("column_name")
         public String getColumnName() {
             return columnName;
         }
@@ -417,6 +437,7 @@ public class ImpactLineage {
          *
          * @return the mapping formula
          */
+        @JsonProperty("mapping_formula")
         public String getMappingFormula() {
             return mappingFormula;
         }
@@ -435,6 +456,7 @@ public class ImpactLineage {
          *
          * @return the mapping description
          */
+        @JsonProperty("mapping_description")
         public String getMappingDescription() {
             return mappingDescription;
         }
@@ -448,6 +470,11 @@ public class ImpactLineage {
             this.mappingDescription = mappingDescription;
         }
 
+        /**
+         * Gets the source-column mapping collection for the target column.
+         * @return the source-column map
+         */
+        @JsonProperty("column_sources")
         public Map<String, List<ColumnSource>> getColumnSources() {
             return columnSources;
         }
@@ -505,6 +532,9 @@ public class ImpactLineage {
 
     }
 
+    /**
+     * A TargetTable holds all information about which source tables contribute to it and the column level mapping for each target column.
+     */
     public static class TargetTable {
         private Map<String, SourceTable> sourceTables = new HashMap<>();
         private String targetTableName;
@@ -528,6 +558,11 @@ public class ImpactLineage {
             this.targetConnection = targetConnection;
         }
 
+        /**
+         * Gets the source-table mapping collection for the target table.
+         * @return the source-table map
+         */
+        @JsonProperty("source_tables")
         public Map<String, SourceTable> getSourceTables() {
             return sourceTables;
         }
@@ -537,6 +572,7 @@ public class ImpactLineage {
          *
          * @return the target table name
          */
+        @JsonProperty("target_table_name")
         public String getTargetTableName() {
             return targetTableName;
         }
@@ -555,6 +591,7 @@ public class ImpactLineage {
          *
          * @return the target connection information
          */
+        @JsonProperty("target_connection")
         public String getTargetConnection() {
             return targetConnection;
         }
@@ -568,6 +605,11 @@ public class ImpactLineage {
             this.targetConnection = targetConnection;
         }
 
+        /**
+         * Adds a source-table mapping to the target table.
+         * @return the added source-table mapping
+         */
+        @JsonProperty("target_columns")
         public Map<String, TargetTableColumn> getTargetColumns() {
             return targetColumns;
         }

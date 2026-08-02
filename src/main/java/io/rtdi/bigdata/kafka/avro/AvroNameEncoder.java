@@ -11,6 +11,12 @@ public class AvroNameEncoder {
 	static Pattern encoderpattern = Pattern.compile("(^[^A-Za-z_])|[^A-Za-z0-9_]");
 	static Pattern decoderpattern = Pattern.compile("_x[0-9a-f][0-9a-f][0-9a-f][0-9a-f]");
 
+	/**
+	 * Creates a new instance of this class.
+	 */
+	public AvroNameEncoder() {
+		super();
+	}
 
 	/**
 	 * Encode a string into a-z chars, escaping all other chars.

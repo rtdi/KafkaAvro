@@ -1,5 +1,8 @@
 package io.rtdi.bigdata.kafka.avro.objects;
 
+/**
+ * Provides semantic information about the type of a table.
+ */
 public enum TableType {
 	/**
 	 * This is primarily a fact table

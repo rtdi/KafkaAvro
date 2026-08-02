@@ -2,6 +2,9 @@ package io.rtdi.bigdata.kafka.avro.objects;
 
 import io.rtdi.bigdata.kafka.avro.AvroUtils;
 
+/**
+ * Represents the semantic information about a table.
+ */
 public class TableSemantics {
 	/**
 	 * What is the main purpose of this table? Fact, dimension,... 

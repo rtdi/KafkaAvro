@@ -32,11 +32,17 @@ public class RecordSchema implements IAvroDatatype {
 
 	private List<AvroField> fields = new ArrayList<>();
 	private Map<String, AvroField> columnnameindex = new HashMap<>();
+	/**
+	 * Jackson om
+	 */
 	protected ObjectMapper om = AvroUtils.createJacksonOM();
-	protected String name;
-	protected String namespace;
-	protected String doc;
-	protected String orginalname;
+	private String name;
+	private String namespace;
+	private String doc;
+	private String orginalname;
+	/**
+	 * Schema type name
+	 */
 	public static final String NAME = "RECORD";
 
 	/**
@@ -143,11 +149,11 @@ public class RecordSchema implements IAvroDatatype {
 		return this.doc;
 	}
 
-	@JsonGetter(AvroField.COLUMN_PROP_ORIGINALNAME)
 	/**
 	 * get the original name of the schema
 	 * @return the schema's original name
 	 */
+	@JsonGetter(AvroField.COLUMN_PROP_ORIGINALNAME)
 	public String getOrginalname() {
 		if (this.orginalname == null) {
 			return AvroNameEncoder.encodeName(this.name);
@@ -155,11 +161,11 @@ public class RecordSchema implements IAvroDatatype {
 		return this.orginalname;
 	}
 
-	@JsonSetter(AvroField.COLUMN_PROP_ORIGINALNAME)
 	/**
 	 * set the original name of the schema
 	 * @param orginalname the parameter value
 	 */
+	@JsonSetter(AvroField.COLUMN_PROP_ORIGINALNAME)
 	public void setOrginalname(String orginalname) {
 		this.orginalname = orginalname;
 	}
@@ -225,7 +231,7 @@ public class RecordSchema implements IAvroDatatype {
 	 * @return AvroField to set other properties of the field (fluent syntax)
 	 * @throws SchemaBuilderException if the schema is invalid
 	 *
-	 * @see AvroField#AvroField(String, Schema, String, boolean, Object)
+	 * @see AvroField#AvroField(String, IAvroDatatype, String, boolean, Object)
 	 */
 	public AvroField add(String columnname, IAvroDatatype schema, String description, boolean nullable) throws SchemaBuilderException {
 		Object defaultval = null;
@@ -247,7 +253,7 @@ public class RecordSchema implements IAvroDatatype {
 	 * @return AvroField to set other properties of the field (fluent syntax)
 	 * @throws SchemaBuilderException if the schema is invalid
 	 *
-	 * @see AvroField#AvroField(String, Schema, String, boolean, Object)
+	 * @see AvroField#AvroField(String, IAvroDatatype, String, boolean, Object)
 	 */
 	public AvroField add(String columnname, IAvroDatatype schema, String description, boolean nullable, Object defaultval) throws SchemaBuilderException {
 		AvroField field = new AvroField(columnname, schema, description, nullable, defaultval);
@@ -265,6 +271,11 @@ public class RecordSchema implements IAvroDatatype {
 		return columnnameindex.get(columnname);
 	}
 
+	/**
+	 * add a field to the schema and update the columnname index
+	 * @param field to add
+	 * @throws SchemaBuilderException in case of an error
+	 */
 	protected void add(AvroField field) throws SchemaBuilderException {
 		fields.add(field);
 		columnnameindex.put(field.getName(), field);
@@ -474,6 +485,7 @@ public class RecordSchema implements IAvroDatatype {
 	/**
 	 * Serialize the class into object json.
 	 * @return the serialized class in JSON format
+	 * @throws JsonProcessingException in case the serialization fails
 	 */
 	public String toObjectJson() throws JsonProcessingException {
 		return om.writeValueAsString(this);
@@ -483,6 +495,8 @@ public class RecordSchema implements IAvroDatatype {
 	 * Deserialize the class from object json.
 	 * @param json the parameter value
 	 * @return the resulting value
+	 * @throws JsonMappingException in case the deserialization fails
+	 * @throws JsonProcessingException in case the deserialization fails
 	 */
 	public static RecordSchema fromObjectJson(String json) throws JsonMappingException, JsonProcessingException {
 		ObjectMapper om = new ObjectMapper().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);

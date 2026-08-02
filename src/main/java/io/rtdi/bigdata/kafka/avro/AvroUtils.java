@@ -18,6 +18,12 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 public class AvroUtils {
 
 	/**
+	 * Creates a new instance of this class.
+	 */
+	public AvroUtils() {
+		super();
+	}
+	/**
 	 * Create an object mapper for Jackson.
 	 * @return the resulting value
 	 */
@@ -84,6 +90,12 @@ public class AvroUtils {
 
 	}
 
+	/**
+	 * Compare two objects gracefully
+	 * @param a first object to compare
+	 * @param b second object to compare
+	 * @return true if the objects are equal, false otherwise
+	 */
 	@SuppressWarnings("unchecked")
 	public static boolean isEqual(Object a, Object b) {
 		if (a == null) {
