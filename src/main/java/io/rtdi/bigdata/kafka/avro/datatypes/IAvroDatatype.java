@@ -54,18 +54,23 @@ import io.rtdi.bigdata.kafka.avro.recordbuilders.ValueSchema;
 public interface IAvroDatatype {
 
 	/**
+	 * Helper method for toString
+	 * 
 	 * @param b the StringBuffer to append to
 	 * @param value the value to convert to a string
 	 */
 	void toString(StringBuffer b, Object value);
 
+	/**
+	 * Get the type name of this data type.
+	 * @return the type name
+	 */
 	public String getType();
 
 	/**
 	 * 
 	 * The Avro Schema representation of this object
-	 * 
-	 * @return
+	 * @return the Avro Schema representation of this object
 	 */
 	public Schema createSchema();
 
@@ -80,18 +85,24 @@ public interface IAvroDatatype {
 	Object convertToInternal(Object value) throws AvroDataTypeException;
 
 	/**
+	 * What is the Avro backing data type?
+	 * 
 	 * @return the Avro expected data type
 	 */
 	@JsonIgnore
 	Type getBackingType();
 
 	/**
+	 * The schema definition of this data type. This is the schema that is used to create the Avro schema for a record.
+	 * 
 	 * @return the full Avro schema definition needed for this datatype, e.g. String with length information
 	 */
 	@JsonIgnore
 	Schema getDatatypeSchema();
 
 	/**
+	 * What is the Avro type of this data type?
+	 * 
 	 * @return the AvroType of this data type
 	 */
 	@JsonIgnore

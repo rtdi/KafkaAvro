@@ -33,12 +33,6 @@ public class AvroSerializer {
 	 * @return binary representation of the AvroRecord
 	 * @throws IOException in case the AvroRecord cannot be serialized
 	 */
-	/**
-	 * Executes the byte[] serialize operation and returns the resulting value.
-	 * @param schemaid the parameter value
-	 * @param data the parameter value
-	 * @return the resulting value
-	 */
 	public static byte[] serialize(int schemaid, GenericRecord data) throws IOException {
 		try ( ByteArrayOutputStream out = new ByteArrayOutputStream(); ) {
 			out.write(AvroUtils.MAGIC_BYTE);

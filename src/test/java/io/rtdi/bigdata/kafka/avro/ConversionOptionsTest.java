@@ -31,19 +31,25 @@ public class ConversionOptionsTest {
 	private static LocalDate nowlocaldate = LocalDate.ofInstant(nowinstant, ZoneId.of("UTC"));
 	private static LocalTime nowlocaltime = LocalTime.ofInstant(nowinstant, ZoneId.of("UTC"));
 
-	@BeforeAll
 	/**
-	 * Executes the void setUp operation and returns the resulting value.
+	 * Constructor for the test class
+	 */
+	public ConversionOptionsTest() {
+	}
+
+	/**
+	 * sets up the test environment before any tests are run.
 	 * @throws Exception something went wrong
 	 */
+	@BeforeAll
 	public static void setUp() throws Exception {
 	}
 
-	@AfterAll
 	/**
-	 * Executes the void tearDown operation and returns the resulting value.
+	 * tears down the test environment after all tests are run.
 	 * @throws Exception something went wrong
 	 */
+	@AfterAll
 	public static void tearDown() throws Exception {
 	}
 
@@ -51,9 +57,6 @@ public class ConversionOptionsTest {
 	 * Test method
 	 */
 	@Test
-	/**
-	 * Executes the void test operation.
-	 */
 	public void test() {
 		try {
 			/*

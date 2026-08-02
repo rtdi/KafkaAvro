@@ -123,26 +123,32 @@ public class ValueSetterTest {
 	private static LocalDate nowlocaldate = LocalDate.ofInstant(nowinstant, ZoneId.of("UTC"));
 	private static LocalTime nowlocaltime = LocalTime.ofInstant(nowinstant, ZoneId.of("UTC"));
 
-	@BeforeAll
 	/**
-	 * Executes the void setUp operation and returns the resulting value.
+	 * Constructor for the test class
+	 */
+	public ValueSetterTest() {
+	}
+
+	/**
+	 * Prepares the test environment before any tests are run.
 	 * @throws Exception if something goes wrong
 	 */
+	@BeforeAll
 	public static void setUp() throws Exception {
 	}
 
-	@AfterAll
 	/**
-	 * Executes the void tearDown operation and returns the resulting value.
+	 * Tears down the test environment after all tests are run.
 	 * @throws Exception if something goes wrong
 	 */
+	@AfterAll
 	public static void tearDown() throws Exception {
 	}
 
-	@Test
 	/**
-	 * Executes the void test operation.
+	 * Run the tests.
 	 */
+	@Test
 	public void test() {
 		try {
 			LogicalDataTypesRegistry.registerAll();

@@ -17,11 +17,6 @@ public class AvroNameEncoder {
 	 * @param s input string
 	 * @return encoded string with escape chars
 	 */
-	/**
-	 * Executes the String encodeName operation and returns the resulting value.
-	 * @param s the parameter value
-	 * @return the resulting value
-	 */
 	public static String encodeName(String s) {
 		s = s.replace("_x", "_x005f_x0078");
 		Matcher m = encoderpattern.matcher(s);
@@ -39,11 +34,6 @@ public class AvroNameEncoder {
 	 * 
 	 * @param name encoded name
 	 * @return decoded name
-	 */
-	/**
-	 * Executes the String decodeName operation and returns the resulting value.
-	 * @param name the parameter value
-	 * @return the resulting value
 	 */
 	public static String decodeName(String name) {
 		Matcher m = decoderpattern.matcher(name);

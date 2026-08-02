@@ -12,14 +12,15 @@ public class AvroLogicalType extends LogicalType {
     }
 
     /**
-     * Executes the String getType operation.
+     * Get the type of the logical type.
+     * @return the resulting value
      */
     public String getType() {
         return getName();
     }
 
     /**
-     * Executes the void setType operation.
+     * Set the type of the logical type.
      * @param name the parameter value
      */
     public void setType(String name) {

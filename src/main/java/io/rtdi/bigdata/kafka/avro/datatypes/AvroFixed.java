@@ -48,14 +48,15 @@ public class AvroFixed extends LogicalTypeWithLength {
 	}
 
 	/**
-	 * Executes the String getName operation.
+	 * get the name of the logical type
+	 * @return the name of the logical type
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * Executes the void setName operation.
+	 * Sets the name of the logical type.
 	 * @param name the parameter value
 	 */
 	public void setName(String name) {
@@ -63,14 +64,15 @@ public class AvroFixed extends LogicalTypeWithLength {
 	}
 
 	/**
-	 * Executes the String getNamespace operation.
+	 * get the namespace of the logical type
+	 * @return the namespace of the logical type
 	 */
 	public String getNamespace() {
 		return namespace;
 	}
 
 	/**
-	 * Executes the void setNamespace operation.
+	 * Sets the namespace of the logical type.
 	 * @param namespace the parameter value
 	 */
 	public void setNamespace(String namespace) {
@@ -78,14 +80,15 @@ public class AvroFixed extends LogicalTypeWithLength {
 	}
 
 	/**
-	 * Executes the String getDoc operation.
+	 * get the documentation of the logical type
+	 * @return the documentation of the logical type
 	 */
 	public String getDoc() {
 		return doc;
 	}
 
 	/**
-	 * Executes the void setDoc operation.
+	 * Sets the documentation of the logical type.
 	 * @param doc the parameter value
 	 */
 	public void setDoc(String doc) {
@@ -101,14 +104,6 @@ public class AvroFixed extends LogicalTypeWithLength {
 	 * @param doc description
 	 * @return a new data type with this length
 	 */
-	/**
-	 * Executes the AvroFixed create operation and returns the resulting value.
-	 * @param name the parameter value
-	 * @param namespace the parameter value
-	 * @param length the parameter value
-	 * @param doc the parameter value
-	 * @return the resulting value
-	 */
 	public static AvroFixed create(String name, String namespace, int length, String doc) {
 		return new AvroFixed(name, namespace, length, doc);
 	}
@@ -118,11 +113,6 @@ public class AvroFixed extends LogicalTypeWithLength {
 	 *
 	 * @param schema to create the logical type from
 	 * @return the logical type
-	 */
-	/**
-	 * Executes the AvroFixed create operation and returns the resulting value.
-	 * @param schema the parameter value
-	 * @return the resulting value
 	 */
 	public static AvroFixed create(Schema schema) {
 		AvroFixed element = new AvroFixed(
@@ -136,32 +126,22 @@ public class AvroFixed extends LogicalTypeWithLength {
 	}
 
 	/**
+	 * Create a new data type with this length
 	 * @param length in bytes of the fixed-length binary data type
 	 * @return An AvroFixed data type with name FIXEDnnnn where nnnn is the length
-	 */
-	/**
-	 * Executes the AvroFixed create operation and returns the resulting value.
-	 * @param length the parameter value
-	 * @return the resulting value
 	 */
 	public static AvroFixed create(int length) {
 		return AvroFixed.create("FIXED" + length, null, length, null);
 	}
 
 	/**
+	 * Get the schema that describes this logical type
+	 * 
 	 * @param name of the fixed schema
 	 * @param namespace of the fixed schema
 	 * @param length of this data type
 	 * @param doc description
 	 * @return the corresponding schema
-	 */
-	/**
-	 * Executes the Schema getSchema operation and returns the resulting value.
-	 * @param name the parameter value
-	 * @param namespace the parameter value
-	 * @param length the parameter value
-	 * @param doc the parameter value
-	 * @return the resulting value
 	 */
 	public static Schema getSchema(String name, String namespace, int length, String doc) {
 		return create(name, namespace, length, doc).createSchema();
@@ -173,11 +153,6 @@ public class AvroFixed extends LogicalTypeWithLength {
 	 * @param length in bytes of the fixed-length binary data type
 	 * @return An AvroFixed schema with name FIXEDnnnn where nnnn is the length
 	 */
-	/**
-	 * Executes the Schema getSchema operation and returns the resulting value.
-	 * @param length the parameter value
-	 * @return the resulting value
-	 */
 	public static Schema getSchema(int length) {
 		return create(length).createSchema();
 	}
@@ -187,9 +162,6 @@ public class AvroFixed extends LogicalTypeWithLength {
 	 *
 	 * @return the schema
 	 */
-	/**
-	 * Executes the Schema createSchema operation.
-	 */
 	public Schema createSchema() {
 		if (schema == null) {
 			schema = addToSchema(Schema.createFixed(name, doc, namespace, getLength()));
@@ -198,19 +170,11 @@ public class AvroFixed extends LogicalTypeWithLength {
 	}
 
 	@Override
-	/**
-	 * Executes the Schema addToSchema operation.
-	 * @param schema the parameter value
-	 */
 	public Schema addToSchema(Schema schema) {
 		return super.addToSchema(schema);
 	}
 
 	@Override
-	/**
-	 * Executes the void validate operation.
-	 * @param schema the parameter value
-	 */
 	public void validate(Schema schema) {
 		super.validate(schema);
 		// validate the type
@@ -220,10 +184,6 @@ public class AvroFixed extends LogicalTypeWithLength {
 	}
 
 	@Override
-	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
-	 */
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -235,26 +195,16 @@ public class AvroFixed extends LogicalTypeWithLength {
 	}
 
 	@Override
-	/**
-	 * Executes the int hashCode operation.
-	 */
 	public int hashCode() {
 		return 1;
 	}
 
 	@Override
-	/**
-	 * Executes the String toString operation.
-	 */
 	public String toString() {
 		return NAME;
 	}
 
 	@Override
-	/**
-	 * Executes the Fixed convertToInternal operation.
-	 * @param value the parameter value
-	 */
 	public Fixed convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
@@ -267,10 +217,6 @@ public class AvroFixed extends LogicalTypeWithLength {
 	}
 
 	@Override
-	/**
-	 * Executes the byte[] convertToJava operation.
-	 * @param value the parameter value
-	 */
 	public byte[] convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
@@ -292,15 +238,12 @@ public class AvroFixed extends LogicalTypeWithLength {
 		/**
 		 * Constructor to be used by Avro when the factory is registered
 		 */
-		/**
-		 * Executes the Factory operation.
-		 */
 		public Factory() {
 		}
 
 		@Override
 		/**
-		 * Executes the LogicalType fromSchema operation.
+		 * create type from schema.
 		 * @param schema the parameter value
 		 */
 		public LogicalType fromSchema(Schema schema) {
@@ -310,11 +253,6 @@ public class AvroFixed extends LogicalTypeWithLength {
 	}
 
 	@Override
-	/**
-	 * Executes the void toString operation.
-	 * @param b the parameter value
-	 * @param value the parameter value
-	 */
 	public void toString(StringBuffer b, Object value) {
 		if (value != null) {
 			b.append('\"');
@@ -324,34 +262,21 @@ public class AvroFixed extends LogicalTypeWithLength {
 	}
 
 	@Override
-	/**
-	 * Executes the Type getBackingType operation.
-	 */
 	public Type getBackingType() {
 		return Type.FIXED;
 	}
 
 	@Override
-	/**
-	 * Executes the Schema getDatatypeSchema operation.
-	 */
 	public Schema getDatatypeSchema() {
 		return schema;
 	}
 
 	@Override
-	/**
-	 * Executes the AvroType getAvroType operation.
-	 */
 	public AvroType getAvroType() {
 		return AvroType.AVROFIXED;
 	}
 
 	@Override
-	/**
-	 * Executes the String convertToJson operation.
-	 * @param value the parameter value
-	 */
 	public String convertToJson(Object value) throws AvroDataTypeException {
 		byte[] b = convertToJava(value);
 		if (b == null) {

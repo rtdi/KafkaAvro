@@ -33,11 +33,6 @@ public class AvroArray extends AvroLogicalType implements IAvroPrimitive {
 	 * @param valueschema complete schema definition for this data type
 	 * @return the schema of this type
 	 */
-	/**
-	 * Executes the Schema getSchema operation and returns the resulting value.
-	 * @param valueschema the parameter value
-	 * @return the resulting value
-	 */
 	public static Schema getSchema(Schema valueschema) {
 		return create(valueschema).createSchema();
 	}
@@ -76,25 +71,21 @@ public class AvroArray extends AvroLogicalType implements IAvroPrimitive {
 	 * @param valueschema specifies the datatype of the array
 	 * @return the instance
 	 */
-	/**
-	 * Executes the AvroArray create operation and returns the resulting value.
-	 * @param valueschema the parameter value
-	 * @return the resulting value
-	 */
 	public static AvroArray create(Schema valueschema) {
 		return new AvroArray(valueschema);
 	}
 
 	/**
-	 * Executes the IAvroDatatype getDatatype operation.
+	 * Get the IAvroDatatype of the array items.
+	 * @return the datatype of the array
 	 */
 	public IAvroDatatype getDatatype() {
 		return datatype;
 	}
 
 	/**
-	 * Executes the void setDatatype operation.
-	 * @param datatype the parameter value
+	 * Setter for the IAvroDatatype of the array items.
+	 * @param datatype the datatype of the array
 	 */
 	public void setDatatype(IAvroDatatype datatype) {
 		this.datatype = datatype;
@@ -105,51 +96,33 @@ public class AvroArray extends AvroLogicalType implements IAvroPrimitive {
 	 * Create an instance of that type.
 	 * @return the instance
 	 */
-	/**
-	 * Executes the AvroArray create operation and returns the resulting value.
-	 * @return the resulting value
-	 */
 	public static AvroArray create() {
 		return new AvroArray();
 	}
 
 	/**
+	 * Create an instance of that type.
 	 * @param primitive contains the data type of the array items
 	 * @return AvroArray using the primitive type as list data type
-	 */
-	/**
-	 * Executes the AvroArray create operation and returns the resulting value.
-	 * @param primitive the parameter value
-	 * @return the resulting value
 	 */
 	public static AvroArray create(IAvroPrimitive primitive) {
 		return create(primitive.getDatatypeSchema());
 	}
 
 	/**
+	 * Create the schema of the array type.
 	 * @return the Array's schema
-	 */
-	/**
-	 * Executes the Schema createSchema operation.
 	 */
 	public Schema createSchema() {
 		return schema;
 	}
 
 	@Override
-	/**
-	 * Executes the Schema addToSchema operation.
-	 * @param schema the parameter value
-	 */
 	public Schema addToSchema(Schema schema) {
 		return super.addToSchema(schema);
 	}
 
 	@Override
-	/**
-	 * Executes the void validate operation.
-	 * @param schema the parameter value
-	 */
 	public void validate(Schema schema) {
 		super.validate(schema);
 		// validate the type
@@ -159,9 +132,6 @@ public class AvroArray extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the String toString operation.
-	 */
 	public String toString() {
 		return NAME;
 	}
@@ -190,10 +160,6 @@ public class AvroArray extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
-	 */
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -213,15 +179,12 @@ public class AvroArray extends AvroLogicalType implements IAvroPrimitive {
 		/**
 		 * Constructor to register the factory with Avro
 		 */
-		/**
-		 * Executes the Factory operation.
-		 */
 		public Factory() {
 		}
 
 		@Override
 		/**
-		 * Executes the LogicalType fromSchema operation.
+		 * Build type from schema
 		 * @param schema the parameter value
 		 */
 		public LogicalType fromSchema(Schema schema) {
@@ -231,11 +194,6 @@ public class AvroArray extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the void toString operation.
-	 * @param b the parameter value
-	 * @param value the parameter value
-	 */
 	public void toString(StringBuffer b, Object value) {
 		if (value != null) {
 			if (value instanceof List) {
@@ -258,34 +216,21 @@ public class AvroArray extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the Type getBackingType operation.
-	 */
 	public Type getBackingType() {
 		return Type.ARRAY;
 	}
 
 	@Override
-	/**
-	 * Executes the Schema getDatatypeSchema operation.
-	 */
 	public Schema getDatatypeSchema() {
 		return null;
 	}
 
 	@Override
-	/**
-	 * Executes the AvroType getAvroType operation.
-	 */
 	public AvroType getAvroType() {
 		return AvroType.AVROARRAY;
 	}
 
 	@Override
-	/**
-	 * Executes the String convertToJson operation.
-	 * @param value the parameter value
-	 */
 	public String convertToJson(Object value) throws AvroDataTypeException, JsonProcessingException {
 		List<?> b = convertToJava(value);
 		if (b == null) {

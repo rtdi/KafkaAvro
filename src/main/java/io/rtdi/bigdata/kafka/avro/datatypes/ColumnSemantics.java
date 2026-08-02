@@ -88,14 +88,15 @@ public class ColumnSemantics {
 	}
 
 	/**
-	 * Executes the ColumnType getType operation.
+	 * get the type of this column
+	 * @return the type
 	 */
 	public ColumnType getType() {
 		return type;
 	}
 
     /**
-     * Executes the void setType operation.
+     * set the type of this column
      * @param type the parameter value
      */
     public void setType(ColumnType type) {
@@ -103,14 +104,15 @@ public class ColumnSemantics {
 	}
 
 	/**
-	 * Executes the String getAggregation_formula operation.
+	 * get the aggregation formula for this column
+	 * @return the aggregation formula
 	 */
 	public String getAggregation_formula() {
 		return aggregation_formula;
 	}
 
 	/**
-	 * Executes the void setAggregation_formula operation.
+	 * set the aggregation formula for this column
 	 * @param aggregation_formula the parameter value
 	 */
 	public void setAggregation_formula(String aggregation_formula) {
@@ -118,14 +120,15 @@ public class ColumnSemantics {
 	}
 
 	/**
-	 * Executes the String getCurrency_field_name operation.
+	 * get the currency field name for this column
+	 * @return the currency field name
 	 */
 	public String getCurrency_field_name() {
 		return currency_field_name;
 	}
 
 	/**
-	 * Executes the void setCurrency_field_name operation.
+	 * set the currency field name for this column
 	 * @param currency_field_name the parameter value
 	 */
 	public void setCurrency_field_name(String currency_field_name) {
@@ -133,14 +136,15 @@ public class ColumnSemantics {
 	}
 
 	/**
-	 * Executes the String getCurrency_conversion_date operation.
+	 * get the currency conversion date for this column
+	 * @return the currency conversion date
 	 */
 	public String getCurrency_conversion_date() {
 		return currency_conversion_date;
 	}
 
 	/**
-	 * Executes the void setCurrency_conversion_date operation.
+	 * set the currency conversion date for this column
 	 * @param currency_conversion_date the parameter value
 	 */
 	public void setCurrency_conversion_date(String currency_conversion_date) {
@@ -148,14 +152,15 @@ public class ColumnSemantics {
 	}
 
 	/**
-	 * Executes the String getUom_field_name operation.
+	 * get the unit of measure field name for this column
+	 * @return the unit of measure field name
 	 */
 	public String getUom_field_name() {
 		return uom_field_name;
 	}
 
 	/**
-	 * Executes the void setUom_field_name operation.
+	 * set the unit of measure field name for this column
 	 * @param uom_field_name the parameter value
 	 */
 	public void setUom_field_name(String uom_field_name) {
@@ -163,14 +168,15 @@ public class ColumnSemantics {
 	}
 
 	/**
-	 * Executes the String getHierarchy_name operation.
+	 * get the hierarchy name for this column
+	 * @return the hierarchy name
 	 */
 	public String getHierarchy_name() {
 		return hierarchy_name;
 	}
 
 	/**
-	 * Executes the void setHierarchy_name operation.
+	 * set the hierarchy name for this column
 	 * @param hierarchy_name the parameter value
 	 */
 	public void setHierarchy_name(String hierarchy_name) {
@@ -178,14 +184,15 @@ public class ColumnSemantics {
 	}
 
     /**
-     * Executes the Integer getHierarchy_level operation.
+     * get the hierarchy level for this column
+     * @return the hierarchy level
      */
     public Integer getHierarchy_level() {
 		return hierarchy_level;
 	}
 
 	/**
-	 * Executes the void setHierarchy_level operation.
+	 * set the hierarchy level for this column
 	 * @param hierarchy_level the parameter value
 	 */
 	public void setHierarchy_level(Integer hierarchy_level) {
@@ -195,10 +202,6 @@ public class ColumnSemantics {
 
 
 	@Override
-	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
-	 */
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -214,9 +217,6 @@ public class ColumnSemantics {
 	}
 
 	@Override
-	/**
-	 * Executes the int hashCode operation.
-	 */
 	public int hashCode() {
 		return 1;
 	}

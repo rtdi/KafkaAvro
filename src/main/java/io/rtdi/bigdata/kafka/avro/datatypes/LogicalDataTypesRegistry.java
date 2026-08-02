@@ -14,10 +14,6 @@ public class LogicalDataTypesRegistry {
 	 * The serializer {@link AvroSerializer} and deserializer
 	 * {@link AvroDeserializer} call them as static code.
 	 */
-	/**
-	 * Executes the void registerAll operation and returns the resulting value.
-	 * @return the resulting value
-	 */
 	public static void registerAll() {
 		if (!registered) {
 			LogicalTypes.register(AvroBoolean.NAME, AvroBoolean.factory);

@@ -48,37 +48,24 @@ public class AvroVarchar extends LogicalTypeWithLength {
 	 * @param length of the data type
 	 * @return the instance
 	 */
-	/**
-	 * Executes the AvroVarchar create operation and returns the resulting value.
-	 * @param length the parameter value
-	 * @return the resulting value
-	 */
 	public static AvroVarchar create(int length) {
 		return new AvroVarchar(length);
 	}
 
 	/**
+	 * creates an instance of this logical type from the schema
 	 * @param schema with the details of this logical type
 	 * @return the instance
-	 */
-	/**
-	 * Executes the AvroVarchar create operation and returns the resulting value.
-	 * @param schema the parameter value
-	 * @return the resulting value
 	 */
 	public static AvroVarchar create(Schema schema) {
 		return new AvroVarchar(getLengthProperty(schema));
 	}
 
 	/**
+	 * creates an instance of this logical type from the textual representation of the data type in the form of VARCHAR(10)
 	 * @param text as the textual data type representation
 	 * @return this instance
 	 * @throws AvroDataTypeException in case the text has no length portion
-	 */
-	/**
-	 * Executes the AvroVarchar create operation and returns the resulting value.
-	 * @param text the parameter value
-	 * @return the resulting value
 	 */
 	public static AvroVarchar create(String text) throws AvroDataTypeException {
 		int l = getLengthPortion(text);
@@ -90,23 +77,17 @@ public class AvroVarchar extends LogicalTypeWithLength {
 	}
 
 	/**
+	 * creates the schema for this logical type.
 	 * @param length of the data type
 	 * @return the instance
-	 */
-	/**
-	 * Executes the Schema getSchema operation and returns the resulting value.
-	 * @param length the parameter value
-	 * @return the resulting value
 	 */
 	public static Schema getSchema(int length) {
 		return create(length).addToSchema(Schema.create(Type.STRING));
 	}
 
 	/**
+	 * creates the schema for this logical type.
 	 * @return the static schema of this type
-	 */
-	/**
-	 * Executes the Schema createSchema operation.
 	 */
 	public Schema createSchema() {
 		if (schema == null) {
@@ -116,13 +97,9 @@ public class AvroVarchar extends LogicalTypeWithLength {
 	}
 
 	/**
+	 * get the schema for this logical type from the textual representation of the data type in the form of VARCHAR(10)
 	 * @param text as the textual representation of this data type in the form of VARCHAR(10)
 	 * @return the schema of the logical type
-	 */
-	/**
-	 * Executes the Schema getSchema operation and returns the resulting value.
-	 * @param text the parameter value
-	 * @return the resulting value
 	 */
 	public static Schema getSchema(String text) {
 		int length = LogicalTypeWithLength.getLengthPortion(text);
@@ -130,11 +107,6 @@ public class AvroVarchar extends LogicalTypeWithLength {
 	}
 
 	@Override
-	/**
-	 * Executes the void toString operation.
-	 * @param b the parameter value
-	 * @param value the parameter value
-	 */
 	public void toString(StringBuffer b, Object value) {
 		if (value != null) {
 			b.append('\"');
@@ -144,10 +116,6 @@ public class AvroVarchar extends LogicalTypeWithLength {
 	}
 
 	@Override
-	/**
-	 * Executes the CharSequence convertToInternal operation.
-	 * @param value the parameter value
-	 */
 	public CharSequence convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
@@ -159,10 +127,6 @@ public class AvroVarchar extends LogicalTypeWithLength {
 	}
 
 	@Override
-	/**
-	 * Executes the void validate operation.
-	 * @param schema the parameter value
-	 */
 	public void validate(Schema schema) {
 		super.validate(schema);
 		if (schema.getType() != Schema.Type.STRING) {
@@ -171,10 +135,6 @@ public class AvroVarchar extends LogicalTypeWithLength {
 	}
 
 	@Override
-	/**
-	 * Executes the String convertToJava operation.
-	 * @param value the parameter value
-	 */
 	public String convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
@@ -209,15 +169,12 @@ public class AvroVarchar extends LogicalTypeWithLength {
 		/**
 		 * Constructor to register the factory with the Avro library
 		 */
-		/**
-		 * Executes the Factory operation.
-		 */
 		public Factory() {
 		}
 
 		@Override
 		/**
-		 * Executes the LogicalType fromSchema operation.
+		 * creates the LogicalType fromSchema operation.
 		 * @param schema the parameter value
 		 */
 		public LogicalType fromSchema(Schema schema) {
@@ -227,34 +184,21 @@ public class AvroVarchar extends LogicalTypeWithLength {
 	}
 
 	@Override
-	/**
-	 * Executes the Type getBackingType operation.
-	 */
 	public Type getBackingType() {
 		return Type.STRING;
 	}
 
 	@Override
-	/**
-	 * Executes the Schema getDatatypeSchema operation.
-	 */
 	public Schema getDatatypeSchema() {
 		return schema;
 	}
 
 	@Override
-	/**
-	 * Executes the AvroType getAvroType operation.
-	 */
 	public AvroType getAvroType() {
 		return AvroType.AVROVARCHAR;
 	}
 
 	@Override
-	/**
-	 * Executes the String convertToJson operation.
-	 * @param value the parameter value
-	 */
 	public String convertToJson(Object value) throws AvroDataTypeException, JsonProcessingException {
 		String b = convertToJava(value);
 		if (b == null) {

@@ -38,15 +38,10 @@ public class AvroDecimal extends AvroLogicalType implements IAvroPrimitive {
 	private Integer scale;
 
 	/**
+	 * creates the schema of this datatype.
 	 * @param precision number of digits the decimal can hold
 	 * @param scale number of digits used for the scale
 	 * @return the schema used for this data type
-	 */
-	/**
-	 * Executes the Schema getSchema operation and returns the resulting value.
-	 * @param precision the parameter value
-	 * @param scale the parameter value
-	 * @return the resulting value
 	 */
 	public static Schema getSchema(int precision, int scale) {
 		return create(precision, scale).addToSchema(Schema.create(Type.BYTES));
@@ -61,44 +56,42 @@ public class AvroDecimal extends AvroLogicalType implements IAvroPrimitive {
 
 	
 	/**
-	 * Executes the Integer getPrecision operation.
+	 * Get the decimal precision.
+	 * @return the decimal precision
 	 */
 	public Integer getPrecision() {
 		return precision;
 	}
 
 	/**
-	 * Executes the void setPrecision operation.
-	 * @param precision the parameter value
+	 * Set the decimal precision.
+	 * @param precision the decimal precision
 	 */
 	public void setPrecision(Integer precision) {
 		this.precision = precision;
 	}
 
 	/**
-	 * Executes the Integer getScale operation.
+	 * Get the decimal scale.
+	 * @return the decimal scale
 	 */
 	public Integer getScale() {
 		return scale;
 	}
 
 	/**
-	 * Executes the void setScale operation.
-	 * @param scale the parameter value
+	 * Set the decimal scale.
+	 * @param scale the decimal scale
 	 */
 	public void setScale(Integer scale) {
 		this.scale = scale;
 	}
 
-	/**
-	 * @param text in the form of DECIMAL(p, s)
-	 * @return the corresponding AvroDecimal
-	 */
 	@JsonIgnore
 	/**
-	 * Executes the Schema getSchema operation and returns the resulting value.
-	 * @param text the parameter value
-	 * @return the resulting value
+	 * Convert the schema into the actual object.
+	 * @param text in the form of DECIMAL(p, s)
+	 * @return the corresponding AvroDecimal
 	 */
 	public static Schema getSchema(String text) {
 		String[] parts = text.split("[\\(\\)\\,]");
@@ -114,54 +107,37 @@ public class AvroDecimal extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	/**
+	 * creates the datatype from schema
 	 * @param schema with the decimal details
 	 * @return the corresponding AvroDecimal
-	 */
-	/**
-	 * Executes the AvroDecimal create operation and returns the resulting value.
-	 * @param schema the parameter value
-	 * @return the resulting value
 	 */
 	public static AvroDecimal create(Schema schema) {
 		return new AvroDecimal(schema);
 	}
 
 	/**
+	 * create from the logical type
 	 * @param l based on this Avro native logical type
 	 * @return the corresponding AvroDecimal
-	 */
-	/**
-	 * Executes the AvroDecimal create operation and returns the resulting value.
-	 * @param l the parameter value
-	 * @return the resulting value
 	 */
 	public static AvroDecimal create(Decimal l) {
 		return new AvroDecimal(l);
 	}
 
 	/**
+	 * create decimal with the given precision and scale
 	 * @param precision number of digits the decimal can hold
 	 * @param scale number of digits used for the scale
 	 * @return an AvroDecimal with the provided precision and scale
-	 */
-	/**
-	 * Executes the AvroDecimal create operation and returns the resulting value.
-	 * @param precision the parameter value
-	 * @param scale the parameter value
-	 * @return the resulting value
 	 */
 	public static AvroDecimal create(int precision, int scale) {
 		return new AvroDecimal(precision, scale);
 	}
 
 	/**
+	 * create based on the textual representation of the data type
 	 * @param text containing the data type definition as text in the form of DECIMAL(p, s)
 	 * @return the corresponding AvroDecimal
-	 */
-	/**
-	 * Executes the AvroDecimal create operation and returns the resulting value.
-	 * @param text the parameter value
-	 * @return the resulting value
 	 */
 	public static AvroDecimal create(String text) {
 		String[] parts = text.split("[\\(\\)\\,]");
@@ -209,38 +185,24 @@ public class AvroDecimal extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	/**
+	 * creates the schema of this datatype.
 	 * @return the static schema of this type
-	 */
-	/**
-	 * Executes the Schema createSchema operation.
 	 */
 	public Schema createSchema() {
 		return schema;
 	}
 
 	@Override
-	/**
-	 * Executes the Schema addToSchema operation.
-	 * @param schema the parameter value
-	 */
 	public Schema addToSchema(Schema schema) {
 		return decimal.addToSchema(schema);
 	}
 
 	@Override
-	/**
-	 * Executes the void validate operation.
-	 * @param schema the parameter value
-	 */
 	public void validate(Schema schema) {
 		decimal.validate(schema);
 	}
 
 	@Override
-	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
-	 */
 	public boolean equals(Object o) {
 		if (o == null) {
 			return false;
@@ -252,26 +214,16 @@ public class AvroDecimal extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the int hashCode operation.
-	 */
 	public int hashCode() {
 		return decimal.hashCode();
 	}
 
 	@Override
-	/**
-	 * Executes the String toString operation.
-	 */
 	public String toString() {
 		return NAME + "(" + decimal.getPrecision() + "," + decimal.getScale() + ")";
 	}
 
 	@Override
-	/**
-	 * Executes the Object convertToInternal operation.
-	 * @param value the parameter value
-	 */
 	public Object convertToInternal(Object value) throws AvroDataTypeException {
 		BigDecimal v = null;
 		if (value == null) {
@@ -316,15 +268,12 @@ public class AvroDecimal extends AvroLogicalType implements IAvroPrimitive {
 		/**
 		 * Constructor to register this factory
 		 */
-		/**
-		 * Executes the Factory operation.
-		 */
 		public Factory() {
 		}
 
 		@Override
 		/**
-		 * Executes the LogicalType fromSchema operation.
+		 * creates the LogicalType fromSchema operation.
 		 * @param schema the parameter value
 		 */
 		public LogicalType fromSchema(Schema schema) {
@@ -334,11 +283,6 @@ public class AvroDecimal extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the void toString operation.
-	 * @param b the parameter value
-	 * @param value the parameter value
-	 */
 	public void toString(StringBuffer b, Object value) {
 		if (value != null) {
 			if (value instanceof ByteBuffer) {
@@ -354,34 +298,21 @@ public class AvroDecimal extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the Type getBackingType operation.
-	 */
 	public Type getBackingType() {
 		return Type.BYTES;
 	}
 
 	@Override
-	/**
-	 * Executes the Schema getDatatypeSchema operation.
-	 */
 	public Schema getDatatypeSchema() {
 		return schema;
 	}
 
 	@Override
-	/**
-	 * Executes the AvroType getAvroType operation.
-	 */
 	public AvroType getAvroType() {
 		return AvroType.AVRODECIMAL;
 	}
 
 	@Override
-	/**
-	 * Executes the BigDecimal convertToJava operation.
-	 * @param value the parameter value
-	 */
 	public BigDecimal convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
@@ -392,10 +323,6 @@ public class AvroDecimal extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the String convertToJson operation.
-	 * @param value the parameter value
-	 */
 	public String convertToJson(Object value) throws AvroDataTypeException {
 		BigDecimal b = convertToJava(value);
 		if (b == null) {

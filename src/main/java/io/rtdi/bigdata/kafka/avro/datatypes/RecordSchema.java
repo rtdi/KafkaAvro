@@ -46,14 +46,15 @@ public class RecordSchema implements IAvroDatatype {
 	}
 
     /**
-     * Executes the String getType operation.
+     * get the type of this schema
+	 * @return the type of this schema
      */
     public String getType() {
         return NAME;
     }
 
 	/**
-	 * Executes the void setType operation.
+	 * set the type of this schema 
 	 * @param name the parameter value
 	 */
 	public void setType(String name) {
@@ -95,24 +96,23 @@ public class RecordSchema implements IAvroDatatype {
 	}
 
 	/**
+	 * get the namespace of the schema
 	 * @return the schema's namespace
-	 */
-	/**
-	 * Executes the String getNamespace operation.
 	 */
 	public String getNamespace() {
 		return this.namespace;
 	}
 
 	/**
-	 * Executes the String getName operation.
+	 * get the name of the schema
+	 * @return the schema's name
 	 */
 	public String getName() {
 		return this.name;
 	}
 
 	/**
-	 * Executes the void setName operation.
+	 * set the name of the schema
 	 * @param name the parameter value
 	 */
 	public void setName(String name) {
@@ -120,7 +120,7 @@ public class RecordSchema implements IAvroDatatype {
 	}
 
 	/**
-	 * Executes the void setNamespace operation.
+	 * set the namespace of the schema
 	 * @param namespace the parameter value
 	 */
 	public void setNamespace(String namespace) {
@@ -128,7 +128,7 @@ public class RecordSchema implements IAvroDatatype {
 	}
 
 	/**
-	 * Executes the void setDoc operation.
+	 * set the documentation of the schema
 	 * @param doc the parameter value
 	 */
 	public void setDoc(String doc) {
@@ -136,7 +136,8 @@ public class RecordSchema implements IAvroDatatype {
 	}
 
 	/**
-	 * Executes the String getDoc operation.
+	 * get the documentation of the schema
+	 * @return the schema's documentation
 	 */
 	public String getDoc() {
 		return this.doc;
@@ -144,7 +145,8 @@ public class RecordSchema implements IAvroDatatype {
 
 	@JsonGetter(AvroField.COLUMN_PROP_ORIGINALNAME)
 	/**
-	 * Executes the String getOrginalname operation.
+	 * get the original name of the schema
+	 * @return the schema's original name
 	 */
 	public String getOrginalname() {
 		if (this.orginalname == null) {
@@ -155,7 +157,7 @@ public class RecordSchema implements IAvroDatatype {
 
 	@JsonSetter(AvroField.COLUMN_PROP_ORIGINALNAME)
 	/**
-	 * Executes the void setOrginalname operation.
+	 * set the original name of the schema
 	 * @param orginalname the parameter value
 	 */
 	public void setOrginalname(String orginalname) {
@@ -167,11 +169,6 @@ public class RecordSchema implements IAvroDatatype {
 	 *
 	 * @param name of the schema
 	 * @param description of the schema
-	 */
-	/**
-	 * Creates a new instance of this class.
-	 * @param name the parameter value
-	 * @param description the parameter value
 	 */
 	public RecordSchema(String name, String description) {
 		this();
@@ -230,13 +227,6 @@ public class RecordSchema implements IAvroDatatype {
 	 *
 	 * @see AvroField#AvroField(String, Schema, String, boolean, Object)
 	 */
-	/**
-	 * Executes the AvroField add operation.
-	 * @param columnname the parameter value
-	 * @param schema the parameter value
-	 * @param description the parameter value
-	 * @param nullable the parameter value
-	 */
 	public AvroField add(String columnname, IAvroDatatype schema, String description, boolean nullable) throws SchemaBuilderException {
 		Object defaultval = null;
 		AvroField field = new AvroField(columnname, schema, description, nullable, defaultval);
@@ -259,14 +249,6 @@ public class RecordSchema implements IAvroDatatype {
 	 *
 	 * @see AvroField#AvroField(String, Schema, String, boolean, Object)
 	 */
-	/**
-	 * Executes the AvroField add operation.
-	 * @param columnname the parameter value
-	 * @param schema the parameter value
-	 * @param description the parameter value
-	 * @param nullable the parameter value
-	 * @param defaultval the parameter value
-	 */
 	public AvroField add(String columnname, IAvroDatatype schema, String description, boolean nullable, Object defaultval) throws SchemaBuilderException {
 		AvroField field = new AvroField(columnname, schema, description, nullable, defaultval);
 		add(field);
@@ -274,14 +256,11 @@ public class RecordSchema implements IAvroDatatype {
 	}
 
 	/**
+	 * get the field of the schema by name, null if not found
 	 * @param columnname of the field
 	 * @return the field object based on the column name
 	 */
 	@JsonIgnore
-	/**
-	 * Executes the AvroField getField operation.
-	 * @param columnname the parameter value
-	 */
 	public AvroField getField(String columnname) {
 		return columnnameindex.get(columnname);
 	}
@@ -293,22 +272,17 @@ public class RecordSchema implements IAvroDatatype {
 
 
 	/**
+	 * Check if the schema builder contains a column of that name already
 	 * @param columnname to look for
 	 * @return true in case the schema builder contains a column of that name already
-	 */
-	/**
-	 * Executes the boolean contains operation.
-	 * @param columnname the parameter value
 	 */
 	public boolean contains(String columnname) {
 		return columnnameindex.containsKey(columnname);
 	}
 
 	/**
+	 * Create the Avro schema
 	 * @return the Avro schema as built
-	 */
-	/**
-	 * Executes the Schema createSchema operation.
 	 */
 	public Schema createSchema() {
 		List<Schema.Field> fields = new ArrayList<>();
@@ -321,6 +295,7 @@ public class RecordSchema implements IAvroDatatype {
 	}
 
 	/**
+	 * Get all fields of the schema
 	 * @return the schema's fields
 	 */
 	public List<AvroField> getFields() {
@@ -328,7 +303,7 @@ public class RecordSchema implements IAvroDatatype {
 	}
 
 	/**
-	 * Executes the void setFields operation.
+	 * set the fields of the schema
 	 * @param fields the parameter value
 	 */
 	public void setFields(List<AvroField> fields) {
@@ -341,12 +316,10 @@ public class RecordSchema implements IAvroDatatype {
 
 
 	/**
+	 * Get the full name of the schema, which is namespace.name
 	 * @return the full name of the schema
 	 */
 	@JsonIgnore
-	/**
-	 * Executes the String getFullName operation.
-	 */
 	public String getFullName() {
 		if (this.namespace == null || this.namespace.length() == 0) {
 			return this.name;
@@ -357,10 +330,6 @@ public class RecordSchema implements IAvroDatatype {
 
 
 	@Override
-	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
-	 */
 	public boolean equals(Object o) {
 		if (this == o) {
 			return true;
@@ -398,27 +367,16 @@ public class RecordSchema implements IAvroDatatype {
 	}
 
 	@Override
-	/**
-	 * Executes the int hashCode operation.
-	 */
 	public int hashCode() {
 		return this.createSchema().hashCode();
 	}
 
 	@Override
-	/**
-	 * Executes the String toString operation.
-	 */
 	public String toString() {
 		return this.getFullName();
 	}
 
 	@Override
-	/**
-	 * Executes the void toString operation.
-	 * @param b the parameter value
-	 * @param value the parameter value
-	 */
 	public void toString(StringBuffer b, Object value) {
 		if (value instanceof Record) {
 			Record r = (Record) value;
@@ -447,10 +405,6 @@ public class RecordSchema implements IAvroDatatype {
 	}
 
 	@Override
-	/**
-	 * Executes the GenericRecord convertToInternal operation.
-	 * @param value the parameter value
-	 */
 	public GenericRecord convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
@@ -461,10 +415,6 @@ public class RecordSchema implements IAvroDatatype {
 	}
 
 	@Override
-	/**
-	 * Executes the GenericRecord convertToJava operation.
-	 * @param value the parameter value
-	 */
 	public GenericRecord convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
@@ -475,34 +425,21 @@ public class RecordSchema implements IAvroDatatype {
 	}
 
 	@Override
-	/**
-	 * Executes the Type getBackingType operation.
-	 */
 	public Type getBackingType() {
 		return Type.RECORD;
 	}
 
 	@Override
-	/**
-	 * Executes the Schema getDatatypeSchema operation.
-	 */
 	public Schema getDatatypeSchema() {
 		return this.createSchema();
 	}
 
 	@Override
-	/**
-	 * Executes the AvroType getAvroType operation.
-	 */
 	public AvroType getAvroType() {
 		return AvroType.AVRORECORD;
 	}
 
 	@Override
-	/**
-	 * Executes the String convertToJson operation.
-	 * @param value the parameter value
-	 */
 	public String convertToJson(Object value) throws AvroDataTypeException, JsonProcessingException {
 		GenericRecord b = convertToJava(value);
 		if (b == null) {
@@ -526,21 +463,24 @@ public class RecordSchema implements IAvroDatatype {
 	}
 
 	/**
-	 * Executes the String toAvroJson operation.
+	 * Create the Avro schema and convert it into Json..
+	 * Returns the official Avro schema.
+	 * @return the Avro schema in JSON format
 	 */
 	public String toAvroJson() {
 		return SchemaFormatter.format("json/pretty", this.createSchema());
 	}
 
 	/**
-	 * Executes the String toObjectJson operation.
+	 * Serialize the class into object json.
+	 * @return the serialized class in JSON format
 	 */
 	public String toObjectJson() throws JsonProcessingException {
 		return om.writeValueAsString(this);
 	}
 
 	/**
-	 * Executes the RecordSchema fromObjectJson operation and returns the resulting value.
+	 * Deserialize the class from object json.
 	 * @param json the parameter value
 	 * @return the resulting value
 	 */

@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 public class AvroUtils {
 
 	/**
-	 * Executes the ObjectMapper createJacksonOM operation and returns the resulting value.
+	 * Create an object mapper for Jackson.
 	 * @return the resulting value
 	 */
 	public static ObjectMapper createJacksonOM() {
@@ -36,11 +36,6 @@ public class AvroUtils {
 	 *
 	 * @param text input text to be escaped
 	 * @return properly escaped string so it does not break the Json format
-	 */
-	/**
-	 * Executes the String encodeJson operation and returns the resulting value.
-	 * @param text the parameter value
-	 * @return the resulting value
 	 */
 	public static String encodeJson(String text) {
 		/*
@@ -66,11 +61,6 @@ public class AvroUtils {
 	 * @param schema of the input
 	 * @return schema without the union of null, in case it is just that. Can return an union still.
 	 */
-	/**
-	 * Executes the Schema getBaseSchema operation and returns the resulting value.
-	 * @param schema the parameter value
-	 * @return the resulting value
-	 */
 	public static Schema getBaseSchema(Schema schema) {
 		if (schema == null) {
 			return null;
@@ -95,12 +85,6 @@ public class AvroUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	/**
-	 * Executes the boolean isEqual operation and returns the resulting value.
-	 * @param a the parameter value
-	 * @param b the parameter value
-	 * @return the resulting value
-	 */
 	public static boolean isEqual(Object a, Object b) {
 		if (a == null) {
 			return b == null || JsonProperties.NULL_VALUE.equals(b);
@@ -116,7 +100,7 @@ public class AvroUtils {
 	}
 
 	/**
-	 * Executes the String nullif operation and returns the resulting value.
+	 * Return null if the string is of length zero
 	 * @param text the parameter value
 	 * @return the resulting value
 	 */

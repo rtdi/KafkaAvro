@@ -31,19 +31,25 @@ import io.rtdi.bigdata.kafka.avro.recordbuilders.ValueSchema;
 public class SchemaCreationSampleTest {
 	private ObjectMapper om = AvroUtils.createJacksonOM();
 
-	@BeforeAll
 	/**
-	 * Executes the void setUp operation and returns the resulting value.
+	 * Constructor for the test class
+	 */
+	public SchemaCreationSampleTest() {
+	}
+
+	/**
+	 * prepare the test environment
 	 * @throws Exception if something goes wrong
 	 */
+	@BeforeAll
 	public static void setUp() throws Exception {
 	}
 
-	@AfterAll
 	/**
-	 * Executes the void tearDown operation and returns the resulting value.
+	 * tears down the test environment after all tests are run.
 	 * @throws Exception if something goes wrong
 	 */
+	@AfterAll
 	public static void tearDown() throws Exception {
 	}
 

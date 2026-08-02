@@ -15,7 +15,7 @@ import io.rtdi.bigdata.kafka.avro.AvroUtils;
  *
  * The data table will be joined with the permission table like
  * select * from SALES
- * where SALES_REGION in (select value from permission_table where username=user() and dimension = <dimension>)
+ * where SALES_REGION in (select value from permission_table where username=user() and dimension = &lt;dimension&gt;)
  *
  */
 public class RLS {

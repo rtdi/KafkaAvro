@@ -42,10 +42,8 @@ public class AvroTimeMicros extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	/**
+	 * creates the schema for this logical type.
 	 * @return the static schema of this type
-	 */
-	/**
-	 * Executes the Schema createSchema operation.
 	 */
 	public Schema createSchema() {
 		return schema;
@@ -63,37 +61,21 @@ public class AvroTimeMicros extends AvroLogicalType implements IAvroPrimitive {
 	 * @return the instance
 	 */
 	@JsonCreator
-	/**
-	 * Executes the AvroTimeMicros create operation and returns the resulting value.
-	 * @return the resulting value
-	 */
 	public static AvroTimeMicros create() {
 		return element;
 	}
 
 	@Override
-	/**
-	 * Executes the Schema addToSchema operation.
-	 * @param schema the parameter value
-	 */
 	public Schema addToSchema(Schema schema) {
 		return super.addToSchema(schema);
 	}
 
 	@Override
-	/**
-	 * Executes the void validate operation.
-	 * @param schema the parameter value
-	 */
 	public void validate(Schema schema) {
 		time.validate(schema);
 	}
 
 	@Override
-	/**
-	 * Executes the boolean equals operation.
-	 * @param o the parameter value
-	 */
 	public boolean equals(Object o) {
 		if (o == null) {
 			return false;
@@ -105,26 +87,16 @@ public class AvroTimeMicros extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the int hashCode operation.
-	 */
 	public int hashCode() {
 		return time.hashCode();
 	}
 
 	@Override
-	/**
-	 * Executes the String toString operation.
-	 */
 	public String toString() {
 		return NAME;
 	}
 
 	@Override
-	/**
-	 * Executes the Long convertToInternal operation.
-	 * @param value the parameter value
-	 */
 	public Long convertToInternal(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
@@ -160,10 +132,6 @@ public class AvroTimeMicros extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the LocalTime convertToJava operation.
-	 * @param value the parameter value
-	 */
 	public LocalTime convertToJava(Object value) throws AvroDataTypeException {
 		if (value == null) {
 			return null;
@@ -181,15 +149,12 @@ public class AvroTimeMicros extends AvroLogicalType implements IAvroPrimitive {
 		/**
 		 * Constructor
 		 */
-		/**
-		 * Executes the Factory operation.
-		 */
 		public Factory() {
 		}
 
 		@Override
 		/**
-		 * Executes the LogicalType fromSchema operation.
+		 * creates the LogicalType from the provided schema.
 		 * @param schema the parameter value
 		 */
 		public LogicalType fromSchema(Schema schema) {
@@ -199,11 +164,6 @@ public class AvroTimeMicros extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the void toString operation.
-	 * @param b the parameter value
-	 * @param value the parameter value
-	 */
 	public void toString(StringBuffer b, Object value) {
 		if (value != null) {
 			if (value instanceof Integer) {
@@ -216,34 +176,21 @@ public class AvroTimeMicros extends AvroLogicalType implements IAvroPrimitive {
 	}
 
 	@Override
-	/**
-	 * Executes the Type getBackingType operation.
-	 */
 	public Type getBackingType() {
 		return Type.LONG;
 	}
 
 	@Override
-	/**
-	 * Executes the Schema getDatatypeSchema operation.
-	 */
 	public Schema getDatatypeSchema() {
 		return schema;
 	}
 
 	@Override
-	/**
-	 * Executes the AvroType getAvroType operation.
-	 */
 	public AvroType getAvroType() {
 		return AvroType.AVROTIMEMICROS;
 	}
 
 	@Override
-	/**
-	 * Executes the String convertToJson operation.
-	 * @param value the parameter value
-	 */
 	public String convertToJson(Object value) throws AvroDataTypeException {
 		LocalTime b = convertToJava(value);
 		if (b == null) {
