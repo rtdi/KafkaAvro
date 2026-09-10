@@ -30,9 +30,12 @@ import io.rtdi.bigdata.kafka.avro.recordbuilders.ValueSchema;
 public class Commit {
 
     /**
-     * The schema for a commit message.
+     * The value schema for a commit message.
      */
     public static ValueSchema commit_schema = new ValueSchema("commit", "A commit for a function to be called when certain events occur");
+    /**
+     * The Avro schema for a commit message.
+     */
     public static final Schema avro_schema;
     private static final Schema avro_schema_topics;
     private static final Schema avro_schema_offset;
@@ -124,7 +127,7 @@ public class Commit {
     /**
      * Serialize the record values into Json
      * @return the Trigger values as string
-     * @throws JsonProcessingException
+     * @throws JsonProcessingException in case the object cannot be serialized
      */
     public String toRecordJson() throws JsonProcessingException {
 		ObjectMapper om = AvroUtils.createJacksonOM();

@@ -197,9 +197,11 @@ public class AvroUtils {
 		}
 	}
 
-		/**
+	/**
 	 * Validate the object is a map.
 	 * @param o object to convert
+	 * @param clazz Class of the map value
+	 * @param <T> Type of the map value
 	 * @return input o but of the correct type
 	 */
 	@SuppressWarnings("unchecked")
@@ -352,6 +354,8 @@ public class AvroUtils {
 	 * 
 	 * @param data input record
 	 * @param fieldname name fo the field
+	 * @param clazz Class of the map value
+	 * @param <T> Type of the map value
 	 * @return the value
 	 */
 	public static <T> Map<String, T> getAvroMap(GenericData.Record data, String fieldname, Class<T> clazz) {

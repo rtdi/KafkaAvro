@@ -30,9 +30,12 @@ import io.rtdi.bigdata.kafka.avro.recordbuilders.ValueSchema;
 public class ImpactLineage {
 
     /**
-     * The schema used to describe impact-lineage records.
+     * The value schema used to describe impact-lineage records.
      */
     public static final ValueSchema impact_lineage_value_schema = new ValueSchema("impact_lineage", null);
+    /**
+     * The Avro schema for impact-lineage records. 
+    */
     public static final Schema avro_schema;
     private static final Schema avro_schema_targettable;
     private static final Schema avro_schema_sourcetable;
@@ -156,7 +159,7 @@ public class ImpactLineage {
     /**
      * Serialize the record values into Json
      * @return the Trigger values as string
-     * @throws JsonProcessingException
+     * @throws JsonProcessingException in case the object cannot be serialized
      */
     public String toRecordJson() throws JsonProcessingException {
 		ObjectMapper om = AvroUtils.createJacksonOM();

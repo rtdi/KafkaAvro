@@ -54,9 +54,9 @@ public class TriggerTest {
 			Trigger trigger = new Trigger("function1", "queue1");
 			EventSet e = trigger.addEventSet();
 			e.addSchedule(Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY), Arrays.asList(6, 18), Arrays.asList(0, 30), Arrays.asList(1,2,3,4,5,6,7,8,9,10), Arrays.asList(1,4,7,10), true);
-			e.addDataflowEvent("PreviousDF");
+			e.addDataflowEvent("previousFunction", "PreviousDF");
 			e.addDataflow("thisDF", false, Arrays.asList(0,1,2));
-			e.addCommitEvent(0, 20, "Schema1");
+			e.addCommitEvent("Schema1");
 
 
 			String json = trigger.toRecordJson();
@@ -64,11 +64,11 @@ public class TriggerTest {
 			Trigger trigger2 = Trigger.fromRecordJson(json);
 			Trigger trigger3 = Trigger.from(triggerrecord);
 
-			assertEquals(trigger2, trigger);
-			assertEquals(trigger3, trigger2);
-
 			Path path = Path.of("src/test/resources", "trigger_values.json");
 			Files.writeString(path, json);
+
+			assertEquals(trigger2, trigger);
+			assertEquals(trigger3, trigger2);
 
 			ObjectMapper om = new ObjectMapper();
 

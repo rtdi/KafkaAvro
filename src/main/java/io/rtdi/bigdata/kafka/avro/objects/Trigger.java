@@ -29,17 +29,21 @@ import io.rtdi.bigdata.kafka.avro.recordbuilders.ValueSchema;
  */
 public class Trigger {
     private String functionName;
-    private String queuename;
+    private String endpoint;
     private List<EventSet> events = new ArrayList<>();
+    /**
+     * The value schema for the trigger definition.
+     */
+    public static final ValueSchema trigger_schema = new ValueSchema("trigger", "Trigger for a function to be called when certain events occur");
     /**
      * The Avro schema for the trigger definition.
      */
-    public static final ValueSchema trigger_schema = new ValueSchema("trigger", "Trigger for a function to be called when certain events occur");
     public static final Schema avro_schema;
     private static final Schema avro_schema_eventset;
     private static final Schema avro_schema_commit_event;
     private static final Schema avro_schema_schedule;
     private static final Schema avro_schema_dataflow;
+    private static final Schema avro_schema_functiondataflow;
     static {
         RecordSchema schedule = new RecordSchema("schedule", "all conditions within the fields must be met to run, they are AND conditions");
         schedule.add("weekdays", new AvroArray(AvroString.create()), "if provided, run only on these days, e.g. Mon-Fri", true);
@@ -58,10 +62,9 @@ public class Trigger {
         dataflow.add("delta_single_trigger", AvroBoolean.create(), "If true, ignore partition list for delta loads, use partitions for initial loads only.", true);
         dataflow.add("partitions", new AvroArray(AvroInt.create()), "the partition parameters to use for this dataflow", true);
 
-        RecordSchema ondataflow = new RecordSchema("dataflow", "the function should be called for all these dataflows");
+        RecordSchema ondataflow = new RecordSchema("on_dataflows", "the function should be called for all these dataflows");
         ondataflow.add("function_name", AvroString.create(), "the function name triggering this event", false);
         ondataflow.add("dataflow_name", AvroString.create(), "the dataflow triggering this event", true);
-
 
         RecordSchema events = new RecordSchema("events", "a function can have different combinations of dataflows and events");
         events.add("on_commit", commit_event, "if provided, run only when a commit for this was found", true);
@@ -70,6 +73,7 @@ public class Trigger {
         events.add("dataflows", new AvroArray(dataflow), "if provided, call the URL n times, once per dataflow or dataflow/partition", true);
         events.add("delay_seconds", AvroInt.create(), "if a first trigger event occured, wait this many seconds to collect more, thus avoiding frequent triggers", true);
         events.add("idle_seconds", AvroInt.create(), "wait until no trigger event occured for this many seconds and only then start, to avoid frequent triggers", true);
+        events.add("on_schema", new AvroArray(AvroString.create()), "Trigger if that schema changed", true);
 
         trigger_schema.add("events", new AvroArray(events), "all combinations of dataflow and trigger events", true);
         trigger_schema.add("function_name", AvroString.create(), "an arbitrary name, often the function or container name", false);
@@ -81,6 +85,7 @@ public class Trigger {
         avro_schema_commit_event = AvroUtils.getBaseSchema(avro_schema_eventset.getField("on_commit").schema());
         avro_schema_schedule = AvroUtils.getBaseSchema(avro_schema_eventset.getField("on_schedule").schema()).getElementType();
         avro_schema_dataflow = AvroUtils.getBaseSchema(avro_schema_eventset.getField("dataflows").schema()).getElementType();
+        avro_schema_functiondataflow = AvroUtils.getBaseSchema(avro_schema_eventset.getField("on_dataflows").schema()).getElementType();
     }
 
     /**
@@ -93,11 +98,11 @@ public class Trigger {
      * Creates a trigger definition for a function name and queue name.
      *
      * @param functionName the function name
-     * @param queuename the queue name
+     * @param endpoint the queue name or other endpoints
      */
-    public Trigger(String functionName, String queuename) {
+    public Trigger(String functionName, String endpoint) {
         this.functionName = functionName;
-        this.queuename = queuename;
+        this.endpoint = endpoint;
     }
 
     /**
@@ -108,7 +113,7 @@ public class Trigger {
         GenericData.Record r = new GenericData.Record(avro_schema);
         r.put("events", EventSet.create(events));
         r.put("function_name", this.functionName);
-        r.put("queuename", this.queuename);
+        r.put("endpoint", this.endpoint);
         return r;
     }
 
@@ -122,7 +127,7 @@ public class Trigger {
     public static Trigger from(GenericData.Record data) throws AvroTypeException {
         Trigger t = new Trigger();
         t.setFunctionName(AvroUtils.getAvroValue(data, "function_name", String.class));
-        t.setQueuename(AvroUtils.getAvroValue(data, "queuename", String.class));
+        t.setEndpoint(AvroUtils.getAvroValue(data, "endpoint", String.class));
         t.setEvents(EventSet.from(AvroUtils.getAvroListOfRecords(data, "events")));
         return t;
     }
@@ -146,14 +151,14 @@ public class Trigger {
      *
      * @return the queue name
      */
-    public String getQueuename() { return queuename; }
+    public String getEndpoint() { return endpoint; }
 
     /**
      * Sets the queue name associated with this trigger definition.
      *
-     * @param queuename the queue name
+     * @param endpoint the queue name
      */
-    public void setQueuename(String queuename) { this.queuename = queuename; }
+    public void setEndpoint(String endpoint) { this.endpoint = endpoint; }
 
     /**
      * get all event sets
@@ -201,7 +206,8 @@ public class Trigger {
         if (o == null) {
             return false;
         } else if (o instanceof Trigger t) {
-            return Objects.equals(this.functionName, t.functionName) && Objects.equals(this.queuename, t.queuename) &&
+            return Objects.equals(this.functionName, t.functionName) && 
+                Objects.equals(this.endpoint, t.endpoint) &&
                 AvroUtils.isEqual(this.events, t.events);
         } else {
             return false;
@@ -257,7 +263,7 @@ public class Trigger {
 	public static Trigger fromRecord(GenericData.Record data) {
         Trigger t = new Trigger();
         t.setFunctionName(AvroUtils.getAvroValue(data, "function_name", String.class));
-        t.setQueuename(AvroUtils.getAvroValue(data, "queue_name", String.class));
+        t.setEndpoint(AvroUtils.getAvroValue(data, "queue_name", String.class));
         t.setEvents(EventSet.from(AvroUtils.castListOfRecords(t)));
         return t;
 	}
@@ -266,7 +272,7 @@ public class Trigger {
     /**
      * Serialize the record values into Json
      * @return the Trigger values as string
-     * @throws JsonProcessingException
+     * @throws JsonProcessingException in case the object cannot be serialized
      */
     public String toRecordJson() throws JsonProcessingException {
 		ObjectMapper om = AvroUtils.createJacksonOM();
@@ -279,8 +285,27 @@ public class Trigger {
     public static class EventSet {
         private List<Schedule> onSchedule;
         private CommitEvent onCommit;
-        private List<String> onDataflow;
+        private List<FunctionDataflow> onDataflows;
         private List<Dataflow> dataflows;
+        private List<String> onSchema;
+        private Integer delaySeconds;
+        private Integer idleSeconds;
+
+        /**
+         * Get the list of schema names that should trigger the function.
+         * @return the list of schema names, or {@code null} if none are set
+         */
+        public List<String> getOnSchema() {
+            return onSchema;
+        }
+
+        /**
+         * Sets the list of schema names that should trigger the function.
+         * @param onSchema the list of schema names, or {@code null} if none are set
+         */
+        public void setOnSchema(List<String> onSchema) {
+            this.onSchema = onSchema;
+        }
 
         private static List<GenericData.Record> create(List<EventSet> events) {
             if (events == null) {
@@ -298,8 +323,11 @@ public class Trigger {
             GenericData.Record r = new GenericData.Record(avro_schema_eventset);
             r.put("on_commit", CommitEvent.create(this.onCommit));
             r.put("on_schedule", Schedule.create(this.onSchedule));
-            r.put("on_dataflow", this.onDataflow);
+            r.put("on_dataflows", FunctionDataflow.create(this.onDataflows));
             r.put("dataflows", Dataflow.create(this.dataflows));
+            r.put("on_schema", this.onSchema);
+            r.put("delay_seconds", this.delaySeconds);
+            r.put("idle_seconds", this.idleSeconds);
             return r;
         }
 
@@ -313,9 +341,12 @@ public class Trigger {
         private static EventSet from(GenericData.Record data) throws AvroTypeException {
             EventSet t = new EventSet();
             t.setOnCommit(CommitEvent.from(AvroUtils.getAvroRecord(data, "on_commit")));
-            t.setOnDataflow(AvroUtils.getAvroListOfString(data, "on_dataflow"));
+            t.setOnDataflows(FunctionDataflow.from(AvroUtils.getAvroListOfRecords(data, "on_dataflows")));
             t.setOnSchedule(Schedule.from(AvroUtils.getAvroListOfRecords(data, "on_schedule")));
             t.setDataflows(Dataflow.from(AvroUtils.getAvroListOfRecords(data, "dataflows")));
+            t.setOnSchema(AvroUtils.castListType(data.get("on_schema"), String.class));
+            t.setDelaySeconds(AvroUtils.getAvroValue(data, "delay_seconds", Integer.class));
+            t.setIdleSeconds(AvroUtils.getAvroValue(data, "idle_seconds", Integer.class));
             return t;
         }
 
@@ -347,8 +378,8 @@ public class Trigger {
          * Gets the list of dataflow names that should trigger the function.
          * @return the list of dataflow names, or {@code null} if none are set
          */
-        @JsonProperty("on_dataflow")
-        public List<String> getOnDataflow() { return onDataflow; }
+        @JsonProperty("on_dataflows")
+        public List<FunctionDataflow> getOnDataflows() { return onDataflows; }
 
         /**
          * Gets the list of dataflow trigger configurations.
@@ -374,10 +405,10 @@ public class Trigger {
 
         /**
          * Sets the list of dataflow names that should trigger the function.
-         * @param onDataflow the list of dataflow names, or {@code null} if none are set
+         * @param onDataflows the list of dataflow names, or {@code null} if none are set
          */
-        public void setOnDataflow(List<String> onDataflow) {
-            this.onDataflow = onDataflow;
+        public void setOnDataflows(List<FunctionDataflow> onDataflows) {
+            this.onDataflows = onDataflows;
         }
 
         /**
@@ -386,6 +417,38 @@ public class Trigger {
          */
         public void setDataflows(List<Dataflow> dataflows) {
             this.dataflows = dataflows;
+        }
+
+        /**
+         * Gets the delay in seconds before collecting additional trigger events.
+         *
+         * @return the delay in seconds
+         */
+        @JsonProperty("delay_seconds")
+        public Integer getDelaySeconds() { return delaySeconds; }
+        
+        /**
+         * Gets the idle time in seconds before starting the trigger.
+         *
+         * @return the idle time in seconds
+         */
+        @JsonProperty("idle_seconds")
+        public Integer getIdleSeconds() { return idleSeconds; }
+
+        /**
+         * set the delay of seconds
+         * @param delaySeconds wait this many seconds
+         */
+        public void setDelaySeconds(Integer delaySeconds) {
+            this.delaySeconds = delaySeconds;
+        }
+
+        /**
+         * set the delay of seconds for which multiple commits are collected
+         * @param idleSeconds collect for n seconds
+         */
+        public void setIdleSeconds(Integer idleSeconds) {
+            this.idleSeconds = idleSeconds;
         }
 
         /**
@@ -423,22 +486,21 @@ public class Trigger {
         /**
          * Adds a dataflow name that should trigger the function when that dataflow completes.
          *
+         * @param functionName the function name
          * @param dataflowName the dataflow name
          */
-        public void addDataflowEvent(String dataflowName) {
-            if (this.onDataflow == null) this.onDataflow = new ArrayList<>();
-            this.onDataflow.add(dataflowName);
+        public void addDataflowEvent(String functionName, String dataflowName) {
+            if (this.onDataflows == null) this.onDataflows = new ArrayList<>();
+            this.onDataflows.add(new FunctionDataflow(functionName, dataflowName));
         }
 
         /**
          * Creates a commit event definition with schema names, topic partitions, and delay settings.
          *
-         * @param delaySeconds the delay before evaluating a first trigger for a burst of events
-         * @param idleSeconds the idle time before starting the trigger after a pause
          * @param schemaNames the schema names to watch for commits
           */
-        public void addCommitEvent(Integer delaySeconds, Integer idleSeconds, String... schemaNames) {
-            this.onCommit = new CommitEvent(Arrays.asList(schemaNames), null, delaySeconds, idleSeconds);
+        public void addCommitEvent(String... schemaNames) {
+            this.onCommit = new CommitEvent(Arrays.asList(schemaNames), null);
         }
 
         /**
@@ -446,11 +508,9 @@ public class Trigger {
          *
          * @param schemaNames the schema names that should trigger the event
          * @param topicPartitions the topic partitions to monitor
-         * @param delaySeconds the number of seconds to wait before evaluating a trigger event
-         * @param idleSeconds the number of idle seconds before starting the trigger
          */
-        public void setCommitEvent(List<String> schemaNames, List<String> topicPartitions, Integer delaySeconds, Integer idleSeconds) {
-            this.onCommit = new CommitEvent(schemaNames, topicPartitions, delaySeconds, idleSeconds);
+        public void setCommitEvent(List<String> schemaNames, List<String> topicPartitions) {
+            this.onCommit = new CommitEvent(schemaNames, topicPartitions);
         }
 
         /**
@@ -480,8 +540,11 @@ public class Trigger {
             } else if (o instanceof EventSet t) {
                 return Objects.equals(this.onCommit, t.onCommit) && 
                     AvroUtils.isEqual(this.onSchedule, t.onSchedule) && 
-                    AvroUtils.isEqual(this.onDataflow, t.onDataflow) && 
-                    AvroUtils.isEqual(this.dataflows, t.dataflows);
+                    AvroUtils.isEqual(this.onDataflows, t.onDataflows) && 
+                    AvroUtils.isEqual(this.dataflows, t.dataflows) &&
+                    AvroUtils.isEqual(this.onSchema, t.onSchema) &&
+                    Objects.equals(this.delaySeconds, t.delaySeconds) &&
+                    Objects.equals(this.idleSeconds, t.idleSeconds);
             } else {
                 return false;
             }
@@ -673,8 +736,6 @@ public class Trigger {
     public static class CommitEvent {
         private List<String> schemaNames;
         private List<String> topicPartitions;
-        private Integer delaySeconds;
-        private Integer idleSeconds;
 
         /**
          * Creates an empty commit event.
@@ -691,8 +752,6 @@ public class Trigger {
             CommitEvent c = new CommitEvent();
             c.setSchemaNames(AvroUtils.castListType(data.get("schema_names"), String.class));
             c.setTopicPartitions(AvroUtils.castListType(data.get("topic_partitions"), String.class));
-            c.setDelaySeconds(AvroUtils.getAvroValue(data, "delay_seconds", Integer.class));
-            c.setIdleSeconds(AvroUtils.getAvroValue(data, "idle_seconds", Integer.class));
             return c;
         }
 
@@ -708,35 +767,27 @@ public class Trigger {
             GenericData.Record r = new GenericData.Record(avro_schema_commit_event);
             r.put("schema_names", this.schemaNames);
             r.put("topic_partitions", this.topicPartitions);
-            r.put("delay_seconds", this.delaySeconds);
-            r.put("idle_seconds", this.idleSeconds);
             return r;
         }
 
         /**
-         * Creates a commit event definition with schema names, topic partitions, and delay settings.
+         * Creates a commit event definition with schema names, topic partitions.
          *
          * @param schemaNames the schema names to watch for commits
          * @param topicPartitions the topic partitions to watch for commits
-         * @param delaySeconds the delay before evaluating a first trigger for a burst of events
-         * @param idleSeconds the idle time before starting the trigger after a pause
          */
-        public CommitEvent(List<String> schemaNames, List<String> topicPartitions, Integer delaySeconds, Integer idleSeconds) {
+        public CommitEvent(List<String> schemaNames, List<String> topicPartitions) {
             this.schemaNames = schemaNames;
             this.topicPartitions = topicPartitions;
-            this.delaySeconds = delaySeconds;
-            this.idleSeconds = idleSeconds;
         }
 
         /**
-         * Creates a commit event definition with schema names, topic partitions, and delay settings.
+         * Creates a commit event definition with schema names.
          *
          * @param schemaName the schema to watch for commits
-         * @param delaySeconds the delay before evaluating a first trigger for a burst of events
-         * @param idleSeconds the idle time before starting the trigger after a pause
          */
-        public CommitEvent(String schemaName, Integer delaySeconds, Integer idleSeconds) {
-            this(Arrays.asList(schemaName), null, delaySeconds, idleSeconds);
+        public CommitEvent(String schemaName) {
+            this(Arrays.asList(schemaName), null);
         }
 
         /**
@@ -752,22 +803,6 @@ public class Trigger {
          */
         @JsonProperty("topic_partitions")
         public List<String> getTopicPartitions() { return topicPartitions; }
-
-        /**
-         * Gets the delay in seconds before collecting additional trigger events.
-         *
-         * @return the delay in seconds
-         */
-        @JsonProperty("delay_seconds")
-        public Integer getDelaySeconds() { return delaySeconds; }
-        
-        /**
-         * Gets the idle time in seconds before starting the trigger.
-         *
-         * @return the idle time in seconds
-         */
-        @JsonProperty("idle_seconds")
-        public Integer getIdleSeconds() { return idleSeconds; }
 
         /**
          * set schema names
@@ -786,22 +821,6 @@ public class Trigger {
         }
 
         /**
-         * set the delay of seconds
-         * @param delaySeconds wait this many seconds
-         */
-        public void setDelaySeconds(Integer delaySeconds) {
-            this.delaySeconds = delaySeconds;
-        }
-
-        /**
-         * set the delay of seconds for which multiple commits are collected
-         * @param idleSeconds collect for n seconds
-         */
-        public void setIdleSeconds(Integer idleSeconds) {
-            this.idleSeconds = idleSeconds;
-        }
-
-        /**
          * Returns a readable description of the commit event.
          *
          * @return the commit event description
@@ -817,10 +836,111 @@ public class Trigger {
             if (o == null) {
                 return false;
             } else if (o instanceof CommitEvent t) {
-                return Objects.equals(this.delaySeconds, t.delaySeconds) &&
-                    Objects.equals(this.idleSeconds, t.idleSeconds) && 
-                    AvroUtils.isEqual(this.schemaNames, t.schemaNames) && 
+                return AvroUtils.isEqual(this.schemaNames, t.schemaNames) && 
                     AvroUtils.isEqual(this.topicPartitions, t.topicPartitions);
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /**
+     * FunctionDataflow tuple
+     */
+    public static class FunctionDataflow {
+        private String functionName;
+        private String dataflowName;
+
+        public FunctionDataflow() {
+        }
+
+        /**
+         * Creates a FunctionDataflow instance with the specified function name and dataflow name.
+         * @param functionName the function name
+         * @param dataflowName the dataflow name
+         */
+        public FunctionDataflow(String functionName, String dataflowName) {
+            this.functionName = functionName;
+            this.dataflowName = dataflowName;
+        }
+
+        /**
+         * Gets the function name associated with this FunctionDataflow.
+         * @return the function name
+         */
+        public String getFunctionName() { return functionName; }
+
+        /**
+         * Sets the function name associated with this FunctionDataflow.
+         * @param functionName the function name
+         */
+        public void setFunctionName(String functionName) { this.functionName = functionName; }
+
+        /**
+         * Gets the dataflow name associated with this FunctionDataflow.
+         * @return the dataflow name
+         */
+        public String getDataflowName() { return dataflowName; }
+        /**
+         * Sets the dataflow name associated with this FunctionDataflow.
+         * @param dataflowName the dataflow name
+         */
+        public void setDataflowName(String dataflowName) { this.dataflowName = dataflowName; }
+
+        private static List<FunctionDataflow> from(List<GenericData.Record> data) {
+            if (data == null) {
+                return null;
+            } else {
+                List<FunctionDataflow> l = new ArrayList<>();
+                for (GenericData.Record o : data) {
+                    l.add(FunctionDataflow.from(o));
+                }
+                return l;
+            }
+        }
+
+        /**
+         * Create the FunctionDataflow instance from an Avro record.
+         *
+         * @param data the Avro record witht the data
+         * @return the Trigger instance
+         */
+        private static FunctionDataflow from(GenericData.Record data) {
+            FunctionDataflow t = new FunctionDataflow();
+            t.setFunctionName(AvroUtils.getAvroValue(data, "function_name", String.class));
+            t.setDataflowName(AvroUtils.getAvroValue(data, "dataflow_name", String.class));
+            return t;
+        }
+
+        private static List<GenericData.Record> create(List<FunctionDataflow> onFunctionDataflow) {
+            if (onFunctionDataflow == null) {
+                return null;
+            } else {
+                List<GenericData.Record> records = new ArrayList<>();
+                for (FunctionDataflow e : onFunctionDataflow) {
+                    records.add(e.create());
+                }
+                return records;
+            }
+        }
+
+        private GenericData.Record create() {
+            GenericData.Record r = new GenericData.Record(avro_schema_functiondataflow);
+            r.put("function_name", this.functionName);
+            r.put("dataflow_name", this.dataflowName);
+            return r;
+         }
+
+        @Override
+        public int hashCode() { return 0; }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null) {
+                return false;
+            } else if (o instanceof FunctionDataflow t) {
+                return Objects.equals(this.functionName, t.functionName) && 
+                    Objects.equals(this.dataflowName, t.dataflowName);
             } else {
                 return false;
             }

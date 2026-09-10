@@ -192,11 +192,20 @@ public class AvroField {
 		return f;
 	}
 
+	/**
+	 * Sets the aliases of the field.
+	 * @param aliases all aliases of the field
+	 * @return this
+	 */
 	public AvroField aliases(String... aliases) {
 		this.aliases = aliases;
 		return this;
 	}
 
+	/**
+	 * get the aliases of the field
+	 * @return all aliases of the field
+	 */
 	public String[] aliases() {
 		return aliases;
 	}
