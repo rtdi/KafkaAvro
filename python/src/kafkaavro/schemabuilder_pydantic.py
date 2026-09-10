@@ -38,7 +38,10 @@ class RootSchema(RecordSchema):
     """
 
     def get_json(self) -> str:
-        return self.model_dump_json()
+        return self.model_dump_json(exclude_none=True)
+
+    def get_avro_json(self) -> str:
+        return self.get_json()
 
     def get_pyarrow(self) -> pyarrow.Schema:
         f = [(field.name, field.type.get_pyarrow()) for field in self.fields]
@@ -91,6 +94,10 @@ class ValueSchema(RootSchema):
     row_level_security: Optional[list[RLS]] = None
     partition_by: Optional[list[str]] = None
     semantics: Optional[TableSemantic] = None
+
+    @classmethod
+    def from_avro_schema(cls, avro_schema: str):
+        return cls.model_validate_json(avro_schema)
 
     def set_semantic(self, table_type: TableType):
         self.semantics = TableSemantic(type=table_type)

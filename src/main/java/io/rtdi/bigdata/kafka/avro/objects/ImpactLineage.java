@@ -4,11 +4,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.avro.AvroTypeException;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.rtdi.bigdata.kafka.avro.AvroUtils;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroMap;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroString;
 import io.rtdi.bigdata.kafka.avro.datatypes.RecordSchema;
@@ -22,7 +32,12 @@ public class ImpactLineage {
     /**
      * The schema used to describe impact-lineage records.
      */
-    public static ValueSchema impact_lineage_value_schema = new ValueSchema("impact_lineage", null);
+    public static final ValueSchema impact_lineage_value_schema = new ValueSchema("impact_lineage", null);
+    public static final Schema avro_schema;
+    private static final Schema avro_schema_targettable;
+    private static final Schema avro_schema_sourcetable;
+    private static final Schema avro_schema_columnsource;
+    private static final Schema avro_schema_targettablecolumn;
     static {
         RecordSchema column_source_record = new RecordSchema("column_source", "Table/column information of the source");
         column_source_record.add("source_column_name", AvroString.create(),
@@ -69,6 +84,11 @@ public class ImpactLineage {
                 true);
         impact_lineage_value_schema.add("target_tables", new AvroMap(table_mapping_record),
                 "The list of source tables providing information for this target table", true);
+        avro_schema = impact_lineage_value_schema.createSchema();
+        avro_schema_targettable = AvroUtils.getBaseSchema(avro_schema.getField("target_tables").schema()).getValueType();
+        avro_schema_sourcetable = AvroUtils.getBaseSchema(avro_schema_targettable.getField("source_tables").schema()).getValueType();
+        avro_schema_targettablecolumn = AvroUtils.getBaseSchema(avro_schema_targettable.getField("target_columns").schema()).getValueType();
+        avro_schema_columnsource = AvroUtils.getBaseSchema(avro_schema_targettablecolumn.getField("column_sources").schema()).getValueType();
     }
 
 
@@ -91,6 +111,56 @@ public class ImpactLineage {
     public ImpactLineage(String producerName, String dataflowName) {
         this.producerName = producerName;
         this.dataflowName = dataflowName;
+    }
+
+    /**
+     * Get the current object as GenericRecord
+     * @return GenericRecord
+     */
+    public GenericData.Record toRecord() {
+        GenericData.Record r = new GenericData.Record(avro_schema);
+        r.put("target_tables", TargetTable.create(targetTables));
+        r.put("producer_name", this.producerName);
+        r.put("dataflow_name", this.dataflowName);
+        return r;
+    }
+
+    /**
+     * Create a ImpactLineage instance from the Avro record data
+     * 
+     * @param data Avro record
+     * @return the ImpactLineage instance
+     * @throws AvroTypeException in case the record does not match the structure
+     */
+    public static ImpactLineage from(GenericData.Record data) throws AvroTypeException {
+        ImpactLineage t = new ImpactLineage();
+        t.setDataflowName(AvroUtils.getAvroValue(data, "dataflow_name", String.class));
+        t.setProducerName(AvroUtils.getAvroValue(data, "producer_name", String.class));
+        t.setTargetTables(TargetTable.from(AvroUtils.getAvroMapOfRecords(data, "target_tables")));
+        return t;
+    }
+    
+	/**
+	 * Deserializes a JSON payload into a {@link ImpactLineage} instance.
+	 *
+	 * @param json the JSON payload
+	 * @return the parsed value schema
+	 * @throws JsonMappingException if the JSON structure cannot be mapped
+	 * @throws JsonProcessingException if the JSON payload cannot be read
+	 */
+	public static ImpactLineage fromRecordJson(String json) throws JsonMappingException, JsonProcessingException {
+		ObjectMapper om = AvroUtils.createJacksonOM();
+		return om.readValue(json, ImpactLineage.class);
+	}
+
+    /**
+     * Serialize the record values into Json
+     * @return the Trigger values as string
+     * @throws JsonProcessingException
+     */
+    public String toRecordJson() throws JsonProcessingException {
+		ObjectMapper om = AvroUtils.createJacksonOM();
+		return om.writeValueAsString(this);
     }
 
     /**
@@ -167,6 +237,27 @@ public class ImpactLineage {
     }
 
     /**
+     * Returns a hash code based on the parent function name.
+     *
+     * @return the hash code for this event set
+     */
+    @Override
+    public int hashCode() { return Objects.hashCode(this.producerName); }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        } else if (o instanceof ImpactLineage t) {
+            return Objects.equals(this.producerName, t.producerName) && 
+                Objects.equals(this.dataflowName, t.dataflowName) && 
+                AvroUtils.isEqual(this.targetTables, t.targetTables);
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * A SourceTable represents a source table and has a unique, random key.
      */
     public static class SourceTable {
@@ -195,6 +286,48 @@ public class ImpactLineage {
             this.sourceConnection = sourceConnection;
             this.mappingFormula = mappingFormula;
             this.mappingDescription = mappingDescription;
+        }
+
+        private static Map<String, SourceTable> from(Map<String, GenericData.Record> data) throws AvroTypeException {
+            if (data == null) {
+                return null;
+            } else {
+                Map<String, SourceTable> m = new HashMap<>();
+                for(Entry<String, GenericData.Record> e : data.entrySet()) {
+                    m.put(e.getKey(), SourceTable.from(e.getValue()));
+                }
+                return m;
+            }
+        }
+
+        private static SourceTable from(GenericData.Record data) {
+            SourceTable t = new SourceTable();
+            t.setSourceTableName(AvroUtils.getAvroValue(data, "source_table_name", String.class));
+            t.setSourceConnection(AvroUtils.getAvroValue(data, "source_connection", String.class));
+            t.setMappingFormula(AvroUtils.getAvroValue(data, "mapping_formula", String.class));
+            t.setMappingDescription(AvroUtils.getAvroValue(data, "mapping_description", String.class));
+            return t;
+        }
+
+        private static Map<String, GenericData.Record> create(Map<String, SourceTable> sourcetables) {
+            if (sourcetables == null) {
+                return null;
+            } else {
+                Map<String, GenericData.Record> records = new HashMap<>();
+                for (Entry<String, SourceTable> e : sourcetables.entrySet()) {
+                    records.put(e.getKey(), e.getValue().create());
+                }
+                return records;
+            }
+        }
+
+        private GenericData.Record create() {
+            GenericData.Record r = new GenericData.Record(avro_schema_sourcetable);
+            r.put("source_table_name", this.sourceTableName);
+            r.put("source_connection", this.sourceConnection);
+            r.put("mapping_formula", this.mappingFormula);
+            r.put("mapping_description", this.mappingDescription);
+            return r;
         }
 
         /**
@@ -340,6 +473,66 @@ public class ImpactLineage {
             this.sourceColumnName = sourceColumnName;
         }
 
+        @SuppressWarnings("rawtypes")
+        private static Map<String, List<ColumnSource>> from(Map<String, List> data) throws AvroTypeException {
+            if (data == null) {
+                return null;
+            } else {
+                Map<String, List<ColumnSource>> m = new HashMap<>();
+                for(Entry<String, List> e : data.entrySet()) {
+                    m.put(e.getKey(), ColumnSource.from(e.getValue()));
+                }
+                return m;
+            }
+        }
+
+        @SuppressWarnings("rawtypes")
+        private static List<ColumnSource> from(List data) throws AvroTypeException {
+            if (data == null) {
+                return null;
+            } else {
+                List<ColumnSource> m = new ArrayList<>();
+                for(Object e : data) {
+                    if (e instanceof GenericData.Record r) {
+                        m.add(ColumnSource.from(r));
+                    } else {
+
+                    }
+                }
+                return m;
+            }
+        }
+
+        private static ColumnSource from(GenericData.Record data) {
+            ColumnSource t = new ColumnSource();
+            t.setSourceColumnName(AvroUtils.getAvroValue(data, "source_column_name", String.class));
+            return t;
+        }
+
+        private static Map<String, List<GenericData.Record>> create(Map<String, List<ColumnSource>> columns) {
+            if (columns == null) {
+                return null;
+            } else {
+                Map<String, List<GenericData.Record>> records = new HashMap<>();
+                for (Entry<String, List<ColumnSource>> e : columns.entrySet()) {
+                    if (e != null) {
+                        List<GenericData.Record> l = new ArrayList<>();
+                        for( ColumnSource r : e.getValue()) {
+                            l.add(r.create());
+                        }
+                        records.put(e.getKey(), l);
+                    }
+                }
+                return records;
+            }
+        }
+
+        private GenericData.Record create() {
+            GenericData.Record r = new GenericData.Record(avro_schema_columnsource);
+            r.put("source_column_name", this.sourceColumnName);
+            return r;
+        }
+
         /**
          * Gets the source column name used in the mapping.
          *
@@ -411,6 +604,48 @@ public class ImpactLineage {
             this.columnName = columnName;
             this.mappingFormula = mappingFormula;
             this.mappingDescription = mappingDescription;
+        }
+
+        private static Map<String, TargetTableColumn> from(Map<String, GenericData.Record> data) throws AvroTypeException {
+            if (data == null) {
+                return null;
+            } else {
+                Map<String, TargetTableColumn> m = new HashMap<>();
+                for(Entry<String, GenericData.Record> e : data.entrySet()) {
+                    m.put(e.getKey(), TargetTableColumn.from(e.getValue()));
+                }
+                return m;
+            }
+        }
+
+        private static TargetTableColumn from(GenericData.Record data) {
+            TargetTableColumn t = new TargetTableColumn();
+            t.setColumnName(AvroUtils.getAvroValue(data, "column_name", String.class));
+            t.setMappingFormula(AvroUtils.getAvroValue(data, "mapping_formula", String.class));
+            t.setMappingDescription(AvroUtils.getAvroValue(data, "mapping_description", String.class));
+            t.setColumnSources(ColumnSource.from(AvroUtils.getAvroMap(data, "column_sources", List.class)));
+            return t;
+        }
+
+        private static Map<String, GenericData.Record> create(Map<String, TargetTableColumn> columns) {
+            if (columns == null) {
+                return null;
+            } else {
+                Map<String, GenericData.Record> records = new HashMap<>();
+                for (Entry<String, TargetTableColumn> e : columns.entrySet()) {
+                    records.put(e.getKey(), e.getValue().create());
+                }
+                return records;
+            }
+        }
+
+        private GenericData.Record create() {
+            GenericData.Record r = new GenericData.Record(avro_schema_targettablecolumn);
+            r.put("column_name", this.columnName);
+            r.put("mapping_formula", this.mappingFormula);
+            r.put("mapping_description", this.mappingDescription);
+            r.put("column_sources", ColumnSource.create(this.columnSources));
+            return r;
         }
 
         /**
@@ -558,6 +793,48 @@ public class ImpactLineage {
             this.targetConnection = targetConnection;
         }
 
+        private static Map<String, TargetTable> from(Map<String, GenericData.Record> data) throws AvroTypeException {
+            if (data == null) {
+                return null;
+            } else {
+                Map<String, TargetTable> m = new HashMap<>();
+                for(Entry<String, GenericData.Record> e : data.entrySet()) {
+                    m.put(e.getKey(), TargetTable.from(e.getValue()));
+                }
+                return m;
+            }
+        }
+
+        private static TargetTable from(GenericData.Record data) {
+            TargetTable t = new TargetTable();
+            t.setTargetTableName(AvroUtils.getAvroValue(data, "target_table_name", String.class));
+            t.setTargetConnection(AvroUtils.getAvroValue(data, "target_connection", String.class));
+            t.setSourceTables(SourceTable.from(AvroUtils.getAvroMapOfRecords(data, "source_tables")));
+            t.setTargetColumns(TargetTableColumn.from(AvroUtils.getAvroMapOfRecords(data, "target_columns")));
+            return t;
+        }
+
+        private static Map<String, GenericData.Record> create(Map<String, TargetTable> targettables) {
+            if (targettables == null) {
+                return null;
+            } else {
+                Map<String, GenericData.Record> records = new HashMap<>();
+                for (Entry<String, TargetTable> e : targettables.entrySet()) {
+                    records.put(e.getKey(), e.getValue().create());
+                }
+                return records;
+            }
+        }
+
+        private GenericData.Record create() {
+            GenericData.Record r = new GenericData.Record(avro_schema_targettable);
+            r.put("source_tables", SourceTable.create(this.sourceTables));
+            r.put("target_table_name", this.targetTableName);
+            r.put("target_connection", this.targetConnection);
+            r.put("target_columns", TargetTableColumn.create(this.targetColumns));
+            return r;
+        }
+
         /**
          * Gets the source-table mapping collection for the target table.
          * @return the source-table map
@@ -619,6 +896,7 @@ public class ImpactLineage {
          *
          * @return the target table key
          */
+        @JsonIgnore
         public String getKey() {
             return targetTableName + "_" + targetConnection;
         }
@@ -720,10 +998,10 @@ public class ImpactLineage {
             if (this == obj) return true;
             if (obj == null || getClass() != obj.getClass()) return false;
             TargetTable that = (TargetTable) obj;
-            return Objects.equals(sourceTables, that.sourceTables) && 
+            return AvroUtils.isEqual(sourceTables, that.sourceTables) && 
                 Objects.equals(targetTableName, that.targetTableName) && 
                 Objects.equals(targetConnection, that.targetConnection) && 
-                Objects.equals(targetColumns, that.targetColumns);
+                AvroUtils.isEqual(targetColumns, that.targetColumns);
         }
     }
 }

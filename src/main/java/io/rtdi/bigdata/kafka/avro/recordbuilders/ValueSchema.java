@@ -13,10 +13,6 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilderException;
 import org.apache.avro.SchemaFormatter;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.rtdi.bigdata.kafka.avro.AvroUtils;
@@ -41,10 +37,6 @@ import io.rtdi.bigdata.kafka.avro.objects.TableSemantics;
  *
  */
 public class ValueSchema extends RecordSchema {
-	/**
-	 * Schema property name of this class
-	 */
-	public static final String NAME = "VALUESCHEMA";
 
 	/**
 	 * Schema property name for regulations that apply to this schema
@@ -108,6 +100,7 @@ public class ValueSchema extends RecordSchema {
 	private List<String> pks;
 	private Duration retentionperiod;
 	private DeletionPolicy deletionpolicy;
+	private final ObjectMapper om = new ObjectMapper();
 
 
 	/**
@@ -208,15 +201,6 @@ public class ValueSchema extends RecordSchema {
 	}
 
 	/**
-	 * Returns the fixed schema type identifier for value schemas.
-	 *
-	 * @return the schema type name
-	 */
-	public String getType() {
-        return NAME;
-    }
-
-	/**
 	 * Sets the list of regulations that apply to the schema.
 	 *
 	 * @param regulations the applicable regulation codes
@@ -230,7 +214,6 @@ public class ValueSchema extends RecordSchema {
 	 *
 	 * @param regulations the applicable regulation codes
 	 */
-	@JsonIgnore
 	public void setRegulations(String... regulations) {
 		this.regulations = Arrays.asList(regulations);
 	}
@@ -240,7 +223,6 @@ public class ValueSchema extends RecordSchema {
 	 *
 	 * @return the regulation codes that apply to the schema
 	 */
-	@JsonGetter(SCHEMA_INFO_REGULATIONS)
 	public Collection<String> getRegulations() {
 		return regulations;
 	}
@@ -259,7 +241,6 @@ public class ValueSchema extends RecordSchema {
 	 *
 	 * @return the ticket system URL
 	 */
-	@JsonGetter(SCHEMA_INFO_TICKETS_URL)
 	public String getTicketUrl() {
 		return ticketurl;
 	}
@@ -278,7 +259,6 @@ public class ValueSchema extends RecordSchema {
 	 *
 	 * @return the repository URL
 	 */
-	@JsonGetter(SCHEMA_INFO_REPO_URL)
 	public String getRepoUrl() {
 		return repourl;
 	}
@@ -298,7 +278,6 @@ public class ValueSchema extends RecordSchema {
 	 *
 	 * @param object_level_security the object-level security entries
 	 */
-	@JsonIgnore
 	public void setObjectLevelSecurity(String... object_level_security) {
 		this.objectlevelsecurity = Arrays.asList(object_level_security);
 	}
@@ -308,7 +287,6 @@ public class ValueSchema extends RecordSchema {
 	 *
 	 * @return the object-level security entries
 	 */
-	@JsonGetter(SCHEMA_INFO_OBJECT_LEVEL_SECURITY)
 	public List<String> getObjectLevelSecurity() {
 		return this.objectlevelsecurity;
 	}
@@ -340,7 +318,6 @@ public class ValueSchema extends RecordSchema {
 	 *
 	 * @return the row-level security rules
 	 */
-	@JsonGetter(SCHEMA_INFO_ROW_LEVEL_SECURITY)
 	public List<RLS> getRowLevelSecurity() {
 		return this.row_level_security;
 	}
@@ -359,7 +336,6 @@ public class ValueSchema extends RecordSchema {
 	 *
 	 * @return the partition-by column names
 	 */
-	@JsonGetter(SCHEMA_INFO_PARTITION_BY)
 	public List<String> getPartitionBy() {
 		return partition_by;
 	}
@@ -378,7 +354,6 @@ public class ValueSchema extends RecordSchema {
 	 *
 	 * @return the semantic definition for the schema
 	 */
-	@JsonGetter(SCHEMA_INFO_SEMANTICS)
 	public TableSemantics getSemantics() {
 		return this.semantics;
 	}
@@ -397,7 +372,6 @@ public class ValueSchema extends RecordSchema {
 	 *
 	 * @return the owner email address
 	 */
-	@JsonGetter(SCHEMA_INFO_DATAPRODUCT_OWNER)
 	public String getDataProductOwner() {
 		return this.dataproductowner;
 	}
@@ -408,7 +382,6 @@ public class ValueSchema extends RecordSchema {
 	 *
 	 * @param columnnames the primary key column names
 	 */
-	@JsonIgnore
 	public void setPrimaryKeys(String... columnnames) {
 		this.pks = Arrays.asList(columnnames);
 	}
@@ -427,7 +400,6 @@ public class ValueSchema extends RecordSchema {
 	 *
 	 * @return the primary key column names
 	 */
-	@JsonGetter(PRIMARY_KEYS)
 	public List<String> getPrimaryKeys() {
 		return this.pks;
 	}
@@ -458,7 +430,6 @@ public class ValueSchema extends RecordSchema {
 	 *
 	 * @return the foreign key conditions
 	 */
-	@JsonGetter(FOREIGN_KEYS)
 	public List<FKCondition> getForeignKeys() {
 		return this.fks;
 	}
@@ -491,7 +462,6 @@ public class ValueSchema extends RecordSchema {
 	 *
 	 * @return the retention duration, or {@code null} if not set
 	 */
-	@JsonGetter(SCHEMA_INFO_RETENTION_PERIOD)
 	public Duration getRetentionPeriod() {
 		return this.retentionperiod;
 	}
@@ -510,7 +480,6 @@ public class ValueSchema extends RecordSchema {
 	 *
 	 * @return the deletion policy, or {@code null} if not set
 	 */
-	@JsonGetter(SCHEMA_INFO_DELETION_POLICY)
 	public DeletionPolicy getDeletionPolicy() {
 		return this.deletionpolicy;
 	}
@@ -577,29 +546,6 @@ public class ValueSchema extends RecordSchema {
 	 */
 	public String toAvroJson() {
 		return SchemaFormatter.format("json/pretty", this.createSchema());
-	}
-
-	/**
-	 * Serializes the current object as JSON.
-	 *
-	 * @return the JSON serialization of the schema builder
-	 * @throws JsonProcessingException if the serialization fails
-	 */
-	public String toObjectJson() throws JsonProcessingException {
-		return om.writeValueAsString(this);
-	}
-
-	/**
-	 * Deserializes a JSON payload into a {@link ValueSchema} instance.
-	 *
-	 * @param json the JSON payload
-	 * @return the parsed value schema
-	 * @throws JsonMappingException if the JSON structure cannot be mapped
-	 * @throws JsonProcessingException if the JSON payload cannot be read
-	 */
-	public static ValueSchema fromObjectJson(String json) throws JsonMappingException, JsonProcessingException {
-		ObjectMapper om = AvroUtils.createJacksonOM();
-		return om.readValue(json, ValueSchema.class);
 	}
 
 	/**

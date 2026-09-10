@@ -1,0 +1,1 @@
+{"producer_name":"producer1","commit_id":"commit1","commit_epoch_ns":376978617078100,"record_count":1,"topics":{"topic1":{"topic_name":"topic1","offsets":{"0":{"min_offset":0,"max_offset":100,"partition":0}}}}}

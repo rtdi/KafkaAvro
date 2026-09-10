@@ -8,6 +8,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.util.Date;
+import java.util.Objects;
 
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes;
@@ -88,7 +89,7 @@ public class AvroTimeMicros extends AvroLogicalType implements IAvroPrimitive {
 
 	@Override
 	public int hashCode() {
-		return time.hashCode();
+		return Objects.hashCode(time);
 	}
 
 	@Override

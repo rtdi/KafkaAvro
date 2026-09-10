@@ -10,15 +10,10 @@ import org.apache.avro.Schema.Type;
 import org.apache.avro.SchemaBuilderException;
 import org.apache.avro.SchemaFormatter;
 import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.generic.GenericData.Record;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+
+import org.apache.avro.generic.GenericData.Record;
 
 import io.rtdi.bigdata.kafka.avro.AvroDataTypeException;
 import io.rtdi.bigdata.kafka.avro.AvroNameEncoder;
@@ -32,10 +27,6 @@ public class RecordSchema implements IAvroDatatype {
 
 	private List<AvroField> fields = new ArrayList<>();
 	private Map<String, AvroField> columnnameindex = new HashMap<>();
-	/**
-	 * Jackson om
-	 */
-	protected ObjectMapper om = AvroUtils.createJacksonOM();
 	private String name;
 	private String namespace;
 	private String doc;
@@ -153,7 +144,6 @@ public class RecordSchema implements IAvroDatatype {
 	 * get the original name of the schema
 	 * @return the schema's original name
 	 */
-	@JsonGetter(AvroField.COLUMN_PROP_ORIGINALNAME)
 	public String getOrginalname() {
 		if (this.orginalname == null) {
 			return AvroNameEncoder.encodeName(this.name);
@@ -165,7 +155,6 @@ public class RecordSchema implements IAvroDatatype {
 	 * set the original name of the schema
 	 * @param orginalname the parameter value
 	 */
-	@JsonSetter(AvroField.COLUMN_PROP_ORIGINALNAME)
 	public void setOrginalname(String orginalname) {
 		this.orginalname = orginalname;
 	}
@@ -266,7 +255,6 @@ public class RecordSchema implements IAvroDatatype {
 	 * @param columnname of the field
 	 * @return the field object based on the column name
 	 */
-	@JsonIgnore
 	public AvroField getField(String columnname) {
 		return columnnameindex.get(columnname);
 	}
@@ -330,7 +318,6 @@ public class RecordSchema implements IAvroDatatype {
 	 * Get the full name of the schema, which is namespace.name
 	 * @return the full name of the schema
 	 */
-	@JsonIgnore
 	public String getFullName() {
 		if (this.namespace == null || this.namespace.length() == 0) {
 			return this.name;
@@ -480,27 +467,6 @@ public class RecordSchema implements IAvroDatatype {
 	 */
 	public String toAvroJson() {
 		return SchemaFormatter.format("json/pretty", this.createSchema());
-	}
-
-	/**
-	 * Serialize the class into object json.
-	 * @return the serialized class in JSON format
-	 * @throws JsonProcessingException in case the serialization fails
-	 */
-	public String toObjectJson() throws JsonProcessingException {
-		return om.writeValueAsString(this);
-	}
-
-	/**
-	 * Deserialize the class from object json.
-	 * @param json the parameter value
-	 * @return the resulting value
-	 * @throws JsonMappingException in case the deserialization fails
-	 * @throws JsonProcessingException in case the deserialization fails
-	 */
-	public static RecordSchema fromObjectJson(String json) throws JsonMappingException, JsonProcessingException {
-		ObjectMapper om = new ObjectMapper().disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-		return om.readValue(json, RecordSchema.class);
 	}
 
 }

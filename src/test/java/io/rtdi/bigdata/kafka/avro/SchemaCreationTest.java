@@ -65,37 +65,21 @@ public class SchemaCreationTest {
 			Files.createDirectories(Path.of("src/test/resources"));
 
 			// save its Avro Schema Json as file
-			{
-				String json = valueschema.toAvroJson();
-				Path path = Path.of("src/test/resources", "schema1.avsc");
-				Files.writeString(path, json);
+			String json = valueschema.toAvroJson();
+			Path path = Path.of("src/test/resources", "schema1.avsc");
+			Files.writeString(path, json);
 
-				JsonNode json_tree = om.readTree(json);
-				path = Path.of("src/test/resources/expected", "schema1.avsc");
-				JsonNode expected_tree = om.readTree(path.toFile());
-				assertEquals(expected_tree, json_tree, "The built schema is different from the expected schema");
+			JsonNode json_tree = om.readTree(json);
+			path = Path.of("src/test/resources/expected", "schema1.avsc");
+			JsonNode expected_tree = om.readTree(path.toFile());
+			assertEquals(expected_tree, json_tree, "The built schema is different from the expected schema");
 
-				Schema avroschema = valueschema.createSchema();
+			Schema avroschema = valueschema.createSchema();
 
-				// Create a ValueSchema from an Avro Schema
-				ValueSchema valueschema2 = new ValueSchema(avroschema);
-				assertEquals(valueschema, valueschema2);
-			}
+			// Create a ValueSchema instance from an Avro Schema
+			ValueSchema valueschema2 = new ValueSchema(avroschema);
+			assertEquals(valueschema, valueschema2);
 
-			// Test the object json format
-			{
-				String json = valueschema.toObjectJson();
-				Path path = Path.of("src/test/resources", "schema1.json");
-				Files.writeString(path, json);
-
-				JsonNode json_tree = om.readTree(json);
-				path = Path.of("src/test/resources/expected", "schema1.json");
-				JsonNode expected_tree = om.readTree(path.toFile());
-				assertEquals(expected_tree, json_tree, "The built object schema is different from the expected schema");
-
-				ValueSchema valueschema2 = ValueSchema.fromObjectJson(json);
-				assertEquals(valueschema, valueschema2);
-			}
 
 		} catch (Exception e) {
 			fail(e.getMessage());

@@ -176,6 +176,7 @@ class Field(BaseModel):
     internal: bool = Pydantic_Field(alias=COLUMN_PROP_INTERNAL, default=False)
     technical: bool = Pydantic_Field(alias=COLUMN_PROP_TECHNICAL, default=False)
     semantics: Optional[ColumnSemantic] = None
+    aliases: Optional[list[str]] = None
 
     model_config = ConfigDict(serialize_by_alias=True)
 
@@ -298,9 +299,10 @@ class RecordSchema(BaseModel):
         return self._schema_name
 
     def add_field(self, name: str, datatype: any, doc: Optional[str] = None, nullable: bool = True,
-                  internal: bool = False, technical: bool = False, source_data_type: str = None, default: Any = DEFAULT_NOT_SET) -> Field:
+                  internal: bool = False, technical: bool = False, source_data_type: str = None, default: Any = DEFAULT_NOT_SET,
+                  aliases: Optional[list[str]] = None) -> Field:
         f = Field(name=name, type=datatype, nullable=nullable, doc=doc, internal=internal, technical=technical,
-                  source_data_type=source_data_type, default=default, manual=True)
+                  source_data_type=source_data_type, default=default, manual=True, aliases=aliases)
         # Don't know why the above internal and technical parameters are deemed missing, in case they have no default
         f.internal = internal
         f.technical = technical

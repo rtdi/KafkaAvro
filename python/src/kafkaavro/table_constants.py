@@ -28,6 +28,7 @@ COLUMN_PROP_ORIGINAL_NAME = "__originalname"
 COLUMN_PROP_INTERNAL = "__internal"
 COLUMN_PROP_TECHNICAL = "__technical" # cannot be used in mappings as the values are set when sending the rows to the pipeline server
 COLUMN_PROP_CONTENT_SENSITIVITY = "__sensitivity"
+ALIASES = "aliases"
 DEFAULT_NOT_SET = "DEFAULT_NOT_SET"
 
 

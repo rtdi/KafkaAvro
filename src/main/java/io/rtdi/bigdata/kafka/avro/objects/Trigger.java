@@ -2,10 +2,21 @@ package io.rtdi.bigdata.kafka.avro.objects;
 
 import java.time.DayOfWeek;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
+import org.apache.avro.AvroTypeException;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.rtdi.bigdata.kafka.avro.AvroUtils;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroArray;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroBoolean;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroInt;
@@ -17,11 +28,18 @@ import io.rtdi.bigdata.kafka.avro.recordbuilders.ValueSchema;
  * Stores the information when to call a function.
  */
 public class Trigger {
-
+    private String functionName;
+    private String queuename;
+    private List<EventSet> events = new ArrayList<>();
     /**
      * The Avro schema for the trigger definition.
      */
-    public static ValueSchema trigger_schema = new ValueSchema("trigger", "Trigger for a function to be called when certain events occur");
+    public static final ValueSchema trigger_schema = new ValueSchema("trigger", "Trigger for a function to be called when certain events occur");
+    public static final Schema avro_schema;
+    private static final Schema avro_schema_eventset;
+    private static final Schema avro_schema_commit_event;
+    private static final Schema avro_schema_schedule;
+    private static final Schema avro_schema_dataflow;
     static {
         RecordSchema schedule = new RecordSchema("schedule", "all conditions within the fields must be met to run, they are AND conditions");
         schedule.add("weekdays", new AvroArray(AvroString.create()), "if provided, run only on these days, e.g. Mon-Fri", true);
@@ -52,12 +70,201 @@ public class Trigger {
         trigger_schema.add("function_name", AvroString.create(), "an arbitrary name, often the function or container name", false);
         trigger_schema.add("queuename", AvroString.create(), "the queue name of the function", false);
         trigger_schema.setPrimaryKeys("function_name");
+        avro_schema = trigger_schema.createSchema();
+        avro_schema_eventset = AvroUtils.getBaseSchema(avro_schema.getField("events").schema()).getElementType();
+        avro_schema_commit_event = AvroUtils.getBaseSchema(avro_schema_eventset.getField("on_commit").schema());
+        avro_schema_schedule = AvroUtils.getBaseSchema(avro_schema_eventset.getField("on_schedule").schema()).getElementType();
+        avro_schema_dataflow = AvroUtils.getBaseSchema(avro_schema_eventset.getField("dataflows").schema()).getElementType();
     }
 
     /**
      * Constructor for triggers
      */
     public Trigger() {
+    }
+
+    /**
+     * Creates a trigger definition for a function name and queue name.
+     *
+     * @param functionName the function name
+     * @param queuename the queue name
+     */
+    public Trigger(String functionName, String queuename) {
+        this.functionName = functionName;
+        this.queuename = queuename;
+    }
+
+    /**
+     * Get the current object as GenericRecord
+     * @return GenericRecord
+     */
+    public GenericData.Record toRecord() {
+        GenericData.Record r = new GenericData.Record(avro_schema);
+        r.put("events", EventSet.create(events));
+        r.put("function_name", this.functionName);
+        r.put("queuename", this.queuename);
+        return r;
+    }
+
+    /**
+     * Create a trigger instance from the Avro record data
+     * 
+     * @param data Avro record
+     * @return the Trigger instance
+     * @throws AvroTypeException in case the record does not match the structure
+     */
+    public static Trigger from(GenericData.Record data) throws AvroTypeException {
+        Trigger t = new Trigger();
+        t.setFunctionName(AvroUtils.getAvroValue(data, "function_name", String.class));
+        t.setQueuename(AvroUtils.getAvroValue(data, "queuename", String.class));
+        t.setEvents(EventSet.from(AvroUtils.getAvroListOfRecords(data, "events")));
+        return t;
+    }
+
+    /**
+     * Gets the function name for this trigger definition.
+     *
+     * @return the function name
+     */
+    public String getFunctionName() { return functionName; }
+
+    /**
+     * Sets the function name for this trigger definition.
+     *
+     * @param functionName the function name
+     */
+    public void setFunctionName(String functionName) { this.functionName = functionName; }
+
+    /**
+     * Gets the queue name associated with this trigger definition.
+     *
+     * @return the queue name
+     */
+    public String getQueuename() { return queuename; }
+
+    /**
+     * Sets the queue name associated with this trigger definition.
+     *
+     * @param queuename the queue name
+     */
+    public void setQueuename(String queuename) { this.queuename = queuename; }
+
+    /**
+     * get all event sets
+     * @return all event sets
+     */
+    public List<EventSet> getEvents() { return events; }
+
+    /**
+     * Creates and registers a new event set for this trigger definition.
+     *
+     * @return the newly created event set
+     */
+    public EventSet addEventSet() {
+        EventSet e = new EventSet();
+        this.events.add(e);
+        return e;
+    }
+
+    /**
+     * Add this list as event set and update the parent trigger for each
+     * @param eventsets list of all eventsets
+     */
+    public void setEvents(List<EventSet> eventsets) {
+        this.events = eventsets;
+    }
+
+    /**
+     * Returns a readable description of the trigger definition.
+     *
+     * @return the trigger description
+     */
+    @Override
+    public String toString() { return "Triggers for function " + functionName; }
+
+    /**
+     * Returns a hash code based on the function name.
+     *
+     * @return the hash code for this trigger definition
+     */
+    @Override
+    public int hashCode() { return Objects.hashCode(functionName); }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        } else if (o instanceof Trigger t) {
+            return Objects.equals(this.functionName, t.functionName) && Objects.equals(this.queuename, t.queuename) &&
+                AvroUtils.isEqual(this.events, t.events);
+        } else {
+            return false;
+        }
+    }
+
+    	/**
+	 * Formats the current schema as pretty-printed Avro JSON.
+	 *
+	 * @return the schema formatted as Avro JSON
+	 */
+	public String toAvroJson() {
+		return Trigger.trigger_schema.toAvroJson();
+	}
+
+    /**
+     * Get the constant ValueSchema for the Trigger
+     * @return the constant value schema
+     */
+    @JsonIgnore
+    public ValueSchema getValueSchema() {
+        return Trigger.trigger_schema;
+    }
+
+    /**
+     * Get the constant Avro Schema for this record
+     * @return the Avro schema
+     */
+    @JsonIgnore
+    public Schema getSchema() {
+        return Trigger.avro_schema;
+    }
+
+	/**
+	 * Deserializes a JSON payload into a {@link Trigger} instance.
+	 *
+	 * @param json the JSON payload
+	 * @return the parsed value schema
+	 * @throws JsonMappingException if the JSON structure cannot be mapped
+	 * @throws JsonProcessingException if the JSON payload cannot be read
+	 */
+	public static Trigger fromRecordJson(String json) throws JsonMappingException, JsonProcessingException {
+		ObjectMapper om = AvroUtils.createJacksonOM();
+		return om.readValue(json, Trigger.class);
+	}
+
+	/**
+	 * Create the trigger instance from an Avro record.
+	 *
+	 * @param data the Avro record witht the data
+	 * @return the Trigger instance
+	 */
+	public static Trigger fromRecord(GenericData.Record data) {
+        Trigger t = new Trigger();
+        t.setFunctionName(AvroUtils.getAvroValue(data, "function_name", String.class));
+        t.setQueuename(AvroUtils.getAvroValue(data, "queue_name", String.class));
+        t.setEvents(EventSet.from(AvroUtils.castListOfRecords(t)));
+        return t;
+	}
+
+
+    /**
+     * Serialize the record values into Json
+     * @return the Trigger values as string
+     * @throws JsonProcessingException
+     */
+    public String toRecordJson() throws JsonProcessingException {
+		ObjectMapper om = AvroUtils.createJacksonOM();
+		return om.writeValueAsString(this);
     }
 
     /**
@@ -68,7 +275,53 @@ public class Trigger {
         private CommitEvent onCommit;
         private List<String> onDataflow;
         private List<Dataflow> dataflows;
-        private Triggers _triggers;
+
+        private static List<GenericData.Record> create(List<EventSet> events) {
+            if (events == null) {
+                return null;
+            } else {
+                List<GenericData.Record> records = new ArrayList<>();
+                for (EventSet e : events) {
+                    records.add(e.create());
+                }
+                return records;
+            }
+        }
+
+        private GenericData.Record create() {
+            GenericData.Record r = new GenericData.Record(avro_schema_eventset);
+            r.put("on_commit", CommitEvent.create(this.onCommit));
+            r.put("on_schedule", Schedule.create(this.onSchedule));
+            r.put("on_dataflow", this.onDataflow);
+            r.put("dataflows", Dataflow.create(this.dataflows));
+            return r;
+        }
+
+        /**
+         * Create the EventSet instance from an Avro record.
+         *
+         * @param data the Avro record witht the data
+         * @return the EventSet instance
+         * @throws AvroTypeException if the generic record and the type does not match
+         */
+        private static EventSet from(GenericData.Record data) throws AvroTypeException {
+            EventSet t = new EventSet();
+            t.setOnCommit(CommitEvent.from(AvroUtils.getAvroRecord(data, "on_commit")));
+            t.setOnDataflow(AvroUtils.getAvroListOfString(data, "on_dataflow"));
+            t.setOnSchedule(Schedule.from(AvroUtils.getAvroListOfRecords(data, "on_schedule")));
+            t.setDataflows(Dataflow.from(AvroUtils.getAvroListOfRecords(data, "dataflows")));
+            return t;
+        }
+
+        private static List<EventSet> from(List<?> data) {
+            List<EventSet> l = new ArrayList<>();
+            for (Object o : data) {
+                if (o instanceof GenericData.Record r) {
+                    l.add(EventSet.from(r));
+                }
+            }
+            return l;
+        }
 
         /**
          * Gets the list of schedules that should trigger the function.
@@ -97,13 +350,6 @@ public class Trigger {
          */
         public List<Dataflow> getDataflows() { return dataflows; }
         
-        /**
-         * Gets the trigger container that owns this event set.
-         *
-         * @return the parent trigger definition
-         */
-        public Triggers getTriggers() { return _triggers; }
-
         /**
          * Sets the list of schedules that should trigger the function.
          * @param onSchedule the list of schedules, or {@code null} if none are set
@@ -144,13 +390,6 @@ public class Trigger {
         }
 
         /**
-         * Associates this event set with its parent trigger definition.
-         *
-         * @param t the trigger definition
-         */
-        public void setTriggers(Triggers t) { this._triggers = t; }
-
-        /**
          * Adds a schedule to the event set with the specified parameters.
          * @param weekdays on which weekdays the dataflow should run
          * @param hours the hours to run
@@ -186,6 +425,17 @@ public class Trigger {
         }
 
         /**
+         * Creates a commit event definition with schema names, topic partitions, and delay settings.
+         *
+         * @param delaySeconds the delay before evaluating a first trigger for a burst of events
+         * @param idleSeconds the idle time before starting the trigger after a pause
+         * @param schemaNames the schema names to watch for commits
+          */
+        public void addCommitEvent(Integer delaySeconds, Integer idleSeconds, String... schemaNames) {
+            this.onCommit = new CommitEvent(Arrays.asList(schemaNames), null, delaySeconds, idleSeconds);
+        }
+
+        /**
          * Sets the commit-based trigger event.
          *
          * @param schemaNames the schema names that should trigger the event
@@ -202,10 +452,11 @@ public class Trigger {
          *
          * @param dataflowName the dataflow name
          * @param partitions the partition numbers to use with the dataflow
+         * @param delta_single_trigger true, if only the initial load should be triggered once per partition
          */
-        public void addDataflow(String dataflowName, List<Integer> partitions) {
+        public void addDataflow(String dataflowName, Boolean delta_single_trigger, List<Integer> partitions) {
             if (this.dataflows == null) this.dataflows = new ArrayList<>();
-            this.dataflows.add(new Dataflow(dataflowName, null, partitions));
+            this.dataflows.add(new Dataflow(dataflowName, delta_single_trigger, partitions));
         }
 
         /**
@@ -214,107 +465,23 @@ public class Trigger {
          * @return the hash code for this event set
          */
         @Override
-        public int hashCode() { return _triggers != null && _triggers.getFunctionName() != null ? _triggers.getFunctionName().hashCode() : 0; }
-    }
+        public int hashCode() { return 0; }
 
-    /**
-     * Main document for triggers
-     */
-    public static class Triggers {
-        private String functionName;
-        private String queuename;
-        private List<EventSet> events = new ArrayList<>();
-
-        /**
-         * Creates an empty trigger definition.
-         */
-        public Triggers() {
-        }
-
-        /**
-         * Creates a trigger definition for a function name and queue name.
-         *
-         * @param functionName the function name
-         * @param queuename the queue name
-         */
-        public Triggers(String functionName, String queuename) {
-            this.functionName = functionName;
-            this.queuename = queuename;
-        }
-
-        /**
-         * Gets the function name for this trigger definition.
-         *
-         * @return the function name
-         */
-        public String getFunctionName() { return functionName; }
-        /**
-         * Sets the function name for this trigger definition.
-         *
-         * @param functionName the function name
-         */
-        public void setFunctionName(String functionName) { this.functionName = functionName; }
-        /**
-         * Gets the queue name associated with this trigger definition.
-         *
-         * @return the queue name
-         */
-        public String getQueuename() { return queuename; }
-        /**
-         * Sets the queue name associated with this trigger definition.
-         *
-         * @param queuename the queue name
-         */
-        public void setQueuename(String queuename) { this.queuename = queuename; }
-
-        /**
-         * get all event sets
-         * @return all event sets
-         */
-        public List<EventSet> getEvents() { return events; }
-
-        /**
-         * Creates and registers a new event set for this trigger definition.
-         *
-         * @return the newly created event set
-         */
-        public EventSet addEventSet() {
-            EventSet e = new EventSet();
-            e.setTriggers(this);
-            this.events.add(e);
-            return e;
-        }
-
-        /**
-         * Add this list as event set and update the parent trigger for each
-         * @param eventsets list of all eventsets
-         */
-        public void setEvents(List<EventSet> eventsets) {
-            this.events = eventsets;
-            if (eventsets != null) {
-                for (EventSet e : eventsets) {
-                    e.setTriggers(this);
-                }
+        @Override
+        public boolean equals(Object o) {
+            if (o == null) {
+                return false;
+            } else if (o instanceof EventSet t) {
+                return Objects.equals(this.onCommit, t.onCommit) && 
+                    AvroUtils.isEqual(this.onSchedule, t.onSchedule) && 
+                    AvroUtils.isEqual(this.onDataflow, t.onDataflow) && 
+                    AvroUtils.isEqual(this.dataflows, t.dataflows);
+            } else {
+                return false;
             }
         }
-
-        /**
-         * Returns a readable description of the trigger definition.
-         *
-         * @return the trigger description
-         */
-        @Override
-        public String toString() { return "Triggers for function " + functionName; }
-
-        /**
-         * Returns a hash code based on the function name.
-         *
-         * @return the hash code for this trigger definition
-         */
-        @Override
-        public int hashCode() { return functionName != null ? functionName.hashCode() : 0; }
-
     }
+
 
     /**
      * Schedule based triggers
@@ -331,8 +498,60 @@ public class Trigger {
          * Creates an empty schedule.
          */
         public Schedule() {
-            
         }
+
+        private static List<Schedule> from(List<GenericData.Record> data) {
+            if (data == null) {
+                return null;
+            } else {
+                List<Schedule> l = new ArrayList<>();
+                for (GenericData.Record o : data) {
+                    l.add(Schedule.from(o));
+                }
+                return l;
+            }
+        }
+
+        /**
+         * Create the Schedule instance from an Avro record.
+         *
+         * @param data the Avro record witht the data
+         * @return the Trigger instance
+         */
+        private static Schedule from(GenericData.Record data) {
+            Schedule t = new Schedule();
+            t.setWeekdays(AvroUtils.castListType(data.get("weekdays"), String.class));
+            t.setHours(AvroUtils.castListType(data.get("hours"), Integer.class));
+            t.setMinutes(AvroUtils.castListType(data.get("minutes"), Integer.class));
+            t.setDays(AvroUtils.castListType(data.get("days"), Integer.class));
+            t.setMonths(AvroUtils.castListType(data.get("months"), Integer.class));
+            t.setLastDayOfMonth(AvroUtils.castType(data.get("last_day_of_month"), Boolean.class));
+            return t;
+        }
+
+        private static List<GenericData.Record> create(List<Schedule> onSchedule) {
+            if (onSchedule == null) {
+                return null;
+            } else {
+                List<GenericData.Record> records = new ArrayList<>();
+                for (Schedule e : onSchedule) {
+                    records.add(e.create());
+                }
+                return records;
+            }
+        }
+
+        private GenericData.Record create() {
+            GenericData.Record r = new GenericData.Record(avro_schema_schedule);
+            r.put("weekdays", this.weekdays);
+            r.put("hours", this.hours);
+            r.put("minutes", this.minutes);
+            r.put("days", this.days);
+            r.put("last_day_of_month", this.lastDayOfMonth);
+            r.put("months", this.months);
+            return r;
+         }
+
 
         /**
          * get all weeksdays for triger
@@ -413,8 +632,6 @@ public class Trigger {
          */
         public void setMonths(List<Integer> months) { this.months = months; }
 
-
-
         /**
          * Returns a readable description of the schedule.
          *
@@ -422,6 +639,26 @@ public class Trigger {
          */
         @Override
         public String toString() { return "Schedule"; }
+
+        @Override
+        public int hashCode() { return 0; }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null) {
+                return false;
+            } else if (o instanceof Schedule t) {
+                return Objects.equals(this.lastDayOfMonth, t.lastDayOfMonth) && 
+                    AvroUtils.isEqual(this.weekdays, t.weekdays) && 
+                    AvroUtils.isEqual(this.hours, t.hours) && 
+                    AvroUtils.isEqual(this.minutes, t.minutes) && 
+                    AvroUtils.isEqual(this.days, t.days) && 
+                    AvroUtils.isEqual(this.months, t.months);
+            } else {
+                return false;
+            }
+        }
+
     }
 
     /**
@@ -437,7 +674,37 @@ public class Trigger {
          * Creates an empty commit event.
          */
         public CommitEvent() {
+        }
 
+        /**
+         * Create a CommitEvent instance from the Avro record
+         * @param data avro record
+         * @return new CommitEvent instance
+         */
+        public static CommitEvent from(GenericData.Record data) {
+            CommitEvent c = new CommitEvent();
+            c.setSchemaNames(AvroUtils.castListType(data.get("schema_names"), String.class));
+            c.setTopicPartitions(AvroUtils.castListType(data.get("topic_partitions"), String.class));
+            c.setDelaySeconds(AvroUtils.getAvroValue(data, "delay_seconds", Integer.class));
+            c.setIdleSeconds(AvroUtils.getAvroValue(data, "idle_seconds", Integer.class));
+            return c;
+        }
+
+        private static GenericData.Record create(CommitEvent onCommit) {
+            if (onCommit == null) {
+                return null;
+            } else {
+                return onCommit.create();
+            }
+        }
+
+        private GenericData.Record create() {
+            GenericData.Record r = new GenericData.Record(avro_schema_commit_event);
+            r.put("schema_names", this.schemaNames);
+            r.put("topic_partitions", this.topicPartitions);
+            r.put("delay_seconds", this.delaySeconds);
+            r.put("idle_seconds", this.idleSeconds);
+            return r;
         }
 
         /**
@@ -453,6 +720,17 @@ public class Trigger {
             this.topicPartitions = topicPartitions;
             this.delaySeconds = delaySeconds;
             this.idleSeconds = idleSeconds;
+        }
+
+        /**
+         * Creates a commit event definition with schema names, topic partitions, and delay settings.
+         *
+         * @param schemaName the schema to watch for commits
+         * @param delaySeconds the delay before evaluating a first trigger for a burst of events
+         * @param idleSeconds the idle time before starting the trigger after a pause
+         */
+        public CommitEvent(String schemaName, Integer delaySeconds, Integer idleSeconds) {
+            this(Arrays.asList(schemaName), null, delaySeconds, idleSeconds);
         }
 
         /**
@@ -524,6 +802,23 @@ public class Trigger {
          */
         @Override
         public String toString() { return "CommitEvent: " + schemaNames; }
+
+        @Override
+        public int hashCode() { return 0; }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null) {
+                return false;
+            } else if (o instanceof CommitEvent t) {
+                return Objects.equals(this.delaySeconds, t.delaySeconds) &&
+                    Objects.equals(this.idleSeconds, t.idleSeconds) && 
+                    AvroUtils.isEqual(this.schemaNames, t.schemaNames) && 
+                    AvroUtils.isEqual(this.topicPartitions, t.topicPartitions);
+            } else {
+                return false;
+            }
+        }
     }
 
     /**
@@ -538,8 +833,47 @@ public class Trigger {
          * Creates an empty dataflow trigger configuration.
          */
         public Dataflow() {
-
         }
+
+        private static List<Dataflow> from(List<GenericData.Record> data) {
+            if (data == null) {
+                return null;
+            } else {
+                List<Dataflow> l = new ArrayList<>();
+                for (GenericData.Record o : data) {
+                    l.add(Dataflow.from(o));
+                }
+                return l;
+            }
+        }
+
+        private static Dataflow from(GenericData.Record data) {
+            Dataflow d = new Dataflow();
+            d.setDataflowName(AvroUtils.getAvroValue(data, "dataflow_name", String.class));
+            d.setDeltaSingleTrigger(AvroUtils.getAvroValue(data, "delta_single_trigger", Boolean.class));
+            d.setPartitions(AvroUtils.getAvroListOfInteger(data, "partitions"));
+            return d;
+        }
+
+        private static List<GenericData.Record> create(List<Dataflow> dataflows) {
+            if (dataflows == null) {
+                return null;
+            } else {
+                List<GenericData.Record> records = new ArrayList<>();
+                for (Dataflow e : dataflows) {
+                    records.add(e.create());
+                }
+                return records;
+            }
+        }
+
+        private GenericData.Record create() {
+            GenericData.Record r = new GenericData.Record(avro_schema_dataflow);
+            r.put("dataflow_name", this.dataflowName);
+            r.put("delta_single_trigger", this.deltaSingleTrigger);
+            r.put("partitions", this.partitions);
+            return r;
+         }
 
         /**
          * Creates a dataflow trigger configuration.
@@ -559,6 +893,7 @@ public class Trigger {
          *
          * @return the dataflow name
          */
+        @JsonProperty("dataflow_name")
         public String getDataflowName() { return dataflowName; }
 
         /**
@@ -602,5 +937,21 @@ public class Trigger {
          */
         @Override
         public String toString() { return "Dataflow: " + dataflowName; }
+
+        @Override
+        public int hashCode() { return 0; }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null) {
+                return false;
+            } else if (o instanceof Dataflow t) {
+                return Objects.equals(this.dataflowName, t.dataflowName) &&
+                    Objects.equals(this.deltaSingleTrigger, t.deltaSingleTrigger) && 
+                    AvroUtils.isEqual(this.partitions, t.partitions);
+            } else {
+                return false;
+            }
+        }
     }
 }
