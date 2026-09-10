@@ -3,6 +3,7 @@ package io.rtdi.bigdata.kafka.avro.datatypes;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.Objects;
 
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes;
@@ -82,7 +83,7 @@ public class AvroTimestampMicros extends AvroLogicalType implements IAvroPrimiti
 
 	@Override
 	public int hashCode() {
-		return time.hashCode();
+		return Objects.hashCode(time);
 	}
 
 	@Override

@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 
 from .name_encoding import encode_name
 from .table_constants import DataSensitivityEnum, COLUMN_PROP_ORIGINAL_NAME, COLUMN_PROP_CONTENT_SENSITIVITY, \
-    COLUMN_PROP_INTERNAL, COLUMN_PROP_TECHNICAL, COLUMN_PROP_SOURCE_DATATYPE, ColumnType, SEMANTICS
+    COLUMN_PROP_INTERNAL, COLUMN_PROP_TECHNICAL, COLUMN_PROP_SOURCE_DATATYPE, ColumnType, SEMANTICS, ALIASES
 
 
 class AvroPrimitive(ABC):
@@ -79,7 +79,8 @@ class Field:
 
     def __init__(self, name: str, datatype: Union[AvroPrimitive, 'ArraySchema', 'RecordSchema'], nullable: bool = True,
                  doc: str = None,
-                 internal: bool = False, technical: bool = False, source_data_type: str = None, default: Any = None):
+                 internal: bool = False, technical: bool = False, source_data_type: str = None, default: Any = None,
+                 aliases: Optional[list[str]] = None):
         self.name = name  # type: str
         self.type = datatype  # type: Union[AvroPrimitive, 'AvroArray', 'RecordSchema']
         self.nullable = nullable  # type: bool
@@ -90,6 +91,7 @@ class Field:
         self.source_data_type: Optional[str] = source_data_type
         self.default = default
         self.semantics: Optional[ColumnSemantic] = None
+        self.aliases: Optional[list[str]] = aliases
 
     def create_schema_dict(self) -> dict[str, str]:
         s = dict()
@@ -100,6 +102,7 @@ class Field:
         s[COLUMN_PROP_INTERNAL] = self.internal
         s[COLUMN_PROP_TECHNICAL] = self.technical
         s[COLUMN_PROP_SOURCE_DATATYPE] = self.source_data_type
+        s[ALIASES] = self.aliases
         if self.nullable:
             s['type'] = ["null", self.type.create_schema_dict()]
             s['default'] = None # The default of a nullable is null
@@ -164,8 +167,9 @@ class RecordSchema:
         return self.schema_name
 
     def add_field(self, name: str, datatype: any, doc: Optional[str] = None, nullable: bool = True,
-                  internal: bool = False, technical: bool = False, source_data_type: str = None, default: Any = None) -> Field:
-        f = Field(name, datatype, nullable, doc, internal, technical, source_data_type, default)
+                  internal: bool = False, technical: bool = False, source_data_type: str = None, default: Any = None,
+                  aliases: Optional[list[str]] = None) -> Field:
+        f = Field(name, datatype, nullable, doc, internal, technical, source_data_type, default, aliases=aliases)
         self.fields.append(f)
         self.field_name_index[name] = f
         return f
@@ -610,7 +614,7 @@ class AvroVarchar(AvroPrimitive):
 
 
 
-def get_datatype(schema: dict):
+def get_datatype(schema: dict) -> tuple[Any, bool]:
     t = schema["type"]
     if isinstance(t, dict):
         return get_datatype(t)
@@ -624,7 +628,7 @@ def get_datatype(schema: dict):
                 datatype, nullable = get_datatype(t[0])
                 return datatype, True
         else:
-            items = [get_datatype(i) for i in t]
+            items = [get_datatype(i)[0] for i in t]
             return AvroUnion(items), False
     match t:
         case "record":
@@ -729,3 +733,5 @@ def get_datatype(schema: dict):
             case "fixed":
                 return AvroFixed(schema.get("size"), schema.get("name")), False
         raise RuntimeError(f"unknown schema {schema}")
+    else:
+        return None, False

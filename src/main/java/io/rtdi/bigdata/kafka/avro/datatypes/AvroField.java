@@ -9,11 +9,11 @@ import java.util.Map;
 import org.apache.avro.JsonProperties;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Type;
-import org.apache.avro.Schema.Field;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.apache.avro.Schema.Field;
 
 import io.rtdi.bigdata.kafka.avro.AvroNameEncoder;
 import io.rtdi.bigdata.kafka.avro.AvroUtils;
@@ -61,7 +61,8 @@ public class AvroField {
 	private Boolean istechnical;
 	private ColumnSemantics semantics;
 	private IAvroDatatype datatype;
-	private ObjectMapper om = AvroUtils.createJacksonOM();
+	private String[] aliases;
+	private final ObjectMapper om = new ObjectMapper().setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
 
 	/**
 	 * Creates a new instance of this class.
@@ -169,7 +170,6 @@ public class AvroField {
 	 * Constructs the schema
 	 * @return the Avro field
 	 */
-	@JsonIgnore
 	public Field getAvroField() {
 		Schema fieldSchema = datatype.createSchema();
 		Field f = null;
@@ -178,6 +178,11 @@ public class AvroField {
 		} else {
 			f = new Field(name, fieldSchema, doc, defaultValue);
 		}
+		if (aliases != null) {
+			for (String alias : aliases) {
+				f.addAlias(alias);
+			}
+		}
 		addProp(f, COLUMN_PROP_ORIGINALNAME, originalname);
 		addProp(f, COLUMN_PROP_SOURCEDATATYPE, sourcedatatype);
 		addProp(f, COLUMN_PROP_CONTENT_SENSITIVITY, sensitivity);
@@ -185,6 +190,15 @@ public class AvroField {
 		addProp(f, COLUMN_PROP_TECHNICAL, istechnical);
 		addProp(f, COLUMN_PROP_SEMANTICS, semantics);
 		return f;
+	}
+
+	public AvroField aliases(String... aliases) {
+		this.aliases = aliases;
+		return this;
+	}
+
+	public String[] aliases() {
+		return aliases;
 	}
 
 	private void addProp(Field f, String name, Object value) {
@@ -305,7 +319,6 @@ public class AvroField {
 	 * @param nullable true if the field is optional
 	 * @return the schema of the field
 	 */
-	@JsonIgnore
 	protected static Schema getSchema(Schema schema, boolean nullable) {
 		if (nullable && schema.getType() != Type.UNION) { // a union of union is not supported
 			return Schema.createUnion(Schema.create(Type.NULL), schema);
@@ -330,7 +343,6 @@ public class AvroField {
 	 *
 	 * @return the source data type identifier as specified
 	 */
-	@JsonGetter(COLUMN_PROP_SOURCEDATATYPE)
 	public String getSourceDataType() {
 		return sourcedatatype;
 	}
@@ -351,7 +363,6 @@ public class AvroField {
 	 * 
 	 * @return the field's content sensitivity
 	 */
-	@JsonGetter(COLUMN_PROP_CONTENT_SENSITIVITY)
 	public ContentSensitivity getSensitivity() {
 		return sensitivity;
 	}
@@ -370,7 +381,6 @@ public class AvroField {
 	 * 
 	 * @return the original column name
 	 */
-	@JsonGetter(COLUMN_PROP_ORIGINALNAME)
 	public String getOriginalName() {
 		return originalname;
 	}
@@ -391,7 +401,6 @@ public class AvroField {
 	 *
 	 * @return true is the field is marked as internal
 	 */
-	@JsonGetter(COLUMN_PROP_INTERNAL)
 	public Boolean isInternal() {
 		return isinternal;
 	}
@@ -412,7 +421,6 @@ public class AvroField {
 	 *
 	 * @return true if the field was marked as technical field
 	 */
-	@JsonGetter(COLUMN_PROP_TECHNICAL)
 	public Boolean getTechnical() {
 		return istechnical;
 	}
@@ -462,7 +470,6 @@ public class AvroField {
 	 * Gets the semantics of the field.
 	 * @return the column semantics
 	 */
-	@JsonGetter(COLUMN_PROP_SEMANTICS)
 	public ColumnSemantics getSemantics() {
 		return this.semantics;
 	}

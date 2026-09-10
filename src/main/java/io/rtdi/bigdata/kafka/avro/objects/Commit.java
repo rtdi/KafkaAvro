@@ -1,7 +1,20 @@
 package io.rtdi.bigdata.kafka.avro.objects;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 
+import org.apache.avro.AvroTypeException;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericData;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.rtdi.bigdata.kafka.avro.AvroUtils;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroArray;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroBoolean;
 import io.rtdi.bigdata.kafka.avro.datatypes.AvroInt;
@@ -20,6 +33,9 @@ public class Commit {
      * The schema for a commit message.
      */
     public static ValueSchema commit_schema = new ValueSchema("commit", "A commit for a function to be called when certain events occur");
+    public static final Schema avro_schema;
+    private static final Schema avro_schema_topics;
+    private static final Schema avro_schema_offset;
     static {
         RecordSchema offset = new RecordSchema("min_max_offsets", "the min/max offsets for a partition");
         offset.add("min_offset", AvroLong.create(), "the minimum offset for this partition", false);
@@ -38,6 +54,9 @@ public class Commit {
         commit_schema.add("rollback", AvroBoolean.create(), "if true, this commit is a rollback of this transaction", true);
         commit_schema.add("topics", new AvroMap(topics), "the topics and their offsets for this commit", true);
         commit_schema.setPrimaryKeys("commit_id", "producer_name");
+        avro_schema = commit_schema.createSchema();
+        avro_schema_topics = AvroUtils.getBaseSchema(avro_schema.getField("topics").schema()).getValueType();
+        avro_schema_offset = AvroUtils.getBaseSchema(avro_schema_topics.getField("offsets").schema()).getValueType();
     }
 
     private String commit_id;
@@ -68,6 +87,62 @@ public class Commit {
         this.record_count = record_count;
         this.rollback = rollback;
     }
+
+        /**
+     * Get the current object as GenericRecord
+     * @return GenericRecord
+     */
+    public GenericData.Record toRecord() {
+        GenericData.Record r = new GenericData.Record(avro_schema);
+        r.put("topics", TopicOffsets.create(topics));
+        r.put("commit_id", this.commit_id);
+        r.put("producer_name", this.producer_name);
+        r.put("commit_epoch_ns", this.commit_epoch_ns);
+        r.put("record_count", this.record_count);
+        r.put("rollback", this.rollback);
+        return r;
+    }
+
+    /**
+     * Create a ImpactLineage instance from the Avro record data
+     * 
+     * @param data Avro record
+     * @return the ImpactLineage instance
+     * @throws AvroTypeException in case the record does not match the structure
+     */
+    public static Commit from(GenericData.Record data) throws AvroTypeException {
+        Commit t = new Commit();
+        t.setCommit_id(AvroUtils.getAvroValue(data, "commit_id", String.class));
+        t.setProducer_name(AvroUtils.getAvroValue(data, "producer_name", String.class));
+        t.setCommit_epoch_ns(AvroUtils.getAvroValue(data, "commit_epoch_ns", Long.class));
+        t.setRecord_count(AvroUtils.getAvroValue(data, "record_count", Integer.class));
+        t.setRollback(AvroUtils.getAvroValue(data, "rollback", Boolean.class));
+        t.setTopics(TopicOffsets.from(AvroUtils.getAvroMapOfRecords(data, "topics")));
+        return t;
+    }
+    
+    /**
+     * Serialize the record values into Json
+     * @return the Trigger values as string
+     * @throws JsonProcessingException
+     */
+    public String toRecordJson() throws JsonProcessingException {
+		ObjectMapper om = AvroUtils.createJacksonOM();
+		return om.writeValueAsString(this);
+    }
+
+	/**
+	 * Deserializes a JSON payload into a {@link Commit} instance.
+	 *
+	 * @param json the JSON payload
+	 * @return the parsed value schema
+	 * @throws JsonMappingException if the JSON structure cannot be mapped
+	 * @throws JsonProcessingException if the JSON payload cannot be read
+	 */
+	public static Commit fromRecordJson(String json) throws JsonMappingException, JsonProcessingException {
+		ObjectMapper om = AvroUtils.createJacksonOM();
+		return om.readValue(json, Commit.class);
+	}
 
     /**
      * Gets the commit id.
@@ -169,6 +244,29 @@ public class Commit {
         this.topics = topics;
     }
 
+    /**
+     * Returns a hash code based on the parent function name.
+     *
+     * @return the hash code for this event set
+     */
+    @Override
+    public int hashCode() { return Objects.hash(this.commit_id); }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        } else if (o instanceof Commit t) {
+            return Objects.equals(this.commit_id, t.commit_id) && 
+                Objects.equals(this.producer_name, t.producer_name) && 
+                Objects.equals(this.record_count, t.record_count) && 
+                Objects.equals(this.rollback, t.rollback) &&
+                Objects.equals(this.commit_epoch_ns, t.commit_epoch_ns) &&
+                AvroUtils.isEqual(this.topics, t.topics);
+        } else {
+            return false;
+        }
+    }
 
 
     /**
@@ -193,11 +291,51 @@ public class Commit {
             this.topic_name = topic_name;
         }
 
+        private static Map<String, TopicOffsets> from(Map<String, GenericData.Record> data) throws AvroTypeException {
+            if (data == null) {
+                return null;
+            } else {
+                Map<String, TopicOffsets> m = new HashMap<>();
+                for(Entry<String, GenericData.Record> e : data.entrySet()) {
+                    m.put(e.getKey(), TopicOffsets.from(e.getValue()));
+                }
+                return m;
+            }
+        }
+
+        private static TopicOffsets from(GenericData.Record data) {
+            TopicOffsets t = new TopicOffsets();
+            t.setTopicName(AvroUtils.getAvroValue(data, "topic_name", String.class));
+            t.setSchemaNames(AvroUtils.getAvroListOfString(data, "schema_names"));
+            t.setOffsets(MinMaxOffsets.from(AvroUtils.getAvroMapOfRecords(data, "offsets")));
+            return t;
+        }
+
+        private static Map<String, GenericData.Record> create(Map<String, TopicOffsets> offsets) {
+            if (offsets == null) {
+                return null;
+            } else {
+                Map<String, GenericData.Record> records = new HashMap<>();
+                for (Entry<String, TopicOffsets> e : offsets.entrySet()) {
+                    records.put(e.getKey(), e.getValue().create());
+                }
+                return records;
+            }
+        }
+
+        private GenericData.Record create() {
+            GenericData.Record r = new GenericData.Record(avro_schema_topics);
+            r.put("topic_name", this.topic_name);
+            r.put("schema_names", this.schema_names);
+            r.put("offsets", MinMaxOffsets.create(this.offsets));
+            return r;
+        }
+
         /**
          * Gets the topic name.
          * @return the topic name
          */
-        @JsonProperty("topicName")
+        @JsonProperty("topic_name")
         public String getTopic_name() {
             return topic_name;
         }
@@ -244,6 +382,26 @@ public class Commit {
             this.offsets = offsets;
         }
 
+        /**
+         * Returns a hash code based on the parent function name.
+         *
+         * @return the hash code for this event set
+         */
+        @Override
+        public int hashCode() { return Objects.hash(this.topic_name); }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null) {
+                return false;
+            } else if (o instanceof TopicOffsets t) {
+                return Objects.equals(this.topic_name, t.topic_name) && 
+                    AvroUtils.isEqual(this.schema_names, t.schema_names) && 
+                    AvroUtils.isEqual(this.offsets, t.offsets);
+            } else {
+                return false;
+            }
+        }
         
     }
 
@@ -271,6 +429,46 @@ public class Commit {
             this.min_offset = min_offset;
             this.max_offset = max_offset;
             this.partition = partition;
+        }
+
+        private static Map<String, MinMaxOffsets> from(Map<String, GenericData.Record> data) throws AvroTypeException {
+            if (data == null) {
+                return null;
+            } else {
+                Map<String, MinMaxOffsets> m = new HashMap<>();
+                for(Entry<String, GenericData.Record> e : data.entrySet()) {
+                    m.put(e.getKey(), MinMaxOffsets.from(e.getValue()));
+                }
+                return m;
+            }
+        }
+
+        private static MinMaxOffsets from(GenericData.Record data) {
+            MinMaxOffsets t = new MinMaxOffsets();
+            t.setMin_offset(AvroUtils.getAvroValue(data, "min_offset", Long.class));
+            t.setMax_offset(AvroUtils.getAvroValue(data, "max_offset", Long.class));
+            t.setPartition(AvroUtils.getAvroValue(data, "partition", Integer.class));
+            return t;
+        }
+
+        private static Map<String, GenericData.Record> create(Map<String, MinMaxOffsets> offsets) {
+            if (offsets == null) {
+                return null;
+            } else {
+                Map<String, GenericData.Record> records = new HashMap<>();
+                for (Entry<String, MinMaxOffsets> e : offsets.entrySet()) {
+                    records.put(e.getKey(), e.getValue().create());
+                }
+                return records;
+            }
+        }
+
+        private GenericData.Record create() {
+            GenericData.Record r = new GenericData.Record(avro_schema_offset);
+            r.put("min_offset", this.min_offset);
+            r.put("max_offset", this.max_offset);
+            r.put("partition", this.partition);
+            return r;
         }
 
         /**
@@ -321,6 +519,26 @@ public class Commit {
             this.partition = partition;
         }
 
+        /**
+         * Returns a hash code based on the parent function name.
+         *
+         * @return the hash code for this event set
+         */
+        @Override
+        public int hashCode() { return Objects.hash(this.partition); }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null) {
+                return false;
+            } else if (o instanceof MinMaxOffsets t) {
+                return Objects.equals(this.partition, t.partition) && 
+                    Objects.equals(this.min_offset, t.min_offset) && 
+                    Objects.equals(this.max_offset, t.max_offset);
+            } else {
+                return false;
+            }
+        }
         
     }
 

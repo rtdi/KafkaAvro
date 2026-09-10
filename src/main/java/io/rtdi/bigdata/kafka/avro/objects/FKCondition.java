@@ -2,6 +2,7 @@ package io.rtdi.bigdata.kafka.avro.objects;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import io.rtdi.bigdata.kafka.avro.AvroUtils;
 
@@ -208,7 +209,7 @@ public class FKCondition {
 	@Override
 	public int hashCode() {
 		if (this.schema_fqn != null) {
-			return this.schema_fqn.hashCode();
+			return Objects.hashCode(this.schema_fqn);
 		} else {
 			return 1;
 		}
