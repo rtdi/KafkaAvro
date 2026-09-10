@@ -61,6 +61,7 @@ public class AvroField {
 	private Boolean istechnical;
 	private ColumnSemantics semantics;
 	private IAvroDatatype datatype;
+	private String[] aliases;
 	private final ObjectMapper om = new ObjectMapper().setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
 
 	/**
@@ -177,6 +178,11 @@ public class AvroField {
 		} else {
 			f = new Field(name, fieldSchema, doc, defaultValue);
 		}
+		if (aliases != null) {
+			for (String alias : aliases) {
+				f.addAlias(alias);
+			}
+		}
 		addProp(f, COLUMN_PROP_ORIGINALNAME, originalname);
 		addProp(f, COLUMN_PROP_SOURCEDATATYPE, sourcedatatype);
 		addProp(f, COLUMN_PROP_CONTENT_SENSITIVITY, sensitivity);
@@ -184,6 +190,15 @@ public class AvroField {
 		addProp(f, COLUMN_PROP_TECHNICAL, istechnical);
 		addProp(f, COLUMN_PROP_SEMANTICS, semantics);
 		return f;
+	}
+
+	public AvroField aliases(String... aliases) {
+		this.aliases = aliases;
+		return this;
+	}
+
+	public String[] aliases() {
+		return aliases;
 	}
 
 	private void addProp(Field f, String name, Object value) {

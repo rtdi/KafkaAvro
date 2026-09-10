@@ -73,7 +73,8 @@ public class Trigger {
 
         trigger_schema.add("events", new AvroArray(events), "all combinations of dataflow and trigger events", true);
         trigger_schema.add("function_name", AvroString.create(), "an arbitrary name, often the function or container name", false);
-        trigger_schema.add("queuename", AvroString.create(), "the queue name of the function", false);
+        trigger_schema.add("endpoint", AvroString.create(), "the queue name of the function", false)
+            .aliases("queuename");
         trigger_schema.setPrimaryKeys("function_name");
         avro_schema = trigger_schema.createSchema();
         avro_schema_eventset = AvroUtils.getBaseSchema(avro_schema.getField("events").schema()).getElementType();
