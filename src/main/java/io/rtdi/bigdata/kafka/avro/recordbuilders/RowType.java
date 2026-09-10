@@ -32,6 +32,10 @@ public enum RowType {
 	 */
 	DELETE ("D"),
 
+	/**
+	 * This is a delete request for GDPR relevant data, meaning it must be deleted from the target due to a customer deletion request.
+	 */
+	GDRPR ("G"),
 
 	/**
 	 * In case either a new record should be created or its last version overwritten, use this UPSERT RowType ("AutoCorrect").
@@ -114,6 +118,8 @@ public enum RowType {
 		case 'T': return TRUNCATE;
 		case 'R': return REPLACE;
 		case 'B': return BEFORE;
+		case 'G': return GDRPR;
+		case 'P': return ARCHIVE;
 		default: throw new AvroRuntimeException("Unknow change type \"" + identifier + "\"");
 		}
 	}

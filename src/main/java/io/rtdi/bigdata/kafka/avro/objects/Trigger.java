@@ -52,19 +52,24 @@ public class Trigger {
         RecordSchema commit_event = new RecordSchema("on_commit", "trigger if a commit of that type was issued");
         commit_event.add("schema_names", new AvroArray(AvroString.create()), "trigger when the table with this schema name has a commit", true);
         commit_event.add("topic_partitions", new AvroArray(AvroString.create()), "only trigger if data was in any of these topic/partitions", true);
-        commit_event.add("delay_seconds", AvroInt.create(), "if a first trigger event occured, wait this many seconds to collect more, thus avoiding frequent triggers", true);
-        commit_event.add("idle_seconds", AvroInt.create(), "wait until no trigger event occured for this many seconds and only then start, to avoid frequent triggers", true);
 
         RecordSchema dataflow = new RecordSchema("dataflow", "the function should be called for all these dataflows");
         dataflow.add("dataflow_name", AvroString.create(), "the dataflow name to pass in as parameter", false);
         dataflow.add("delta_single_trigger", AvroBoolean.create(), "If true, ignore partition list for delta loads, use partitions for initial loads only.", true);
         dataflow.add("partitions", new AvroArray(AvroInt.create()), "the partition parameters to use for this dataflow", true);
 
+        RecordSchema ondataflow = new RecordSchema("dataflow", "the function should be called for all these dataflows");
+        ondataflow.add("function_name", AvroString.create(), "the function name triggering this event", false);
+        ondataflow.add("dataflow_name", AvroString.create(), "the dataflow triggering this event", true);
+
+
         RecordSchema events = new RecordSchema("events", "a function can have different combinations of dataflows and events");
         events.add("on_commit", commit_event, "if provided, run only when a commit for this was found", true);
-        events.add("on_dataflow", new AvroArray(AvroString.create()), "if provided, run when a dataflow completed", true);
+        events.add("on_dataflows", new AvroArray(ondataflow), "if provided, run when these dataflows completed", true);
         events.add("on_schedule", new AvroArray(schedule), "if provided, run only at the specified fixed times (in UTC); schedules and events are OR conditions", true);
         events.add("dataflows", new AvroArray(dataflow), "if provided, call the URL n times, once per dataflow or dataflow/partition", true);
+        events.add("delay_seconds", AvroInt.create(), "if a first trigger event occured, wait this many seconds to collect more, thus avoiding frequent triggers", true);
+        events.add("idle_seconds", AvroInt.create(), "wait until no trigger event occured for this many seconds and only then start, to avoid frequent triggers", true);
 
         trigger_schema.add("events", new AvroArray(events), "all combinations of dataflow and trigger events", true);
         trigger_schema.add("function_name", AvroString.create(), "an arbitrary name, often the function or container name", false);
