@@ -102,7 +102,8 @@ class Field:
         s[COLUMN_PROP_INTERNAL] = self.internal
         s[COLUMN_PROP_TECHNICAL] = self.technical
         s[COLUMN_PROP_SOURCE_DATATYPE] = self.source_data_type
-        s[ALIASES] = self.aliases
+        if self.aliases:
+            s[ALIASES] = self.aliases
         if self.nullable:
             s['type'] = ["null", self.type.create_schema_dict()]
             s['default'] = None # The default of a nullable is null
