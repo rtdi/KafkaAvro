@@ -8,6 +8,15 @@ class Duration:
         self.value: Optional[int] = value
         self.unit: str = unit
 
+    def create_schema_dict(self) -> dict:
+        return {
+            "value": self.value,
+            "unit": self.unit
+        }
+
+def duration_from_dict(data: dict) -> Optional[Duration]:
+    if data is not None:
+        return Duration(value=data.get("value"), unit=data.get("unit"))
 
 class DeletionPolicy:
 
@@ -16,6 +25,11 @@ class DeletionPolicy:
         self.unit: str = unit
         self.description: Optional[str] = description
 
+def deletion_policy_from_dict(data: dict) -> Optional[DeletionPolicy]:
+    if data is not None:
+        return DeletionPolicy(value=data.get("value"), unit=data.get("unit"), description=data.get("description"))
+    else:
+        return None
 
 class FKCondition:
 
@@ -34,6 +48,12 @@ class FKCondition:
         class_name = type(self).__name__
         return f"{class_name}(fk_name={self.fk_name!r}, fk_schema_fql={self.fk_schema_fqn!r})"
 
+    def create_schema_dict(self) -> dict:
+        return {
+            "fk_name": self.fk_name,
+            "fk_schema_fqn": self.fk_schema_fqn,
+            "conditions": [c.create_schema_dict() for c in self.conditions] if self.conditions else None
+        }
 
 class JoinCondition:
 
@@ -46,3 +66,39 @@ class JoinCondition:
         class_name = type(self).__name__
         return f"{class_name}(left={self.left_field_name!r}, right={self.right_field_name!r}, condition={self.condition!r})"
 
+    def create_schema_dict(self) -> dict:
+        return {
+            "left_field_name": self.left_field_name,
+            "right_field_name": self.right_field_name,
+            "condition": self.condition
+        }
+
+def conditions_from_dict(data: list[dict]) -> Optional[list[JoinCondition]]:
+    if data is not None:
+        conditions: list[JoinCondition] = []
+        for item in data:
+            conditions.append(JoinCondition(left_field_name=item["left_field_name"],
+                                            right_field_name=item["right_field_name"],
+                                            condition=item["condition"]
+                                            ))
+        return conditions
+    else:
+        return None
+
+def fk_from_dict(data: dict) -> Optional[FKCondition]:
+    if data is not None:
+        fk = FKCondition(fk_schema_fqn=data.get("fk_schema_fqn"),
+                           fk_name=data.get("fk_name"))
+        fk.conditions = conditions_from_dict(data.get("conditions"))
+        return fk
+    else:
+        return None
+
+def fks_from_dict(data: list[dict]) -> Optional[list[FKCondition]]:
+    if data is not None:
+        fks: list[FKCondition] = []
+        for item in data:
+            fks.append(fk_from_dict(item))
+        return fks
+    else:
+        return None

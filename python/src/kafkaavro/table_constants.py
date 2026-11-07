@@ -12,7 +12,8 @@ SCHEMA_INFO_TICKETS_URL = "tickets_url"
 SCHEMA_INFO_REPO_URL = "repo_url"
 SCHEMA_INFO_DATAPRODUCT_OWNER = "data_product_owner_email"
 SOURCE_SYSTEM_URI = 'source_system_uri'
-DATA_CLASSIFICATIONS = 'data_classifications'
+DATA_CLASSIFICATION = 'data_classification'
+DATA_REGULATIONS = 'data_regulations'
 DELETION_POLICY = 'deletion_policy'
 RETENTION_PERIOD = 'retention_period'
 AUDIT = "__audit"
@@ -89,11 +90,8 @@ class ColumnType(Enum):
     HIERARCHY="HIERARCHY"
 
 
-class DataSensitivityEnum(str, Enum):
+class DataClassificationEnum(str, Enum):
     INTERNAL = "INTERNAL"
-    GBU_ONLY = "GBU_ONLY"
-    ITAR = "ITAR"
-    DUAL_USE = "DUAL_USE"
 
     # This data can be shown to everybody logged in
     PUBLIC = "PUBLIC"
@@ -102,13 +100,8 @@ class DataSensitivityEnum(str, Enum):
     SENSITIVE = "SENSITIVE"
     # This data by itself is highly sensitive, it is personal information.
     # Examples like Social Security Number, Credit Card information, address details.
-    PRIVATE = "PRIVATE"
-    # Data falling under certain regulations like EAR, Dual Use, ITAR and others
-    REGULATED = "REGULATED"
-    # Personally Identifiable Information
-    PII = "PII"
-    # Protected Health Information
-    PHI = "PHI"
+    HIGHLY_SENSITIVE = "HIGHLY_SENSITIVE"
+
 
 
 class TimeUnit(str, Enum):

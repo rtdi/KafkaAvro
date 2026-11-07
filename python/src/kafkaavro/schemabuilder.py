@@ -1,15 +1,19 @@
-import jsonpickle
+import json
 from typing import Optional
 
+import jsonpickle
 import pyarrow
 
-from .data_governance import FKCondition, Duration, DeletionPolicy
 from .avro_datatypes import AvroString, AvroVarchar, AvroNVarchar, AvroByte, AvroMap, \
-    AvroTimestamp, RecordSchema, ArraySchema, AvroTimestampMicros, AvroLong, AvroInt, AvroBoolean, AvroUnion, AvroNull
+    AvroTimestamp, RecordSchema, ArraySchema, AvroTimestampMicros, AvroLong, AvroInt, AvroBoolean, field_from_dict
+from .data_governance import FKCondition, Duration, DeletionPolicy, fks_from_dict, deletion_policy_from_dict, \
+    duration_from_dict
+from .name_encoding import decode_name
 from .table_constants import ROW_SOURCE_SYSTEM, ROW_SOURCE_TRANSACTION, ROW_RECORD_ID, ROW_CHANGE_TS, ROW_TYPE_FIELD, \
     ROW_TRUNCATE, SCHEMA_COLUMN_EXTENSION, TableType, SCHEMA_INFO_DATAPRODUCT_OWNER, SCHEMA_INFO_TICKETS_URL, \
-    SCHEMA_INFO_REPO_URL, RETENTION_PERIOD, DELETION_POLICY, DATA_CLASSIFICATIONS, SOURCE_SYSTEM_URI, AUDIT, PKS, FKS, \
-    OBJECT_LEVEL_SECURITY, ROW_LEVEL_SECURITY, PARTITION_BY, SEMANTICS, SCHEMA_COLUMN_EXTENSION_MAP
+    SCHEMA_INFO_REPO_URL, RETENTION_PERIOD, DELETION_POLICY, DATA_CLASSIFICATION, DATA_REGULATIONS, SOURCE_SYSTEM_URI, \
+    AUDIT, PKS, FKS, \
+    OBJECT_LEVEL_SECURITY, ROW_LEVEL_SECURITY, PARTITION_BY, SEMANTICS, SCHEMA_COLUMN_EXTENSION_MAP, ALIASES
 
 extension = RecordSchema(SCHEMA_COLUMN_EXTENSION, doc="Extension point to add custom values to each record")
 extension.add_field("__path", AvroString(), 'An unique identifier, e.g. "street"."house number component"',
@@ -29,8 +33,8 @@ class RootSchema(RecordSchema):
         schema_data = super().create_schema_dict()
         return schema_data
 
-    def get_json(self) -> str:
-        return jsonpickle.dumps(self.create_schema_dict(), unpicklable=False)
+    def get_avro_json(self) -> str:
+        return jsonpickle.dumps(self.create_schema_dict(), unpicklable=False, keys=True)
 
     def get_pyarrow(self) -> pyarrow.Schema:
         f = [(field.name, field.type.get_pyarrow()) for field in self.fields]
@@ -66,6 +70,11 @@ class RLS:
             "field": self.field
         }
 
+def rls_from_dict(data: Optional[dict]) -> Optional[RLS]:
+    if data is not None:
+        return RLS(dimension=data.get("dimension"), field=data.get("field"))
+    else:
+        return None
 
 class TableSemantic:
     """
@@ -80,6 +89,11 @@ class TableSemantic:
             "type": self.type.name
         }
 
+def table_type_from_dict(data: Optional[dict]) -> Optional[TableType]:
+    if data is not None:
+        return TableType(data["type"])
+    else:
+        return None
 
 class ValueSchema(RootSchema):
     """
@@ -130,7 +144,8 @@ class ValueSchema(RootSchema):
         self.data_product_owner_email: Optional[str] = None
         self.retention_period: Optional[Duration] = None
         self.deletion_policy: Optional[DeletionPolicy] = None
-        self.data_classifications: Optional[set[str]] = None
+        self.data_classification: Optional[str] = None
+        self.data_regulations: Optional[set[str]] = None
         self.repo_url: Optional[str] = None
         self.tickets_url: Optional[str] = None
         self.object_level_security: Optional[list[str]] = None
@@ -138,27 +153,42 @@ class ValueSchema(RootSchema):
         self.partition_by: Optional[list[str]] = None
         self.semantics: Optional[TableSemantic] = None
 
-    def set_semantic(self, table_type: TableType):
-        self.semantics = TableSemantic(table_type)
+    def set_semantic(self, table_type: Optional[TableType]):
+        if table_type is not None:
+            self.semantics = TableSemantic(table_type)
+        else:
+            self.semantics = None
 
     def create_schema_dict(self) -> dict[str, any]:
         schema_data = super().create_schema_dict()
         if self.pks is not None:
             schema_data[PKS] = list(self.pks)
-        else:
-            schema_data[PKS] = None
-        schema_data[FKS] = self.fks
-        schema_data[SCHEMA_INFO_DATAPRODUCT_OWNER] = self.data_product_owner_email
-        schema_data[RETENTION_PERIOD] = self.retention_period
-        schema_data[DELETION_POLICY] = self.deletion_policy
-        schema_data[DATA_CLASSIFICATIONS] = list(self.data_classifications) if self.data_classifications is not None else None
-        schema_data[SCHEMA_INFO_TICKETS_URL] = self.tickets_url
-        schema_data[SCHEMA_INFO_REPO_URL] = self.repo_url
-        schema_data[SOURCE_SYSTEM_URI] = self.source_system_uri
-        schema_data[OBJECT_LEVEL_SECURITY] = self.object_level_security
-        schema_data[ROW_LEVEL_SECURITY] = [i.create_schema_dict() for i in self.row_level_security] if self.row_level_security is not None else None
-        schema_data[PARTITION_BY] = self.partition_by
-        schema_data[SEMANTICS] = self.semantics.create_schema_dict() if self.semantics is not None else None
+        if self.fks:
+            schema_data[FKS] = [fk.create_schema_dict() for fk in self.fks]
+        if self.data_product_owner_email:
+            schema_data[SCHEMA_INFO_DATAPRODUCT_OWNER] = self.data_product_owner_email
+        if self.retention_period:
+            schema_data[RETENTION_PERIOD] = self.retention_period.create_schema_dict()
+        if self.deletion_policy:
+            schema_data[DELETION_POLICY] = self.deletion_policy
+        if self.data_classification:
+            schema_data[DATA_CLASSIFICATION] = self.data_classification
+        if self.data_regulations:
+            schema_data[DATA_REGULATIONS] = list(self.data_regulations)
+        if self.tickets_url:
+            schema_data[SCHEMA_INFO_TICKETS_URL] = self.tickets_url
+        if self.repo_url:
+            schema_data[SCHEMA_INFO_REPO_URL] = self.repo_url
+        if self.source_system_uri:
+            schema_data[SOURCE_SYSTEM_URI] = self.source_system_uri
+        if self.object_level_security:
+            schema_data[OBJECT_LEVEL_SECURITY] = self.object_level_security
+        if self.row_level_security:
+            schema_data[ROW_LEVEL_SECURITY] = [i.create_schema_dict() for i in self.row_level_security]
+        if self.partition_by:
+            schema_data[PARTITION_BY] = self.partition_by
+        if self.semantics:
+            schema_data[SEMANTICS] = self.semantics.create_schema_dict()
         return schema_data
 
     def set_object_level_security(self, groups: Optional[list[str]]):
@@ -219,16 +249,51 @@ class ValueSchema(RootSchema):
         self.deletion_policy = policy
         return self
 
-    def add_data_classifications(self, data_classification: str) -> "ValueSchema":
-        if self.data_classifications is None:
-            self.data_classifications = set()
-        self.data_classifications.add(data_classification)
+    def add_data_regulation(self, data_classification: str) -> "ValueSchema":
+        if self.data_regulations is None:
+            self.data_regulations = set()
+        self.data_regulations.add(data_classification)
         return self
 
-    def remove_data_classifications(self, data_classification: str) -> "ValueSchema":
-        if self.data_classifications is not None:
-            self.data_classifications.remove(data_classification)
+    def remove_data_classifications(self, data_regulation: str) -> "ValueSchema":
+        if self.data_regulations is not None:
+            self.data_regulations.remove(data_regulation)
         return self
+
+    def set_data_classification(self, classification: Optional[str]):
+        self.data_classification = classification
+
+
+def from_avro_json(json_text: str) -> ValueSchema:
+    json_dict = json.loads(json_text)
+    return from_avro_dict(json_dict)
+
+def from_avro_dict(json_dict: dict) -> ValueSchema:
+    value_schema = ValueSchema(name=decode_name(json_dict["name"]), namespace=json_dict.get("namespace"))
+    for field in json_dict["fields"]:
+        name = decode_name(field["name"])
+        if name not in value_schema.field_name_index:
+            value_schema.add_field_object(field_from_dict(field))
+    value_schema.set_pks(json_dict.get(PKS))
+    value_schema.set_fks(fks_from_dict(json_dict.get(FKS)))
+    value_schema.set_data_product_owner_email(json_dict.get(SCHEMA_INFO_DATAPRODUCT_OWNER))
+    value_schema.set_retention_period(duration_from_dict(json_dict.get(RETENTION_PERIOD)))
+    value_schema.set_deletion_policy(deletion_policy_from_dict(json_dict.get(DELETION_POLICY)))
+    value_schema.data_classification = json_dict.get(DATA_CLASSIFICATION)
+    regulations = json_dict.get(DATA_REGULATIONS)
+    value_schema.data_regulations = set(regulations) if regulations is not None else None
+    value_schema.set_tickets_url(json_dict.get(SCHEMA_INFO_TICKETS_URL))
+    value_schema.set_repo_url(json_dict.get(SCHEMA_INFO_REPO_URL))
+    value_schema.set_source_system_uri(json_dict.get(SOURCE_SYSTEM_URI))
+    value_schema.set_object_level_security(json_dict.get(OBJECT_LEVEL_SECURITY))
+    rls = json_dict.get(ROW_LEVEL_SECURITY)
+    value_schema.set_row_level_security([rls_from_dict(r) for r in rls] if rls else None)
+    value_schema.set_partition_by(json_dict.get(PARTITION_BY))
+    value_schema.set_semantic(table_type_from_dict(json_dict.get(SEMANTICS)))
+    value_schema.doc = json_dict.get("doc")
+    value_schema.type = "record"
+    value_schema.aliases = json_dict.get(ALIASES)
+    return value_schema
 
 
 class KeySchema(RootSchema):

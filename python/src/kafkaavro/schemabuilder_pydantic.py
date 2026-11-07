@@ -3,9 +3,9 @@ from typing import Optional, Any
 import pyarrow
 from pydantic import BaseModel
 
-from .data_governance_pydantic import FKCondition, Duration, DeletionPolicy
 from .avro_datatypes_pydantic import AvroString, AvroVarchar, AvroNVarchar, AvroByte, AvroMap, \
-    AvroTimestamp, RecordSchema, ArraySchema, AvroTimestampMicros, AvroLong, AvroInt, AvroBoolean, AvroUnion, AvroNull
+    AvroTimestamp, RecordSchema, ArraySchema, AvroTimestampMicros, AvroLong, AvroInt, AvroBoolean
+from .data_governance_pydantic import FKCondition, Duration, DeletionPolicy
 from .table_constants import ROW_SOURCE_SYSTEM, ROW_SOURCE_TRANSACTION, ROW_RECORD_ID, ROW_CHANGE_TS, ROW_TYPE_FIELD, \
     ROW_TRUNCATE, SCHEMA_COLUMN_EXTENSION, TableType, AUDIT, SCHEMA_COLUMN_EXTENSION_MAP
 
@@ -37,11 +37,8 @@ class RootSchema(RecordSchema):
     The Kafka key should be a RootSchema structure
     """
 
-    def get_json(self) -> str:
-        return self.model_dump_json(exclude_none=True)
-
     def get_avro_json(self) -> str:
-        return self.get_json()
+        return self.model_dump_json(exclude_none=True)
 
     def get_pyarrow(self) -> pyarrow.Schema:
         f = [(field.name, field.type.get_pyarrow()) for field in self.fields]
@@ -87,7 +84,8 @@ class ValueSchema(RootSchema):
     data_product_owner_email: Optional[str] = None
     retention_period: Optional[Duration] = None
     deletion_policy: Optional[DeletionPolicy] = None
-    data_classifications: Optional[list[str]] = None
+    data_classification: Optional[str] = None
+    data_regulations: Optional[list[str]] = None
     repo_url: Optional[str] = None
     tickets_url: Optional[str] = None
     object_level_security: Optional[list[str]] = None
@@ -184,16 +182,19 @@ class ValueSchema(RootSchema):
         self.deletion_policy = policy
         return self
 
-    def add_data_classifications(self, data_classification: str) -> "ValueSchema":
-        if self.data_classifications is None:
-            self.data_classifications = list()
-        self.data_classifications.append(data_classification)
+    def add_data_regulation(self, data_regulation: str) -> "ValueSchema":
+        if self.data_regulations is None:
+            self.data_regulations = list()
+        self.data_regulations.append(data_regulation)
         return self
 
-    def remove_data_classifications(self, data_classification: str) -> "ValueSchema":
-        if self.data_classifications is not None:
-            self.data_classifications.remove(data_classification)
+    def remove_data_regulation(self, data_regulation: str) -> "ValueSchema":
+        if self.data_regulations is not None:
+            self.data_regulations.remove(data_regulation)
         return self
+
+    def set_data_classification(self, data_classification: Optional[str]):
+        self.data_classification = data_classification
 
 
 class KeySchema(RootSchema):

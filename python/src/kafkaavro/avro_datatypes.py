@@ -1,13 +1,13 @@
 from datetime import timezone
-from typing import Union, Optional, Any
+from typing import Union, Optional, Any, overload
 
 import jsonpickle
 import pyarrow
 from abc import ABC, abstractmethod
 
 
-from .name_encoding import encode_name
-from .table_constants import DataSensitivityEnum, COLUMN_PROP_ORIGINAL_NAME, COLUMN_PROP_CONTENT_SENSITIVITY, \
+from .name_encoding import encode_name, decode_name
+from .table_constants import COLUMN_PROP_ORIGINAL_NAME, COLUMN_PROP_CONTENT_SENSITIVITY, \
     COLUMN_PROP_INTERNAL, COLUMN_PROP_TECHNICAL, COLUMN_PROP_SOURCE_DATATYPE, ColumnType, SEMANTICS, ALIASES
 
 
@@ -23,7 +23,6 @@ class AvroPrimitive(ABC):
     @abstractmethod
     def get_pyarrow(self) -> pyarrow.DataType:
         return pyarrow.null()
-
 
 class ColumnSemantic:
 
@@ -72,6 +71,20 @@ class ColumnSemantic:
             "hierarchy_level": self.hierarchy_level
         }
 
+def column_semantic_from_dict(data: dict) -> Optional[ColumnSemantic]:
+    if data is not None:
+        return ColumnSemantic(ColumnType(data["type"]),
+                           data.get("aggregation_formula"),
+                           data.get("currency_field_name"),
+                           data.get("currency_conversion_date"),
+                           data.get("uom_field_name"),
+                           data.get("hierarchy_name"),
+                           data.get("hierarchy_level")
+                           )
+    else:
+        return None
+
+
 class Field:
     """
     A Field contains detailed metadata about the column, technical metadata and business metadata
@@ -85,7 +98,7 @@ class Field:
         self.type = datatype  # type: Union[AvroPrimitive, 'AvroArray', 'RecordSchema']
         self.nullable = nullable  # type: bool
         self.doc = doc  # type: Optional[str]
-        self.data_sensitivity: DataSensitivityEnum = DataSensitivityEnum.INTERNAL
+        self.data_sensitivity: Optional[str] = None
         self.internal: bool = internal
         self.technical: bool = technical
         self.source_data_type: Optional[str] = source_data_type
@@ -98,7 +111,7 @@ class Field:
         s['name'] = encode_name(self.name)
         s[COLUMN_PROP_ORIGINAL_NAME] = self.name
         s['doc'] = self.doc
-        s[COLUMN_PROP_CONTENT_SENSITIVITY] = self.data_sensitivity.name
+        s[COLUMN_PROP_CONTENT_SENSITIVITY] = self.data_sensitivity
         s[COLUMN_PROP_INTERNAL] = self.internal
         s[COLUMN_PROP_TECHNICAL] = self.technical
         s[COLUMN_PROP_SOURCE_DATATYPE] = self.source_data_type
@@ -114,7 +127,7 @@ class Field:
         s[SEMANTICS] = self.semantics.create_schema_dict() if self.semantics is not None else None
         return s
 
-    def set_data_sensitivity(self, data_sensitivity: DataSensitivityEnum) -> "Field":
+    def set_data_sensitivity(self, data_sensitivity: str) -> "Field":
         self.data_sensitivity = data_sensitivity
         return self
 
@@ -146,6 +159,23 @@ class Field:
                                         hierarchy_name=hierarchy_name,
                                         hierarchy_level=hierarchy_level)
 
+def field_from_dict(data: dict) -> Field:
+
+    datatype, nullable = get_datatype(data)
+    f = Field(decode_name(data["name"]),
+               datatype,
+               doc=data.get("doc"),
+               nullable=nullable,
+               internal=data.get(COLUMN_PROP_INTERNAL) == True,
+               technical=data.get(COLUMN_PROP_TECHNICAL) == True,
+               source_data_type=data.get(COLUMN_PROP_SOURCE_DATATYPE),
+               default=data.get("default"),
+               aliases=data.get(ALIASES)
+               )
+    f.semantics = column_semantic_from_dict(data.get(SEMANTICS))
+    f.set_data_sensitivity(data.get(COLUMN_PROP_CONTENT_SENSITIVITY))
+    return f
+
 
 class RecordSchema:
 
@@ -156,6 +186,7 @@ class RecordSchema:
         self.namespace = namespace # type: Optional[str]
         self.doc = doc # type: Optional[str]
         self.field_name_index = {} # type: dict[str, Field]
+        self.aliases = None # type: Optional[list[str]]
         if namespace is None:
             self.schema_name = name
         else:
@@ -171,18 +202,25 @@ class RecordSchema:
                   internal: bool = False, technical: bool = False, source_data_type: str = None, default: Any = None,
                   aliases: Optional[list[str]] = None) -> Field:
         f = Field(name, datatype, nullable, doc, internal, technical, source_data_type, default, aliases=aliases)
-        self.fields.append(f)
-        self.field_name_index[name] = f
-        return f
+        return self.add_field_object(f)
+
+    def add_field_object(self, field: Field):
+        self.fields.append(field)
+        self.field_name_index[field.name] = field
+        return field
 
     def create_schema_dict(self) -> dict[str, any]:
         s = dict()
         s['name'] = encode_name(self.name)
         s[COLUMN_PROP_ORIGINAL_NAME] = self.name
-        s['doc'] = self.doc
+        if self.doc:
+            s['doc'] = self.doc
         s['type'] = self.type
-        s['namespace'] = self.namespace
+        if self.namespace:
+            s['namespace'] = self.namespace
         s['fields'] = [field.create_schema_dict() for field in self.fields]
+        if self.aliases:
+            s['aliases'] = self.aliases
         return s
 
     def __repr__(self):
@@ -635,14 +673,7 @@ def get_datatype(schema: dict) -> tuple[Any, bool]:
         case "record":
             r = RecordSchema(schema["name"], schema.get("namespace"), schema.get("doc"))
             for f in schema["fields"]:
-                datatype, nullable = get_datatype(f)
-                field = r.add_field(f["name"], datatype, f.get("doc"), nullable,
-                                    f.get(COLUMN_PROP_INTERNAL),
-                                    f.get(COLUMN_PROP_TECHNICAL),
-                                    f.get(COLUMN_PROP_SOURCE_DATATYPE))
-                s = f.get(COLUMN_PROP_SOURCE_DATATYPE)
-                if s is not None:
-                    field.set_data_sensitivity(DataSensitivityEnum(s))
+                r.add_field_object(field_from_dict(f))
             return r, False
         case "array":
             datatype, nullable = get_datatype(schema["items"])

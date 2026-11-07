@@ -43,7 +43,7 @@
       "logicalType" : "VARCHAR",
       "length" : 30
     } ],
-    "doc" : "Optional unqiue and static pointer to the row, e.g. Oracle rowid",
+    "doc" : "Optional unique and static pointer to the row, e.g. Oracle rowid",
     "default" : null,
     "__originalname" : "__source_rowid",
     "__internal" : true,

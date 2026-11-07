@@ -9,31 +9,32 @@ import python.src.kafkaavro.avro_datatypes_pydantic as adp
 import python.src.kafkaavro.data_governance_pydantic as dgp
 import python.src.kafkaavro.schemabuilder_pydantic as sbp
 from python.src.kafkaavro.name_encoding import encode_name, decode_name
-from python.src.kafkaavro.table_constants import TableType, DataSensitivityEnum
+from python.src.kafkaavro.table_constants import TableType
 
 
 class SchemaTests(unittest.TestCase):
 
     def test_schema_create(self):
+        self.maxDiff = None
         value = sb.ValueSchema(name="CUSTOMER", namespace=None)
         value.add_field("CUSTOMER_ID", ad.AvroInt(), None, False)
         value.add_field("COMPANY_NAME", ad.AvroNVarchar(length=30), None, True)
         value.add_field("ADDRESS_ID", ad.AvroInt(), None, True)
         value.add_field("EMPLOYEES", ad.AvroInt(), None, True)
         f = value.add_field("REVENUE$", ad.AvroDecimal(precision=12, scale=0), None, True)
-        f.set_data_sensitivity(DataSensitivityEnum.SENSITIVE)
+        f.set_data_sensitivity("GDPR")
         f.set_semantic_as_measure("sum(REVENUE$)")
         value.set_pks({"CUSTOMER_ID"})
         value.add_fk(sb.FKCondition(fk_name="Customer to Address", fk_schema_fqn="ADDRESS", left_field_name="ADDRESS_ID", right_field_name="ADDRESS_ID", condition="="))
         value.set_data_product_owner_email("owner@company.com")
         value.set_retention_period(dg.Duration(value=6, unit=dg.TimeUnit.YEARS.name))
-        value.add_data_classifications("GDPR")
-        value.add_data_classifications("EAR")
+        value.add_data_regulation("GDPR")
+        value.add_data_regulation("EAR")
         value.set_partition_by(["ADDRESS_ID"])
         value.set_semantic(TableType.DIMENSION)
         value.set_row_level_security([sb.RLS("CUSTOMER", "CUSTOMER_ID")])
         value.set_object_level_security(["HR"])
-        schema_str = value.get_json()
+        schema_str = value.get_avro_json()
         schema = avro.schema.parse(schema_str)
         with open("customer.avsc", "w") as avsc:
             avsc.write(schema_str)
@@ -44,24 +45,28 @@ class SchemaTests(unittest.TestCase):
         value3.add_field("ADDRESS_ID", adp.AvroInt(), None, True)
         value3.add_field("EMPLOYEES", adp.AvroInt(), None, True)
         f3 = value3.add_field("REVENUE$", adp.AvroDecimal(precision=12, scale=0), None, True)
-        f3.set_data_sensitivity(DataSensitivityEnum.SENSITIVE)
+        f3.set_data_sensitivity("GDPR")
         f3.set_semantic_as_measure("sum(REVENUE$)")
         value3.set_pks({"CUSTOMER_ID"})
         value3.add_fk(sbp.FKCondition(fk_name="Customer to Address", fk_schema_fqn="ADDRESS", conditions=[dgp.JoinCondition(left_field_name="ADDRESS_ID", right_field_name="ADDRESS_ID", condition="=")]))
         value3.set_data_product_owner_email("owner@company.com")
         value3.set_retention_period(dgp.Duration(value=6, unit=dg.TimeUnit.YEARS.name))
-        value3.add_data_classifications("GDPR")
-        value3.add_data_classifications("EAR")
+        value3.add_data_regulation("GDPR")
+        value3.add_data_regulation("EAR")
         value3.set_partition_by(["ADDRESS_ID"])
         value3.set_semantic(TableType.DIMENSION)
         value3.set_row_level_security([sbp.RLS(dimension="CUSTOMER", field="CUSTOMER_ID")])
         value3.set_object_level_security(["HR"])
-        schema_str3 = value3.model_dump_json()
+        schema_str3 = value3.get_avro_json()
         schema3 = avro.schema.parse(schema_str3)
 
         j = json.loads(schema_str)
         j3 = json.loads(schema_str3)
         self.assertCountEqual(j, j3)
+
+        value4 = sb.from_avro_json(schema_str)
+        j4 = value4.create_schema_dict()
+        self.assertEqual(j, j4)
 
 
     def test_name_encoding(self):
@@ -90,6 +95,7 @@ class SchemaTests(unittest.TestCase):
     #     writer.close()
 
     def test_schema_conversion(self):
+        self.maxDiff = None
         value = sb.ValueSchema(name="ALL_DATA_TYPES", namespace=None)
         value.add_field("D_INT", ad.AvroInt())
         value.add_field("D_NVARCHAR", ad.AvroNVarchar(length=30))
@@ -103,7 +109,7 @@ class SchemaTests(unittest.TestCase):
         value.add_field("D_DATE", ad.AvroDate())
         value.add_field("D_TIMESTAMP", ad.AvroTimestamp())
         value.add_field("D_TIMESTAMP_MICROS", ad.AvroTimestampMicros())
-        d = value.get_json()
+        d = value.get_avro_json()
 
         value3 = sbp.ValueSchema(name="ALL_DATA_TYPES", namespace=None)
         value3.add_field("D_INT", adp.AvroInt())
@@ -118,7 +124,7 @@ class SchemaTests(unittest.TestCase):
         value3.add_field("D_DATE", adp.AvroDate())
         value3.add_field("D_TIMESTAMP", adp.AvroTimestamp())
         value3.add_field("D_TIMESTAMP_MICROS", adp.AvroTimestampMicros())
-        d3 = value3.get_json()
+        d3 = value3.get_avro_json()
 
         j = json.loads(d)
         j3 = json.loads(d3)

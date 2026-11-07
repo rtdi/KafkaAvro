@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field as Pydantic_Field, Tag, Discriminator, \
 from pydantic_core.core_schema import SerializerFunctionWrapHandler
 
 from .name_encoding import decode_name, encode_name
-from .table_constants import ColumnType, DataSensitivityEnum, COLUMN_PROP_CONTENT_SENSITIVITY, \
+from .table_constants import ColumnType, COLUMN_PROP_CONTENT_SENSITIVITY, \
     COLUMN_PROP_SOURCE_DATATYPE, DEFAULT_NOT_SET, COLUMN_PROP_ORIGINAL_NAME, COLUMN_PROP_INTERNAL, COLUMN_PROP_TECHNICAL
 
 
@@ -168,7 +168,7 @@ class Field(BaseModel):
     type: datatype_annotation
     nullable: bool = Pydantic_Field(default=False, exclude=True)
     doc: Optional[str] = None
-    data_sensitivity: str = Pydantic_Field(alias=COLUMN_PROP_CONTENT_SENSITIVITY, default=DataSensitivityEnum.INTERNAL.name)
+    data_sensitivity: str = Pydantic_Field(alias=COLUMN_PROP_CONTENT_SENSITIVITY, default=None)
     source_data_type: Optional[str] = Pydantic_Field(alias=COLUMN_PROP_SOURCE_DATATYPE, default=None)
     default: Optional[Any] = Pydantic_Field(default=DEFAULT_NOT_SET, exclude_if=lambda v: v == DEFAULT_NOT_SET)
     original_name: Optional[str] = Pydantic_Field(alias=COLUMN_PROP_ORIGINAL_NAME, default=None)
@@ -226,8 +226,8 @@ class Field(BaseModel):
         else:
             return value
 
-    def set_data_sensitivity(self, data_sensitivity: DataSensitivityEnum) -> "Field":
-        self.data_sensitivity = data_sensitivity.name
+    def set_data_sensitivity(self, data_sensitivity: str) -> "Field":
+        self.data_sensitivity = data_sensitivity
         return self
 
 
