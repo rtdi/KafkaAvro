@@ -306,10 +306,9 @@ class KeySchema(RootSchema):
             self.add_field("ts", AvroTimestampMicros(), None, False)
         else:
             for pk_column in value_schema.pks:
-                pk_column_name = encode_name(pk_column)
-                f = value_schema.field_name_index[pk_column_name]
+                f = value_schema.field_name_index[pk_column]
                 if not f:
-                    raise RuntimeError(f"The column {pk_column} (encoded avro name {pk_column_name}) does not exist in the value schema {value_schema.name}")
+                    raise RuntimeError(f"The column {pk_column} does not exist in the value schema {value_schema.name}")
                 self.add_field(f.name, f.type, f.doc, False, f.internal, f.technical, f.source_data_type, f.default)
 
 class CommitSchema(ValueSchema):
