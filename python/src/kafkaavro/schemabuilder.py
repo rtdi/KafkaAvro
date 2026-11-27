@@ -8,7 +8,7 @@ from .avro_datatypes import AvroString, AvroVarchar, AvroNVarchar, AvroByte, Avr
     AvroTimestamp, RecordSchema, ArraySchema, AvroTimestampMicros, AvroLong, AvroInt, AvroBoolean, field_from_dict
 from .data_governance import FKCondition, Duration, DeletionPolicy, fks_from_dict, deletion_policy_from_dict, \
     duration_from_dict
-from .name_encoding import decode_name
+from .name_encoding import decode_name, encode_name
 from .table_constants import ROW_SOURCE_SYSTEM, ROW_SOURCE_TRANSACTION, ROW_RECORD_ID, ROW_CHANGE_TS, ROW_TYPE_FIELD, \
     ROW_TRUNCATE, SCHEMA_COLUMN_EXTENSION, TableType, SCHEMA_INFO_DATAPRODUCT_OWNER, SCHEMA_INFO_TICKETS_URL, \
     SCHEMA_INFO_REPO_URL, RETENTION_PERIOD, DELETION_POLICY, DATA_CLASSIFICATION, DATA_REGULATIONS, SOURCE_SYSTEM_URI, \
@@ -128,7 +128,7 @@ class ValueSchema(RootSchema):
                        doc="Timestamp of the transaction. All rows of the transaction have the same value.")
         self.add_field(ROW_RECORD_ID, AvroVarchar(30), internal=True, technical=True,
                        doc="Optional unique and static pointer to the row, e.g. Oracle rowid")
-        self.add_field(ROW_SOURCE_TRANSACTION, AvroVarchar(30), internal=True, technical=True,
+        self.add_field(ROW_SOURCE_TRANSACTION, AvroVarchar(255), internal=True, technical=True,
                        doc="Optional source transaction information for auditing")
         self.add_field(ROW_SOURCE_SYSTEM, AvroVarchar(30), internal=True, technical=True,
                        doc="Optional source system information for auditing")
@@ -306,7 +306,10 @@ class KeySchema(RootSchema):
             self.add_field("ts", AvroTimestampMicros(), None, False)
         else:
             for pk_column in value_schema.pks:
-                f = value_schema.field_name_index[pk_column]
+                pk_column_name = encode_name(pk_column)
+                f = value_schema.field_name_index[pk_column_name]
+                if not f:
+                    raise RuntimeError(f"The column {pk_column} (encoded avro name {pk_column_name}) does not exist in the value schema {value_schema.name}")
                 self.add_field(f.name, f.type, f.doc, False, f.internal, f.technical, f.source_data_type, f.default)
 
 class CommitSchema(ValueSchema):

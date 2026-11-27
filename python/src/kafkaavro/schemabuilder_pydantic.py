@@ -111,7 +111,7 @@ class ValueSchema(RootSchema):
                        doc="Timestamp of the transaction. All rows of the transaction have the same value.")
         self.add_field(ROW_RECORD_ID, AvroVarchar(length=30), internal=True, technical=True,
                        doc="Optional unique and static pointer to the row, e.g. Oracle rowid")
-        self.add_field(ROW_SOURCE_TRANSACTION, AvroVarchar(length=30), internal=True, technical=True,
+        self.add_field(ROW_SOURCE_TRANSACTION, AvroVarchar(length=255), internal=True, technical=True,
                        doc="Optional source transaction information for auditing")
         self.add_field(ROW_SOURCE_SYSTEM, AvroVarchar(length=30), internal=True, technical=True,
                        doc="Optional source system information for auditing")

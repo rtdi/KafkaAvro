@@ -22,6 +22,7 @@ class SchemaTests(unittest.TestCase):
         value.add_field("ADDRESS_ID", ad.AvroInt(), None, True)
         value.add_field("EMPLOYEES", ad.AvroInt(), None, True)
         f = value.add_field("REVENUE$", ad.AvroDecimal(precision=12, scale=0), None, True)
+        value.doc = "Customer Master record"
         f.set_data_sensitivity("GDPR")
         f.set_semantic_as_measure("sum(REVENUE$)")
         value.set_pks({"CUSTOMER_ID"})
@@ -45,6 +46,7 @@ class SchemaTests(unittest.TestCase):
         value3.add_field("ADDRESS_ID", adp.AvroInt(), None, True)
         value3.add_field("EMPLOYEES", adp.AvroInt(), None, True)
         f3 = value3.add_field("REVENUE$", adp.AvroDecimal(precision=12, scale=0), None, True)
+        value3.doc = "Customer Master record"
         f3.set_data_sensitivity("GDPR")
         f3.set_semantic_as_measure("sum(REVENUE$)")
         value3.set_pks({"CUSTOMER_ID"})

@@ -139,7 +139,7 @@ public class ValueSchema extends RecordSchema {
 				"Optional unqiue and static pointer to the row, e.g. Oracle rowid",
 				true).setInternal(true).setTechnical(true);
 		add(SchemaConstants.SCHEMA_COLUMN_SOURCE_TRANSACTION,
-				AvroVarchar.create(30),
+				AvroVarchar.create(255),
 				"Optional source transaction information for auditing",
 				true).setInternal(true).setTechnical(true);
 		add(SchemaConstants.SCHEMA_COLUMN_SOURCE_SYSTEM,
